@@ -1,0 +1,9 @@
+.search_list a
+{
+    color: black;
+    text-decoration: none;
+    position:static;
+    padding: 12px 16px;
+   display: flex;
+   flex-direction: column;
+}
