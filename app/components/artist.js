@@ -109,8 +109,6 @@ export default class ArtistPost extends React.Component
 	constructor(props)
 	{
 		super(props);
-		console.log("ARTIST PAGE")
-		console.log(props);
 	}
 
 	render()

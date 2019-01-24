@@ -1,11 +1,12 @@
 var path = require('path');
 var express = require('express');
 var ReactDOMServer = require('react-dom/server');
-var post_router = require('./api/api.js')
 var mysql = require('mysql')
 var cookieParser = require('cookie-parser');
+var bodyParser = require('body-parser');
+var uuidv3 = require('uuid/v3');
+var Spotify = require('node-spotify-api');
 
-//var {MainApp} = require('../components/App.js');
 import React from 'react';
 const app = express();
 
@@ -18,10 +19,11 @@ import { StaticRouter } from 'react-router-dom';
 import Home from '../components/Home.js';
 
 app.use(publicPath);
-app.use('/', post_router)
 app.use(cookieParser());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false })); 
 
-var POST_LIMIT = 2;
+var POST_LIMIT = 5;
 var COMMENT_LIMIT = 5;
 var RELEVANT_TIMESTAMP_MAX_AMOUNT = 100;
 
@@ -33,15 +35,31 @@ var connection = mysql.createConnection({
   multipleStatements: true
 });
 
+function update_replies(parent_id)
+{
+	if (parent_id == -1) 
+	{
+		return;
+	}
+	var update_sql = "UPDATE comments SET replies = replies + 1 WHERE comment_id = '" + parent_id + "'";
+	connection.query(update_sql, function (err, result, fields){
+
+		var comment_sql = "SELECT * FROM comments WHERE comment_id = '" + parent_id + "'";
+		connection.query(comment_sql, function (err, result, fields)
+		{
+			if (result != undefined && result.length != 0)
+			{
+				update_replies(result[0]['parent_comment_id']);
+			}
+		});
+
+	});
+}
+
 function MergeSortPosts(list1, list2, list1_full=false, list2_full=false)
 {
 	var list1_index = 0;
 	var list2_index = 0;
-    console.log("LISTS")
-    console.log(list1.length)
-    console.log(list1)
-    console.log(list2.length)
-    console.log(list2)
     var merged = [];
     while (true)
 	{
@@ -49,35 +67,25 @@ function MergeSortPosts(list1, list2, list1_full=false, list2_full=false)
 		if (list1.length == 0)
 		{
 			merged = list2;
-			console.log(0);
-			console.log(merged)
 			return [list2, list2_full]
 		}
 		if (list2.length == 0)
 		{
 			merged = list1;
-			console.log(1)
-			console.log(merged)
 			return [list1, list1_full]
 		}
 		if ((list1_full && list1_index >= list1.length - 1) ||
 			(list2_full && list2_index >= list2.length - 1))
 		{
-			console.log(2)
-			console.log(merged)
 			return [merged, true]
 		}
 		else if (list1_index >= list1.length)
 		{
-			console.log(3)
-			console.log(merged)
 			merged.push(list2.slice(list2_index));
 			return [merged, false];
 		}
 		else if (list2_index >= list2.length)
 		{
-			console.log(4)
-			console.log(merged)
 			merged.push(list1.slice(list1_index));
 			return [merged, false];
 		}
@@ -86,14 +94,11 @@ function MergeSortPosts(list1, list2, list1_full=false, list2_full=false)
 	    	if (list1[list1_index]['score'] >= list2[list2_index]['score'])
 	    	{
 	    		merged.push(list1[list1_index]);
-	    		console.log("+list1")
 	    		++list1_index;
 	    	}
 	    	else
 	    	{
 	    		merged.push(list2[list2_index]);
-
-	    		console.log("+list2")
 	    		++list2_index;	
 	    	}
 		}
@@ -107,8 +112,8 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 	connection.query(follows_sql, function (err, result, fields) 
 	{
 		var followed_artists = "";
-		var followed_users = ""
-		for (follow of result)
+		var followed_users = "";
+		for (var follow of result)
 		{
 			if (follow.type == 1)
 			{
@@ -146,27 +151,19 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 		connection.query(priority_sql, function (err, result, fields) 
 		{
 			var priority_results = result;
-			console.log(priority_sql)
 			var sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (timestamp - CURRENT_TIMESTAMP)/45000 ELSE LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - CURRENT_TIMESTAMP)/45000 END as score FROM user_content WHERE username NOT in " + followed_users + " AND artist NOT in " + followed_artists + " ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + non_priority_offset;
-			console.log(sql);
 			connection.query(sql, function (err, result, fields)  
 			{
 			    if (err) throw err;
 			    var non_priority_results = result;
 				var priority_global_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (relevant_timestamp - CURRENT_TIMESTAMP)/45000 ELSE LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (relevant_timestamp - CURRENT_TIMESTAMP)/45000 END as score FROM global_posts WHERE artist in " + followed_artists + " ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + global_offset;
-				console.log(priority_global_sql)
 				connection.query(priority_global_sql, function (err, result, fields) 
 				{
 					var priority_global_results = result;
-
 					var non_priority_global_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (relevant_timestamp - CURRENT_TIMESTAMP)/45000 ELSE LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (relevant_timestamp - CURRENT_TIMESTAMP)/45000 END as score FROM global_posts WHERE artist NOT in " + followed_artists + " ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + non_priority_global_offset;
-					console.log(non_priority_global_sql)
 					connection.query(non_priority_global_sql, function (err, result, fields) 
 					{					
-						console.log("first");
-						console.log(priority_results);
-						console.log("second")
-						console.log(non_priority_results);
+
 						var non_priority_global_results = result;
 					    var PRIORITY_MODIFIER = 2
 					    //increase the score of the priority posts
@@ -202,17 +199,12 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 
 					    //merge sort the two lists
 					    // test if priority result or result doesn't exist
-					    console.log("FIRST MERGE");
 					    var merged_user = MergeSortPosts(priority_results, non_priority_results, 
 					    								 priority_results.length == modified_limit, non_priority_results.length == modified_limit)
-					    console.log("SECOND MERGE");
 					    var merged_priority_global = MergeSortPosts(merged_user[0], priority_global_results,
 					    											merged_user[1], priority_global_results.length == modified_limit);
-					    console.log("THIRD MERGE");
 					    var merged_result = MergeSortPosts(merged_priority_global[0], non_priority_global_results,
 					    								   merged_priority_global[1], non_priority_global_results.length == modified_limit); 
-					    console.log("RESULT");
-					    console.log(merged_result);
 					    merged_result = merged_result[0]
 					    var songs_list = [];
 						var post_ids = ""
@@ -242,8 +234,6 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 							}
 							connection.query(num_comments_sql, function (err, result, fields) 
 							{
-								console.log(num_comments_sql);
-								console.log(result);
 								var num_comments_list = [];
 								if (result != undefined)
 								{
@@ -255,16 +245,15 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 									{
 										for (i =0; i < result.length; ++i)
 										{
-											num_comments_list.push({'count':result[i][0]["COUNT(comment_id)"], 'post_id':result[i][0]["post_id"] });
+											if (result[i][0]["post_id"] != null)
+											{
+												num_comments_list.push({'count':result[i][0]["COUNT(comment_id)"], 'post_id':result[i][0]["post_id"] });
+											}
+											
 										}
 									}	
 								}
-								var priorities_sql = "SELECT * FROM follows WHERE post_id in (" + post_ids + ")";
-								connection.query(num_comments_sql, function (err, result, fields) 
-								{
-									callback(songs_list, likes_list, result);
-								});
-
+								callback(songs_list, likes_list, num_comments_list);
 							});			
 						});
 					});
@@ -276,10 +265,6 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 
 function SendFeed(req, res, limit)
 {
-	console.log(parseInt(req.body.offset))
-		console.log(parseInt(req.body.non_priority_offset))
-		console.log(parseInt(req.body.global_offset))
-		console.log(parseInt(req.body.non_priority_global_offset))
 	var data = GetFeed(req, res, 
 		function (songs_list, likes_list, num_comments_list) {
 			res.send(
@@ -295,16 +280,82 @@ function SendFeed(req, res, limit)
 		parseInt(req.body.global_offset),
 		parseInt(req.body.non_priority_global_offset),
 		POST_LIMIT);
-	console.log("SENDING FEED");
-	console.log(req.body.offset);
 }
 
-function GetComments(level, limit, post_id, comment_ids, offset = 0)
+function RenderFeed(req, res)
+{
+	var data = GetFeed(req, res, 
+		function (songs_list, likes_list, num_comments_list) {
+
+			// res.render('pages/feed', 
+			// {
+			// 	songs: songs_list,
+			// 	likes: likes_list,
+			// 	num_comments: num_comments_list,
+			// });	
+			var data = {songs: songs_list,
+						likes: likes_list,
+						num_comments: num_comments_list,}
+			//var html = ReactDOMServer.renderToString(<StaticRouter location={req.url} context={context}><App data = {data}/></StaticRouter>)
+			//var html = ReactDOMServer.renderToString(<Home test= "testing"/>)
+
+			var html = renderPage(req.url, data);
+			res.send(html);
+
+		}, 
+		0, 
+		0,
+		0,
+		0,
+		POST_LIMIT);
+
+}
+
+function GetCommentChildren(comment_ids, comments, comment_votes, username, res, offset=  0)
+{
+	var comment_sql = "SELECT *, ((upvotes + 1.9208) / (upvotes + downvotes) - 1.96 * SQRT((upvotes * downvotes) / (upvotes + downvotes) + 0.9604) / (upvotes + downvotes)) / (1 + 3.8416 / (upvotes + downvotes)) AS order_score FROM comments WHERE parent_comment_id in (" + comment_ids + ") ORDER by order_score DESC LIMIT 18446744073709551615 OFFSET " + offset;
+	connection.query(comment_sql, function (err, result, fields) 
+	{
+		if (result == undefined)
+		{
+			res.send({comments:comments,
+					  comment_votes:comment_votes});
+		}
+		
+		else
+		{
+			var comment_result = result;
+			var comment_votes_sql = "SELECT comment_id, vote_state FROM comment_votes WHERE comment_id in (" + comment_ids + ") and user_id = '" + username + "'";
+			connection.query(comment_votes_sql, function(err, result, fields)
+			{
+				comment_ids = ""
+				for (var comment of comment_result)
+				{
+					comments.push(comment);
+					if (comment_ids.length != 0)
+					{
+						comment_ids += ", ";
+					}
+					comment_ids += "'" + comment.comment_id + "'";
+				}
+
+				for (var comment_vote of result)
+				{
+					comment_votes.push(comment_vote)
+				}
+				GetCommentChildren(comment_ids, comments, comment_votes, username, res)				
+			});
+
+		}
+	});
+}
+
+
+function GetComments(level, limit, post_id, comment_ids, username, offset = 0)
 {
 	return new Promise(function(resolve, reject) {
 
 		var sql = "SELECT *, ((upvotes + 1.9208) / (upvotes + downvotes) - 1.96 * SQRT((upvotes * downvotes) / (upvotes + downvotes) + 0.9604) / (upvotes + downvotes)) / (1 + 3.8416 / (upvotes + downvotes)) AS order_score FROM comments WHERE post_id = '" + String(post_id) +"'  AND comment_level = " + level + " AND parent_comment_id in (" + comment_ids + ") ORDER by order_score DESC LIMIT " + limit + " OFFSET " + offset;
-		console.log(sql);
 		connection.query(sql, function (err, result, fields) 
 		{
 			var comment_ids = "";
@@ -324,10 +375,8 @@ function GetComments(level, limit, post_id, comment_ids, offset = 0)
 			}
 			if (comment_ids.length > 0) 
 			{
-				console.log(comment_ids)
 				comment_ids = comment_ids.substring(0, comment_ids.length-1)
-				var comment_votes_sql = "SELECT comment_id, vote_state FROM comment_votes WHERE comment_id in (" + comment_ids + ") ";
-				console.log(comment_votes_sql);
+				var comment_votes_sql = "SELECT comment_id, vote_state FROM comment_votes WHERE comment_id in (" + comment_ids + ") and user_id = '" + username + "'";
 				connection.query(comment_votes_sql, function (err, result, fields) 
 				{
 					var comment_votes_list = [];
@@ -476,73 +525,49 @@ function renderPage(url, data)
 {
 	var html = ReactDOMServer.renderToString(<StaticRouter location={url} context={context}><App data = {data}/></StaticRouter>)
 	html = ' <script>window.__DATA__ = ' + JSON.stringify(data) + '</script>' + html 
-	console.log(html);
 	return html;
 }
 
 var context = {};
 
+app.post('/register', function(req, res)
+{
+	if (req.body.password == req.body.password_confirm)
+	{
+		var sql = "INSERT INTO accounts (username, password) VALUES ('" + req.body.username + "', '" + req.body.password + "')";
+		connection.query(sql, function (err, result) {
+	    	if (err) throw err;
+  		});
+	}
+	//res.send();
+}); 
+
+
+
 app.get('/', (req, res) => {
-	//var html = ReactDOMServer.renderToString(<StaticRouter location={req.url} context={context}><App/></StaticRouter>)
-	//var html = ReactDOMServer.renderToString(<Home test= "testing"/>)
-	// html = renderPage(html, {});
-	// console.log(html);
-	// res.send(html);
-
-	var data = GetFeed(req, res, 
-		function (songs_list, likes_list, num_comments_list) {
-
-			// res.render('pages/feed', 
-			// {
-			// 	songs: songs_list,
-			// 	likes: likes_list,
-			// 	num_comments: num_comments_list,
-			// });	
-			var data = {songs: songs_list,
-									likes: likes_list,
-									num_comments: num_comments_list,}
-			//var html = ReactDOMServer.renderToString(<StaticRouter location={req.url} context={context}><App data = {data}/></StaticRouter>)
-			//var html = ReactDOMServer.renderToString(<Home test= "testing"/>)
-
-			var html = renderPage(req.url, data);
-			console.log(html);
-			res.send(html);
-
-		}, 
-		0, 
-		0,
-		0,
-		0,
-		POST_LIMIT);
+	RenderFeed(req, res);
 
 })
 
 
 app.get('/about', (req, res) => {
 	var html = renderPage(req.url, {});
-	console.log(html);
 	res.send(html);
 })
 
 app.get('/user/:user/:post_id', function (req, res) {
 
 	var sql = "SELECT * FROM user_content WHERE username = '" + req.params.user + "'" + " AND id = '" + req.params.post_id + "'";
-	console.log(sql);
 	connection.query(sql, function (err, result, fields) 
 	{
 		var user_post = result;
 		var current_post_id = "";
-		console.log(user_post)
 
-		var comment_promise_0 = GetComments(0, COMMENT_LIMIT, req.params.post_id, -1)
+		var comment_promise_0 = GetComments(0, COMMENT_LIMIT, req.params.post_id, -1, req.cookies.username)
 		comment_promise_0.then(function(response_0) {
-			console.log("RESPONSE 0")
-			console.log(response_0)
-		  var comment_promise_1 = GetComments(1, COMMENT_LIMIT, req.params.post_id, response_0['comment_ids'])
+		  var comment_promise_1 = GetComments(1, COMMENT_LIMIT, req.params.post_id, response_0['comment_ids'], req.cookies.username)
 		  comment_promise_1.then(function(response_1) {
-		  	  console.log("RESPONSE 1");
-		  	  console.log(response_1);
-			  var comment_promise_2 = GetComments(2, COMMENT_LIMIT, req.params.post_id, response_1['comment_ids'])
+			  var comment_promise_2 = GetComments(2, COMMENT_LIMIT, req.params.post_id, response_1['comment_ids'], req.cookies.username)
 			  comment_promise_2.then(function(response_2) {
 
 			  	  var all_comments = []
@@ -574,6 +599,7 @@ app.get('/user/:user/:post_id', function (req, res) {
 			  	  }
 			  	  if (user_post.length = 1)
 			  	  	user_post = user_post[0];
+
 					var data = {
 					  user_post: user_post,
 					  comments: all_comments,
@@ -603,7 +629,6 @@ app.get('/user/:user/', (req, res) => {
 	connection.query(sql, function (err, result, fields) 
 	{
 	    if (err) throw err;
-	    //console.log(result);
 	    var songs_list = [];
 		var post_ids = ""
 	    for (var i =0; i < result.length; ++i)
@@ -626,8 +651,8 @@ app.get('/user/:user/', (req, res) => {
 				var num_comments_sql ="";
 				for (var id of post_ids.split(","))
 				{
-					num_comments_sql = num_comments_sql + "SELECT COUNT(comment_id), post_id FROM comments WHERE user_id = '" + req.cookies.username 
-										+ "'" + "AND post_id =" + id + " UNION " ;
+					//user_id = '" + req.cookies.username + "'" + "AND
+					num_comments_sql = num_comments_sql + "SELECT COUNT(comment_id), post_id FROM comments WHERE post_id =" + id + " UNION " ;
 				}
 				num_comments_sql = num_comments_sql.substr(0, num_comments_sql.length-6);
 			}
@@ -653,12 +678,11 @@ app.get('/user/:user/', (req, res) => {
 						var user_sql = "SELECT * FROM accounts WHERE username = '" + req.params.user +"'";
 						connection.query(user_sql, function (err, result, fields) 
 						{
-							console.log(result);
 							var data = {
 								songs: songs_list,
 								likes: likes_list,
 								num_comments: num_comments_list,
-								follows: follows_data,
+								follows: follows_data.length,
 								followees: followees,
 								user: result[0],
 							}
@@ -712,7 +736,6 @@ app.get('/artist/:artist/', (req, res) => {
 			}
 
 			var priorities = {}
-			console.log(album_data)
 			var album_post_data = AggregateLikes(num_album_comments_list, album_data, []);
 			var ordered_song_data = SortPosts(album_post_data);
 			var ordered_albums = OrderPosts(ordered_song_data, album_data);
@@ -720,7 +743,6 @@ app.get('/artist/:artist/', (req, res) => {
 			var song_post_ids = "";
 			connection.query(song_sql, function (err, result, fields) 
 			{
-				console.log(result);
 			    for (i =0; i < result.length; ++i)
 				{
 					song_post_ids = song_post_ids + "'" + result[i].post_id + "',"
@@ -938,17 +960,11 @@ app.get('/post/:artist/:song', function (req, res) {
 				user_like_state = result[0].like_state;
 			}
 
-			console.log("WAGNDLKAGNA")
-			console.log(content[0]['post_id']);
-			var comment_promise_0 = GetComments(0, COMMENT_LIMIT, content[0]['post_id'], -1)
+			var comment_promise_0 = GetComments(0, COMMENT_LIMIT, content[0]['post_id'], -1, req.cookies.username)
 			comment_promise_0.then(function(response_0) {
-				console.log("RESPONSE 0")
-				console.log(response_0)
-			  var comment_promise_1 = GetComments(1, COMMENT_LIMIT, content[0]['post_id'], response_0['comment_ids'])
+			  var comment_promise_1 = GetComments(1, COMMENT_LIMIT, content[0]['post_id'], response_0['comment_ids'], req.cookies.username)
 			  comment_promise_1.then(function(response_1) {
-			  	  console.log("RESPONSE 1");
-			  	  console.log(response_1);
-				  var comment_promise_2 = GetComments(2, COMMENT_LIMIT, content[0]['post_id'], response_1['comment_ids'])
+				  var comment_promise_2 = GetComments(2, COMMENT_LIMIT, content[0]['post_id'], response_1['comment_ids'], req.cookies.username)
 				  comment_promise_2.then(function(response_2) {
 
 				  	  var all_comments = []
@@ -978,9 +994,6 @@ app.get('/post/:artist/:song', function (req, res) {
 				  	  {
 				  	  	  all_comment_votes.push(comment_vote);
 				  	  }
-
-
-
 						var data = 
 						{
 							data: content[0],
@@ -1040,17 +1053,11 @@ app.get('/album/:artist/:album', function (req, res) {
 					}
 					if (post_ids.length > 0) post_ids = post_ids.substring(0, post_ids.length-1);
 				}
-
-					console.log(content);
-					var comment_promise_0 = GetComments(0, COMMENT_LIMIT, content[0].post_id, -1)
+					var comment_promise_0 = GetComments(0, COMMENT_LIMIT, content[0].post_id, -1, req.cookies.username)
 					comment_promise_0.then(function(response_0) {
-						console.log("RESPONSE 0")
-						console.log(response_0)
-					  var comment_promise_1 = GetComments(1, COMMENT_LIMIT, content[0].post_id, response_0['comment_ids'])
+					  var comment_promise_1 = GetComments(1, COMMENT_LIMIT, content[0].post_id, response_0['comment_ids'], req.cookies.username)
 					  comment_promise_1.then(function(response_1) {
-					  	  console.log("RESPONSE 1");
-					  	  console.log(response_1);
-						  var comment_promise_2 = GetComments(2, COMMENT_LIMIT, content[0].post_id, response_1['comment_ids'])
+						  var comment_promise_2 = GetComments(2, COMMENT_LIMIT, content[0].post_id, response_1['comment_ids'], req.cookies.username)
 						  comment_promise_2.then(function(response_2) {
 
 						  	  var all_comments = []
@@ -1085,13 +1092,11 @@ app.get('/album/:artist/:album', function (req, res) {
 
 						      var data =
 							  {
-								  data: content[0],
+								  global_post: content[0],
 								  comments: all_comments,
 								  comment_votes:all_comment_votes,
 								  like_state: user_like_state,
 							  };
-							  console.log("ADGSNGLKSNDKNG");
-							  console.log(data);
 								var html = renderPage(req.url, data)
 								res.send(html);
 
@@ -1119,6 +1124,27 @@ app.get('/login', function(req, res)
 	res.send(html);
 });
 
+app.post('/login', function(req, res)
+{
+	var sql = "SELECT * FROM accounts where username = '" + req.body.username + "' AND password = '"+ req.body.password +"'";
+	connection.query(sql, function (err, result, fields) {
+	    if (err) throw err;
+	    var login_message = "Login Failure";
+	    if (result.length!= 0)
+	    {
+			res.cookie('username', result[0].username);
+			var data = {login_message:"Login Successful"}
+			res.send(data);			
+	    }
+	    else
+	    {
+			var data = {login_message:"Login Failed"}
+			res.send(data);
+	    }
+
+  	});
+});
+
 app.get('/register', function(req, res)
 {
 	var data = {}
@@ -1133,7 +1159,6 @@ app.get('/followers/:user', function (req, res) {
 		var data = 
 		{
 			followers: result,
-
 		};	
 		var html = renderPage(req.url, data)
 		res.send(html);
@@ -1152,6 +1177,558 @@ app.get('/following/:user', function (req, res) {
 		res.send(html);
 	});
 });
+
+app.post('/follow', function (req, res)
+{
+
+	var date = String(new Date().getTime());
+	var check_sql = "SELECT * from follows where user_id = '" + req.cookies.username + "' AND followee_id = '" + req.body.followee_id + "'";
+	connection.query(check_sql, function (err, result, fields){
+		if (result.length != 0)
+		{
+			var follow_sql = "DELETE from follows WHERE user_id = '" + req.cookies.username + "' AND followee_id = '"+ req.body.followee_id + "'";
+			connection.query(follow_sql, function (err, result, fields){
+				res.send({})
+			});			
+				
+		} else 
+		{
+			var follow_sql = "INSERT into follows (timestamp, user_id, followee_id) VALUES(" + date + ", '" + req.cookies.username + "', '"+ req.body.followee_id + "')"
+			connection.query(follow_sql, function (err, result, fields){
+				res.send({})
+			});							
+		}
+	});
+});
+
+app.post('/like', function (req, res)
+{
+	var sql = "UPDATE user_content SET likes = likes + 1 WHERE post_id = '" + req.body.id + "'";
+	var user_sql = "UPDATE accounts SET upvotes = upvotes + 1 WHERE username = '" + req.body.user + "'";
+	var modify_sql = "INSERT INTO likes (post_id, user_id, like_state) VALUES('" + req.body.id + "', '" + req.cookies.username + "'," + '1' + ")";
+	var sql_check = "SELECT like_state FROM likes WHERE user_id = '" + req.cookies.username + "' AND post_id = '" + req.body.id + "'";
+	var like_state = 1;
+	connection.query(sql_check, function (err, result, fields) 
+	{
+		if (result.length != 0)
+		{
+			if (result[0]['like_state'] == 1)
+			{
+				//already liked post
+				user_sql = "UPDATE accounts SET upvotes = upvotes - 1 WHERE username = '" + req.body.user + "'";
+				sql = "UPDATE user_content SET likes = likes - 1 WHERE post_id = '" + req.body.id + "'";
+				modify_sql = "DELETE FROM likes WHERE user_id = '" + req.cookies.username + "' AND post_id = '" + req.body.id + "'";
+				like_state = -1
+			}
+			else 
+			{
+				//already unliked post
+				user_sql = "UPDATE accounts SET upvotes = upvotes + 1 WHERE username = '" + req.body.user + "';" +
+							"UPDATE accounts SET downvotes = downvotes - 1 WHERE username = '" + req.body.user + "'";
+				sql = "UPDATE user_content SET likes = likes + 1 WHERE post_id = '" +  req.body.id + "';" + 
+					  "UPDATE user_content SET dislikes = dislikes - 1 WHERE post_id = '" + req.body.id + "'";
+				modify_sql = "UPDATE likes SET like_state = 1 WHERE user_id = '" + req.cookies.username + "' AND post_id = '" + req.body.id + "'";
+				like_state = 1
+			}
+		}			
+		connection.query(modify_sql, function (err, result, fields){
+			connection.query(sql, function (err, result, fields){
+				connection.query(user_sql, function (err, result, fields){
+					var data_sql = "SELECT likes, dislikes FROM user_content WHERE post_id = '" + req.body.id + "'";
+					connection.query(data_sql, function (err, result, fields) 
+					{
+						var likes_score = 0;
+						if (result.length != 0)
+						{
+							likes_score = result[0].likes -  result[0].dislikes;
+							res.send({likes_score: likes_score,
+									  like_state: like_state})
+						}
+
+					});
+
+				});
+			});
+		});
+	});
+});
+
+app.post('/dislike', function (req, res)
+{
+	var sql = "UPDATE user_content SET dislikes = dislikes + 1 WHERE post_id = '" + req.body.id + "'";
+	var user_sql = "UPDATE accounts SET downvotes = downvotes + 1 WHERE username = '" + req.body.user + "'";
+	var modify_sql = "INSERT INTO likes (post_id, user_id, like_state) VALUES('" + req.body.id + "', '" + req.cookies.username + "'," + '0' + ")";
+	var sql_check = "SELECT like_state FROM likes WHERE user_id = '" + req.cookies.username + "' AND post_id = '" + req.body.id + "'";
+	var like_state = 0;
+	connection.query(sql_check, function (err, result, fields) 
+	{
+		if (result.length != 0)
+		{
+			if (result[0]['like_state'] == 0)
+			{
+				//already unliked post
+				user_sql = "UPDATE accounts SET downvotes = downvotes - 1 WHERE username = '" + req.body.user + "'";
+				sql = "UPDATE user_content SET dislikes = dislikes - 1 WHERE post_id = '" + req.body.id + "'";
+				modify_sql = "DELETE FROM likes WHERE user_id = '" + req.cookies.username + "' AND post_id = '" + req.body.id + "'";
+				like_state = -1;
+			}
+			else 
+			{
+				//already liked post
+				user_sql = "UPDATE accounts SET upvotes = upvotes - 1 WHERE username = '" + req.body.user + "';" +
+							"UPDATE accounts SET downvotes = downvotes + 1 WHERE username = '" + req.body.user + "'";
+				sql = "UPDATE user_content SET likes = likes - 1 WHERE post_id = '" +  req.body.id + "';" + 
+					  "UPDATE user_content SET dislikes = dislikes + 1 WHERE post_id ='" + req.body.id + "'";
+				modify_sql = "UPDATE likes SET like_state = 0 WHERE user_id = '" + req.cookies.username + "' AND post_id = '" + req.body.id + "'";
+				like_state = 0;
+			}
+		}			
+		connection.query(modify_sql, function (err, result, fields){
+			connection.query(sql, function (err, result, fields){
+				connection.query(user_sql, function (err, result, fields){
+					var data_sql = "SELECT likes, dislikes FROM user_content WHERE post_id = '" + req.body.id + "'";
+					connection.query(data_sql, function (err, result, fields) 
+					{
+						var likes_score = 0;
+						if (result.length != 0)
+						{
+							likes_score = result[0].likes -  result[0].dislikes;
+							res.send({likes_score: likes_score,
+									  like_state: like_state})
+						}			
+					});
+				});
+			});
+		});
+	});
+});
+
+app.post('/global_like', function (req, res)
+{
+	var sql = "UPDATE global_posts SET likes = likes + 1 WHERE post_id = '" + req.body.id + "'";
+	var modify_sql = "INSERT INTO likes (post_id, user_id, like_state) VALUES('" + req.body.id + "', '" + req.cookies.username + "'," + '1' + ")";
+	var sql_check = "SELECT like_state FROM likes WHERE user_id = '" + req.cookies.username + "' AND post_id = '" + req.body.id + "'";
+	var like_state = 1;
+	connection.query(sql_check, function (err, result, fields) 
+	{
+		if (result.length != 0)
+		{
+			if (result[0]['like_state'] == 1)
+			{
+				//already liked post
+				sql = "UPDATE global_posts SET likes = likes - 1 WHERE post_id = '" + req.body.id + "';";
+				modify_sql = "DELETE FROM likes WHERE user_id = '" + req.cookies.username + "' AND post_id = '" + req.body.id + "'";
+				like_state = -1
+			}
+			else 
+			{
+				//already unliked post
+				sql = "UPDATE global_posts SET dislikes = dislikes - 1 WHERE post_id = '" +  req.body.id + "';" + 
+					  "UPDATE global_posts SET likes = likes + 1 WHERE post_id = '" +  req.body.id + "'";
+				modify_sql = "UPDATE likes SET like_state = 1 WHERE user_id = '" + req.cookies.username + "' AND post_id = '" + req.body.id + "'";
+				like_state = 1
+			}
+		}			
+		connection.query(modify_sql, function (err, result, fields){
+			connection.query(sql, function (err, result, fields){
+				//RenderFeed(req, res);
+				var timestamp = String(new Date().getTime());
+				var relevant_timestamp_sql = "UPDATE global_posts set relevant_timestamp = CASE" + 
+												" WHEN likes + dislikes = 0 THEN " + timestamp + 
+												" WHEN relevant_timestamp + (" + timestamp + "- relevant_timestamp) / (0.5 * (((likes + dislikes) + " + RELEVANT_TIMESTAMP_MAX_AMOUNT + ") - ABS((likes + dislikes) - " + RELEVANT_TIMESTAMP_MAX_AMOUNT + "))) > " + timestamp + " THEN " + timestamp + 
+												" ELSE relevant_timestamp + (" + timestamp + " - relevant_timestamp) / (0.5 * (((likes + dislikes) + " + RELEVANT_TIMESTAMP_MAX_AMOUNT + ") - ABS((likes + dislikes) - " + RELEVANT_TIMESTAMP_MAX_AMOUNT + "))) END " +
+											" WHERE post_id = '" + req.body.id + "'";
+				connection.query(relevant_timestamp_sql, function (err, result, fields){
+					var data_sql = "SELECT likes, dislikes FROM global_posts WHERE post_id = '" + req.body.id + "'";
+					connection.query(data_sql, function (err, result, fields) 
+					{
+						var likes_score = 0;
+						if (result.length != 0)
+						{
+							likes_score = result[0].likes -  result[0].dislikes;
+							res.send({likes_score: likes_score,
+									  like_state: like_state})
+						}				
+					});
+				});
+			});
+		});
+	});
+});
+
+app.post('/global_dislike', function (req, res)
+{
+	var sql = "UPDATE global_posts SET dislikes = dislikes + 1 WHERE post_id = '" + req.body.id + "'";
+	var modify_sql = "INSERT INTO likes (post_id, user_id, like_state) VALUES('" + req.body.id + "', '" + req.cookies.username + "'," + '0' + ")";
+	var sql_check = "SELECT like_state FROM likes WHERE user_id = '" + req.cookies.username + "' AND post_id = '" + req.body.id + "'";
+	var like_state = 0
+	connection.query(sql_check, function (err, result, fields) 
+	{
+		if (result.length != 0)
+		{
+			if (result[0]['like_state'] == 0)
+			{
+				//already unliked post
+				sql = "UPDATE global_posts SET dislikes = dislikes - 1 WHERE post_id = '" + req.body.id +"'";
+				modify_sql = "DELETE FROM likes WHERE user_id = '" + req.cookies.username + "' AND post_id = '" + req.body.id + "'";
+				like_state = -1
+			}
+			else 
+			{
+				//already liked post
+				sql = "UPDATE global_posts SET dislikes = dislikes + 1 WHERE post_id = '" +  req.body.id + "' ;" + 
+					  "UPDATE global_posts SET likes = likes - 1 WHERE post_id = '" +  req.body.id + "'";
+				modify_sql = "UPDATE likes SET like_state = 0 WHERE user_id = '" + req.cookies.username + "' AND post_id = '" + req.body.id + "'";
+				like_state = 0
+			}
+		}			
+		connection.query(modify_sql, function (err, result, fields){
+			connection.query(sql, function (err, result, fields){
+				//RenderFeed(req, res);
+				var timestamp = String(new Date().getTime());
+
+
+
+				var relevant_timestamp_sql = "UPDATE global_posts set relevant_timestamp = CASE" + 
+												" WHEN likes + dislikes = 0 THEN " + timestamp + 
+												" WHEN relevant_timestamp + (" + timestamp + "- relevant_timestamp) / (0.5 * (((likes + dislikes) + " + RELEVANT_TIMESTAMP_MAX_AMOUNT + ") - ABS((likes + dislikes) - " + RELEVANT_TIMESTAMP_MAX_AMOUNT + "))) > " + timestamp + " THEN " + timestamp + 
+												" ELSE relevant_timestamp + (" + timestamp + " - relevant_timestamp) / (0.5 * (((likes + dislikes) + " + RELEVANT_TIMESTAMP_MAX_AMOUNT + ") - ABS((likes + dislikes) - " + RELEVANT_TIMESTAMP_MAX_AMOUNT + "))) END " +
+											" WHERE post_id = '" + req.body.id + "'";
+				connection.query(relevant_timestamp_sql, function (err, result, fields){
+					var data_sql = "SELECT likes, dislikes FROM global_posts WHERE post_id = '" + req.body.id + "'";
+					connection.query(data_sql, function (err, result, fields) 
+					{
+						var likes_score = 0;
+						if (result.length != 0)
+						{
+							likes_score = result[0].likes -  result[0].dislikes;
+							res.send({likes_score: likes_score,
+									  like_state: like_state})
+						}				
+					});
+				});
+			});
+		});
+	});
+});
+
+app.post('/upvote', function (req, res)
+{
+	var sql = "UPDATE comments SET upvotes = upvotes + 1 WHERE comment_id = '" +  req.body.id +"'"
+	var modify_sql = "INSERT INTO comment_votes (comment_id, user_id, vote_state) VALUES('" + req.body.id + "', '" + req.cookies.username + "'," + '1' + ")";
+	var sql_check = "SELECT vote_state FROM comment_votes WHERE user_id = '" + req.cookies.username + "' AND comment_id = '" + req.body.id + "'";
+	connection.query(sql_check, function (err, result, fields) 
+	{
+		if (result.length != 0)
+		{
+			if (result[0]['vote_state'] == 1)
+			{
+				//already liked post
+				sql = "UPDATE comments SET upvotes = upvotes - 1 WHERE comment_id = '" + req.body.id + "'";
+				modify_sql = "DELETE FROM comment_votes WHERE user_id = '" + req.cookies.username + "' AND comment_id = '" + req.body.id + "'";
+			}
+			else 
+			{
+				//already unliked post
+				sql = "UPDATE comments SET upvotes = upvotes + 1 WHERE comment_id = '" +  req.body.id +"';" + 
+					  "UPDATE comments SET downvotes = downvotes - 1 WHERE comment_id = '" + req.body.id + "'";
+				modify_sql = "UPDATE comment_votes SET vote_state = 1 WHERE user_id = '" + req.cookies.username + "' AND comment_id = '" + req.body.id + "'";
+			}
+		}			
+		connection.query(modify_sql, function (err, result, fields){
+			connection.query(sql, function (err, result, fields){
+				res.send({})
+			});
+		});
+	});
+});
+
+app.post('/downvote', function (req, res)
+{
+	var sql = "UPDATE comments SET downvotes = downvotes + 1 WHERE comment_id = '" +  req.body.id +"'";
+	var modify_sql = "INSERT INTO comment_votes (comment_id, user_id, vote_state) VALUES('" + req.body.id + "', '" + req.cookies.username + "'," + '0' + ")";
+	var sql_check = "SELECT vote_state FROM comment_votes WHERE user_id = '" + req.cookies.username + "' AND comment_id = '" + req.body.id +"'";
+	connection.query(sql_check, function (err, result, fields) 
+	{
+
+		if (result.length != 0)
+		{
+			if (result[0]['vote_state'] == 0)
+			{
+				//already unliked post
+				sql = "UPDATE comments SET downvotes = downvotes - 1 WHERE comment_id = '" + req.body.id + "'";
+				modify_sql = "DELETE FROM comment_votes WHERE user_id = '" + req.cookies.username + "' AND comment_id = '" + req.body.id + "'";
+			}
+			else 
+			{
+				//already liked post
+				sql = "UPDATE comments SET upvotes = upvotes - 1 WHERE comment_id = '" +  req.body.id + "';" + 
+					  "UPDATE comments SET downvotes = downvotes + 1 WHERE comment_id = '" + req.body.id + "'";
+				modify_sql = "UPDATE comment_votes SET vote_state = 0 WHERE user_id = '" + req.cookies.username + "' AND comment_id = '" + req.body.id +"'";
+			}
+		}			
+		connection.query(modify_sql, function (err, result, fields){
+			connection.query(sql, function (err, result, fields){
+				//RenderFeed(req, res);
+				res.send({})
+				//res.send({id: req.body.id, state:result[0]['like_state'],})
+			});
+		});
+	});
+});
+
+app.post('/comment', function (req, res)
+{
+	var timestamp = String(new Date().getTime());
+	var comment_id = uuidv3(String("comment/" + req.cookies.username + "/" + timestamp), uuidv3.URL);
+	var sql = "INSERT INTO comments (post_id, user_id, text, timestamp, comment_id, parent_comment_id, comment_level) values('" + req.body.id + "','" + req.cookies.username + "','" + req.body.text + "', "  + timestamp + ",'" + comment_id + "','" + req.body.parent_comment_id + "'," + req.body.comment_level + ")";
+	connection.query(sql, function (err, result, fields){
+
+
+		update_replies(req.body.parent_comment_id);
+
+		res.send({comment_id:comment_id,
+				  timestamp:timestamp});
+
+	});
+});
+
+app.post('/show_replies', function (req, res)
+{
+	GetCommentChildren("'" + req.body.id + "'",[], [], req.cookies.username, res, req.body.offset)
+});
+
+app.post('/load_comments', function (req, res)
+{
+	var comment_promise_0 = GetComments(0, COMMENT_LIMIT, req.body.id, -1, req.cookies.username, req.body.offset)
+	comment_promise_0.then(function(response_0) {
+	  var comment_promise_1 = GetComments(1, COMMENT_LIMIT, req.body.id, response_0['comment_ids'], req.cookies.username, 0)
+	  comment_promise_1.then(function(response_1) {
+		  var comment_promise_2 = GetComments(2, COMMENT_LIMIT, req.body.id, response_1['comment_ids'], req.cookies.username, 0)
+		  comment_promise_2.then(function(response_2) {
+
+		  	  var all_comments = []
+		  	  var all_comment_votes = []
+		  	  for (var comment of response_0['comments'])
+		  	  {
+		  	  	  all_comments.push(comment);
+		  	  }
+		  	  for (var comment of response_1['comments'])
+		  	  {
+		  	  	  all_comments.push(comment);
+		  	  }
+		  	  for (var comment of response_2['comments'])
+		  	  {
+		  	  	  all_comments.push(comment);
+		  	  }
+
+		  	  for (var comment_vote of response_0['comment_votes'])
+		  	  {
+		  	  	  all_comment_votes.push(comment_vote);
+		  	  }
+		  	  for (var comment_vote of response_1['comment_votes'])
+		  	  {
+		  	  	  all_comment_votes.push(comment_vote);
+		  	  }
+		  	  for (var comment_vote of response_2['comment_votes'])
+		  	  {
+		  	  	  all_comment_votes.push(comment_vote);
+		  	  }
+		      res.send( 
+			  {
+				  comments: all_comments,
+				  comment_votes:all_comment_votes,
+			  });
+
+		  }, function(error_2) {
+		  	console.error("Failed!", error_2);
+		  })
+
+
+	  }, function(error_1) {
+	  	console.error("Failed!", error_1);
+	  })
+
+	}, function(error_0) {
+	  console.error("Failed!", error_0);
+	})
+});
+
+app.post('/load_feed', function (req, res)
+{
+	SendFeed(req, res, POST_LIMIT);
+});
+
+app.post('/post', function (req, res)
+{
+	var temp_username = "hansen";
+	var date = String(new Date().getTime());
+
+	var url = req.body.song;
+	url = url.substring(url.indexOf("https://") + 0);
+	url = url.substring(0, url.indexOf("width") - 2);
+
+	username = req.cookies.username;
+	var post_id = uuidv3(String(temp_username + "/" + req.body.title), uuidv3.URL);
+
+	var username = '44a9442188734ab2999542562c6477c3';
+	var password = '9c24d61cf7234c4a80f6f2f49ecc9c45';
+	if (url == "")
+	{
+		res.send({})
+		return;
+	}
+	var spotify = new Spotify({
+	  id: username,
+	  secret: password
+	});
+	spotify
+	  .request(url)
+	  .then(function(data) {
+
+	  	var album_songs = {};
+	  	if (data.indexOf('"track_number":2') != -1 && data.indexOf('"track_number":1') != -1)
+		{
+			
+			var track_number = 1;
+			while (data.indexOf('"track_number":' + track_number) != -1)
+			{
+				var song_narrowed = data.split('"track_number":' + track_number)[1];
+				song_narrowed = song_narrowed.split("duration_ms")[1];
+				if (song_narrowed == undefined) break;
+				var album_song = song_narrowed.substring(song_narrowed.indexOf("name") + 7, song_narrowed.indexOf('preview_url')-3);
+				album_songs[track_number] = album_song;
+				++track_number;
+			}
+			var release_date = data.substring(data.indexOf('release_date"') + 15, data.indexOf("release_date_precision") - 3);
+			var narrowed = data.split('script id="resource"')[1];
+			var artist = narrowed.substring(narrowed.indexOf("name") + 7, narrowed.indexOf('"type"') - 2);
+			narrowed = narrowed.split("label")[1];
+			var album = narrowed.substring(narrowed.indexOf("name") + 7, narrowed.indexOf("popularity") - 3);
+			var song_name = "NO_SONG_ALBUM_ONLY";
+			var type = 1;
+
+			var sql = "INSERT into user_content (id, username, embedded_content, content, timestamp, likes, dislikes, post_id, title, artist, album, song, data) VALUES('" + String(post_id) + "','" 
+			    	+ username + "','" + String(req.body.song)+ "','" + String(req.body.content) + "','" + String(date) +"', 0 "+ ", 0,'" + String(post_id) + "',\"" + String(req.body.title) 
+			    	+ "\", '" + String(artist) + "', '" + String(album) + "', '" + String(song_name) +  "'," + "'{}'" + ")";
+			connection.query(sql, function (err, result, fields) 
+			{
+			    return;
+			});
+
+		}
+		else
+		{
+			var release_date = data.substring(data.indexOf('release_date"') + 15, data.indexOf("release_date_precision") - 3);
+		    var narrowed = data.split('{"album":{');
+		    narrowed = narrowed[1].substring(narrowed[1].indexOf("width"));
+		    var album = narrowed.substring(narrowed.indexOf("name") + 7, narrowed.indexOf("release_date") - 3);
+		    narrowed = narrowed.split("release_date_precision")
+		    narrowed = narrowed[1].substring(narrowed[1].indexOf("external_urls"))
+		    var artist = "";
+		    while (narrowed.indexOf('"type":"artist"') != -1)
+		    {
+		    	artist += narrowed.substring(narrowed.indexOf("name") + 7, narrowed.indexOf("type") - 3) + ", " ;
+		    	narrowed = narrowed.substring(narrowed.indexOf("uri"));
+		    	narrowed = narrowed.substring(narrowed.indexOf("external_urls"));
+			}
+			artist = artist.substring(0, artist.length - 2);
+		    var song_name = narrowed.substring(narrowed.indexOf("name") + 7, narrowed.indexOf("popularity") - 3);
+		    var type = 0;
+
+			var sql = "INSERT into user_content (id, username, embedded_content, content, timestamp, likes, dislikes, post_id, title, artist, album, song) VALUES('" + String(post_id) + "','" 
+			    	+ username + "','" + String(req.body.song)+ "','" + String(req.body.content) + "','" + String(date) +"', 0 "+ ", 0,'" + String(post_id) + "',\"" + String(req.body.title) 
+			    	+ "\", '" + String(artist) + "', '" + String(album) + "', '" + String(song_name) + "')";
+
+			connection.query(sql, function (err, result, fields) 
+			{
+			    return;
+			});
+		}
+		var sql = "SELECT * from global_posts WHERE song = '" + song_name + "' AND artist = '" + artist + "'";
+		connection.query(sql, function (err, result, fields) 
+		{
+			var already_in_flag = false;
+			for (var item of result)
+			{
+				if (item.song == "NO_SONG_ALBUM_ONLY" && item.album == album)
+				{
+					already_in_flag = true;
+				}
+			}
+			if (result.length == 0 || !already_in_flag)
+			{
+				var new_post_id = uuidv3(artist + "/" + album + "/" + song_name, uuidv3.URL);
+				var new_post_timestamp = String(new Date().getTime());
+				for (var key of Object.keys(album_songs))
+				{
+					//temp, need to correctly replace, backslash doesn't work
+					album_songs[key] = album_songs[key].replace("'", "~")
+					album_songs[key] = album_songs[key].replace('"', '~')	
+				}
+				var new_global_post_sql = "INSERT into global_posts(post_id, timestamp, likes, embedded_content, content, song, album, type, artist, data, release_date, relevant_timestamp) VALUES('" + new_post_id + "', " + new_post_timestamp + ", 0, '" + req.body.song + "', '" + String(req.body.content) + "', '" + song_name + "', '" + album  + "',"+ type + " , '" + artist + "', '" + JSON.stringify(album_songs) + "', '" + release_date + "', " + new_post_timestamp + ");"
+				connection.query(new_global_post_sql, function (err, result, fields) 
+				{
+					return;
+				});
+			}
+		});
+		res.send({});
+	})
+	  .catch(function(err) {
+	    console.error('Error occurred: ' + err); 
+	});
+});
+
+app.post('/', (req, res) => {
+	const response = new Response();
+	res.send({ hello: 'world' });
+})
+
+app.post('/about', (req, res) => {
+	if (req.body.text != "")
+	{
+		var user_search_sql = "SELECT * from accounts where username LIKE '" + req.body.text + "%'";
+		var song_search_sql = "SELECT * from global_posts where song LIKE '" + req.body.text + "%'";
+		var artist_search_sql = "SELECT DISTINCT artist FROM global_posts WHERE artist LIKE '"+ req.body.text + "%'";
+		var album_search_sql = "SELECT * from global_posts where album LIKE '" + req.body.text + "%' AND song = 'NO_SONG_ALBUM_ONLY'"
+		connection.query(user_search_sql, function (err, result, fields){
+			var user_search = result;
+			connection.query(song_search_sql, function (err, result, fields){
+				var song_search = result;
+				connection.query(artist_search_sql, function (err, result, fields){
+					var artist_search = result;
+					connection.query(album_search_sql, function (err, result, fields){
+						var album_search = result;
+						res.send({
+							users: user_search, 
+						    songs: song_search, 
+						    artists: artist_search,
+						    albums: album_search,
+						});
+					});
+				});
+			});
+		});
+	}
+	else
+	{
+		res.send({});
+	}
+})
+
+app.post('/register', function(req, res)
+{
+	if (req.body.password == req.body.password_confirm)
+	{
+		var sql = "INSERT INTO accounts (username, password) VALUES ('" + req.body.username + "', '" + req.body.password + "')";
+		connection.query(sql, function (err, result) {
+	    	if (err) throw err;
+  		});
+	}
+	res.send({});
+}); 
+
 
 setInterval(function () {
     connection.query('SELECT 1');

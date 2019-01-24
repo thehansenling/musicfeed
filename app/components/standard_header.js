@@ -58,7 +58,6 @@ class SearchItem extends React.Component {
 
 	renderItem(item, url)
 	{
-		console.log("RENDERING THING")
 		this.item_list.push(<div><a href = {url}> {item} </a></div>);
 		this.forceUpdate();
 	}
@@ -127,7 +126,6 @@ export default class StandardHeader extends React.Component {
 	}
 
 
-
   render() {
     return (
 
@@ -136,8 +134,6 @@ export default class StandardHeader extends React.Component {
 	<head>
 		<title>My Node Site</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
-		<link rel="stylesheet" href="/css/styles.css"/>
-	    <link rel="stylesheet" href="/css/search.css"/>
 
 	</head>
 	<header>

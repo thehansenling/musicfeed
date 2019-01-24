@@ -7,6 +7,10 @@ class UserPostContent extends React.Component
 	constructor(props)
 	{
 		super(props);
+		this.likes_score = this.props.data.likes - props.data.dislikes;
+		this.likeRef = React.createRef();
+		this.dislikeRef = React.createRef();
+		this.like_state = -1
 	}
 
 	renderiframe(iframe) {
@@ -14,9 +18,80 @@ class UserPostContent extends React.Component
 			__html: iframe
 		};
 	}
+	likeClicked()
+	{
+		var that = this;
+
+	    fetch("/like", {
+	        method: "POST",
+	        headers: {
+	        	Accept: 'application/json',
+	        	'Authorization': 'Basic',
+	        	'Content-Type': 'application/json',
+	        },
+	        body: JSON.stringify({user: that.props.data.username, id: this.props.data.id,})})
+	    .then(function(response) { return response.json();})
+	    .then(function (data) {    	
+	    	that.likes_score = data.likes_score;
+	    	that.like_state = data.like_state;
+	    	if (that.like_state == 1)
+	    	{
+	    		that.likeRef.current.style.color = 'blue'
+	    		that.dislikeRef.current.style.color = 'black'
+	    	}
+	    	else if (that.like_state == 0)
+	    	{
+	    		that.likeRef.current.style = 'black'
+	    		that.dislikeRef.current.style.color = 'red'
+	    	}
+	    	else
+	    	{
+	    		that.likeRef.current.style = 'black'
+	    		that.dislikeRef.current.style.color = 'black'	    		
+	    	}
+	    	that.forceUpdate();
+	 	})	
+	}
+
+	dislikeClicked()
+	{
+		var that = this;
+	    fetch("/dislike", {
+	        method: "POST",
+	        headers: {
+	        	Accept: 'application/json',
+	        	'Authorization': 'Basic',
+	        	'Content-Type': 'application/json',
+	        },
+	        body: JSON.stringify({user: that.props.data.username, id: this.props.data.id,})})
+	    .then(function(response) { return response.json();})
+	    .then(function (data) {    	
+	    	that.likes_score = data.likes_score;
+	    	that.like_state = data.like_state;
+	    	if (that.like_state == 1)
+	    	{
+	    		that.likeRef.current.style.color = 'blue'
+	    		that.dislikeRef.current.style.color = 'black'
+	    	}
+	    	else if (that.like_state == 0)
+	    	{
+	    		that.likeRef.current.style = 'black'
+	    		that.dislikeRef.current.style.color = 'red'
+	    	}
+	    	else
+	    	{
+	    		that.likeRef.current.style = 'black'
+	    		that.dislikeRef.current.style.color = 'black'		
+	    	}
+	    	that.forceUpdate();
+	 	})	
+	}
 
 	render()
 	{
+		var like_style = {color:'black'}
+		var dislike_style = {color:'black'}
+
 		return (
 			<div>
 				<div style={{position:'relative', top:'100px', paddingBottom:'100px', height: 'auto', minHeight: '550px'}}>
@@ -25,13 +100,19 @@ class UserPostContent extends React.Component
 					<div style={{left:'10%', top:'20%'}}>
 					  	{this.props.data.content}
 					</div>
+
 				</div>
+
 				<br/>
 				<br/>
 				<br/>
 				<br/>
+				<div>
+					<div  className="likes" id = {this.props.data.id} >Likes: {this.likes_score} </div>
+					<button ref = {this.likeRef} onClick = {this.likeClicked.bind(this)} type="button" className = "like" id = {this.props.data.id} style = {like_style}>Like</button>
+					<button ref = {this.dislikeRef} onClick = {this.dislikeClicked.bind(this)} type="button" className = "unlike" id = {this.props.data.id} style = {dislike_style}>Hate</button>
+				</div>
 				<meta className = "comment_offset" content = "0" />
-				<button type='button' className = 'new_comment' id = "-1" className = 'level_-1' style={{position:'relative'}}>Comment</button>
 			</div>
 		);
 	}
@@ -50,7 +131,7 @@ export default class UserPost extends React.Component
 			<div>
 				<StandardHeader/>
 				<UserPostContent data = {this.props.data.user_post}/>
-				<CommentSection data = {this.props.data}/>
+				<CommentSection comments = {this.props.data.comments} comment_votes = {this.props.data.comment_votes} post_id = {this.props.data.user_post.id}/>
 			</div>
 		);
 	}

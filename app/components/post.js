@@ -5,8 +5,11 @@ class Post extends React.Component
 	constructor(props) 
 	{
 		super(props);
-		// props.id = "";
-		// props.like_state = -1;
+		console.log("POST PROPS")
+		console.log(props)
+		this.likes_score = this.props.song.likes - props.song.dislikes;
+		this.likeRef = React.createRef();
+		this.dislikeRef = React.createRef();
 	}	
 
 	renderiframe(iframe) {
@@ -15,49 +18,135 @@ class Post extends React.Component
 		}
 	}
 
+	likeClicked()
+	{
+		var that = this;
+		var id = that.props.song.post_id;
+		if (id == undefined)
+		{
+			id = that.props.song.id;
+		}
+	    fetch("/like", {
+	        method: "POST",
+	        headers: {
+	        	Accept: 'application/json',
+	        	'Authorization': 'Basic',
+	        	'Content-Type': 'application/json',
+	        },
+	        body: JSON.stringify({user: that.props.song.username, id: id,})})
+	    .then(function(response) { return response.json();})
+	    .then(function (data) {    	
+	    	that.likes_score = data.likes_score;
+	    	that.like_state = data.like_state;
+	    	if (that.like_state == 1)
+	    	{
+	    		that.likeRef.current.style.color = 'blue'
+	    		that.dislikeRef.current.style.color = 'black'
+	    	}
+	    	else if (that.like_state == 0)
+	    	{
+	    		that.likeRef.current.style = 'black'
+	    		that.dislikeRef.current.style.color = 'red'
+	    	}
+	    	else
+	    	{
+	    		that.likeRef.current.style = 'black'
+	    		that.dislikeRef.current.style.color = 'black'	    		
+	    	}
+	    	that.forceUpdate();
+	 	})	
+	}
+
+	dislikeClicked()
+	{
+		var that = this;
+		var id = that.props.song.post_id;
+		if (id == undefined)
+		{
+			id = that.props.song.id;
+		}
+	    fetch("/dislike", {
+	        method: "POST",
+	        headers: {
+	        	Accept: 'application/json',
+	        	'Authorization': 'Basic',
+	        	'Content-Type': 'application/json',
+	        },
+	        body: JSON.stringify({user: that.props.song.username, id: id,})})
+	    .then(function(response) { return response.json();})
+	    .then(function (data) {    	
+	    	that.likes_score = data.likes_score;
+	    	that.like_state = data.like_state;
+	    	if (that.like_state == 1)
+	    	{
+	    		that.likeRef.current.style.color = 'blue'
+	    		that.dislikeRef.current.style.color = 'black'
+	    	}
+	    	else if (that.like_state == 0)
+	    	{
+	    		that.likeRef.current.style = 'black'
+	    		that.dislikeRef.current.style.color = 'red'
+	    	}
+	    	else
+	    	{
+	    		that.likeRef.current.style = 'black'
+	    		that.dislikeRef.current.style.color = 'black'		
+	    	}
+	    	that.forceUpdate();
+	 	})	
+	}
+
 	render()
 	{
 		var date = new Date(this.props.song.timestamp)
-		var post_title = <h1 style= {{position:'relative'}}><a href = {"user/" + this.props.song.username + "/" + this.props.song.id} > {this.props.song.title}</a></h1>;
-		var poster_username = this.props.song.username;
-		var poster_username_url = "/user/" + this.props.song.username;
+		var post_title = <h1 style= {{position:'relative'}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id} > {this.props.song.title}</a></h1>;
+		var poster_username = this.props.song.artist;
+		var poster_username_url = "/artist/" + this.props.song.artist;
 		var content = <h2 style={{position:'relative'}}>{this.props.song.content}</h2>
 		var by_text = " by"
 
+		var post_id = this.props.song.post_id;
 
-		var likes_section = <div>
-			<div className="likes" id = {this.props.song.post_id} >Likes: {this.props.song.likes - this.props.song.dislikes}</div>
-			<button type="button" className = "like" id = {this.props.song.post_id}>Like</button>
-			<button type="button" className = "unlike" id = {this.props.song.post_id}>Hate</button>
-			</div>
 
-		var comment_section = <div className= "comment_section" id = {this.props.song.post_id} />
 
 		if (this.props.song.username != undefined)
 		{
-			post_title = "";
-			likes_section = <div>
-			<div className="likes" id = {this.props.song.id} >Likes: {this.props.song.likes - this.props.song.dislikes}</div>
-			<button type="button" className = "like" id = {this.props.song.id}>Like</button>
-			<button type="button" className = "unlike" id = {this.props.song.id}>Hate</button>
-			</div>
-			comment_section = <div className= "comment_section" id = {this.props.song.id} />
+			post_id = this.props.song.id;
+			//post_title = "";
 			by_text = " posted by"
+			poster_username = this.props.song.username;
+			poster_username_url = "/user/" + this.props.song.username;
 		}
 
+		var like_style = {color:'black'}
+		var dislike_style = {color:'black'}
+		if (this.like_state == 1)
+		{
+			like_style.color = 'blue';
+		}
+		else if (this.like_state == 0)
+		{
+			dislike_style.color = 'red';
+		}
 
+		var likes_section = <div>
+			<div  className="likes" id = {post_id} >Likes: {this.likes_score} </div>
+			<button ref = {this.likeRef} onClick = {this.likeClicked.bind(this)} type="button" className = "like" id = {post_id} style = {like_style}>Like</button>
+			<button ref = {this.dislikeRef} onClick = {this.dislikeClicked.bind(this)} type="button" className = "unlike" id = {post_id} style = {dislike_style}>Hate</button>
+			</div>
+		var comment_section = <div className= "comment_section" id = {post_id} />
 		var content_url = "/post/" + this.props.song.artist + "/" + this.props.song.song;
 		var content_name = this.props.song.song;
 
 		if (this.props.song.song == "NO_SONG_ALBUM_ONLY")
 		{
-			content_url = "/album/" + this.props.song.song.artist + "/" + this.props.song.song.album;
+			content_url = "/album/" + this.props.song.artist + "/" + this.props.song.album;
 			content_name = this.props.song.album;
 		}
 
 		return(
 
- 		<div style={{position:'relative', height:'480px',borderBottom: '4px solid gray',padding:'5px'}}>
+ 		<div key = {this.props.song.post_id} style={{position:'relative', height:'480px',borderBottom: '4px solid gray',padding:'5px'}}>
  			<div style = {{display: 'flex',flexDirection:'row'}}>
 	 			<span style={{width:'600px'}}>
 	 				{post_title}
@@ -81,7 +170,7 @@ class Post extends React.Component
 			</div>
 			<div className= "comment_section" id = {this.props.song.id} >
 				{comment_section}
-				Comments: 0
+				Comments: {this.props.num_comments}
 			</div>
  		</div>
 
@@ -94,13 +183,34 @@ export default class PostInfo extends React.Component
 	constructor(props) 
 	{
 		super(props);
-		console.log("POSTINFO")
 		this.posts = [];
 	}
 
 	makePost(song)
 	{
-		this.posts.push(<Post key={song.id} song={song} />);
+		var like_state = -1;
+		var current_num_comments = 0;
+		for (var like of this.props.likes)
+		{
+			var id = like.post_id
+			if (id = undefined)
+			{
+				id = like.id;
+			}
+			if (id == song.post_id)
+			{
+				like_state = like.like_state;
+			}
+		}
+		for (var num_comments of this.props.num_comments)
+		{
+			current_num_comments = 0;
+			if (song.post_id == num_comments.post_id)
+			{
+				current_num_comments = num_comments.count			
+			}
+		}
+		this.posts.push(<Post key={song.post_id} song={song} like_state = {like_state} num_comments = {current_num_comments}/>);
 	}
 
 	addSongs()
@@ -111,12 +221,50 @@ export default class PostInfo extends React.Component
 		}
 	}
 
+	addPosts(songs, likes, all_num_comments)
+	{
+		for (var song of songs)
+		{
+			var like_state = -1;
+			var current_num_comments = 0;
+			for (var like of likes)
+			{
+				var id = like.post_id
+				if (id = undefined)
+				{
+					id = like.id;
+				}
+				if (id == song.post_id)
+				{
+					like_state = like.like_state;
+				}
+			}
+			for (var num_comments of all_num_comments)
+			{
+				var id = num_comments.post_id
+				if (id == song.post_id)
+				{
+					current_num_comments = num_comments.count;
+					break;
+				}
+			}
+			this.posts.push(<Post key={song.post_id} song={song} like_state = {like_state} num_comments = {current_num_comments}/>);
+		}
+		this.forceUpdate()
+	}
+
+	componentDidMount() {
+	    this.addSongs();
+	    this.forceUpdate();
+	}
+	
+
 	render()
 	{
-		this.addSongs();
+		
 		return(
 			<div style={{left:'15%', top:'100px', position:'relative',width:'100%'}}>
-				{this.posts}
+				{this.posts.map((post) => {return post})}
 			</div>
 		);
 	}

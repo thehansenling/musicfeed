@@ -5,7 +5,7 @@
   "main": "./app/index.js",
   "scripts": {
     "build:client": "webpack --config ./webpack.config.js/",
-    "start": "build:client nodemon ./app/server/index.js",
+    "start": "npm run build:client && nodemon ./app/server/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -27,6 +27,7 @@
     "node-spotify-api": "^1.0.7",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
-    "react-router-dom": "^4.3.1"
+    "react-router-dom": "^4.3.1",
+    "uuid": "^3.3.2"
   }
 }

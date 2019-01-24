@@ -13,7 +13,6 @@ export default class FollowersPage extends React.Component
 	{
 		for (var follower of this.props.data.followers) 
 		{
-			console.log(follower)
 			this.followers.push(<div key = {follower.user_id}><a href = {"/user/" + follower.user_id}>{follower.user_id}</a></div>)
 		}
 	}	

@@ -6,8 +6,6 @@ export default class ArtistAlbumsPage extends React.Component
 	constructor(props)
 	{
 		super(props)
-		console.log("ADHSDF")
-		console.log(props)
 		this.albums = [];
 	}
 
@@ -15,7 +13,6 @@ export default class ArtistAlbumsPage extends React.Component
 	{
 		for (var album of this.props.data.album_data) 
 		{
-			console.log(album)
 			this.albums.push(
 			<div style = {{display: 'flex',flexDirection:'column'}}>
 				<h2>  <a href = {"/album/" + album.artist + "/" + album.album}>{album.album} </a></h2>

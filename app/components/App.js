@@ -30,8 +30,6 @@ export default class App extends React.Component{
 	constructor(props)
 	{
 		super(props)
-		console.log("THESE PROPS")
-		console.log(props);
 	}
 
 	handleClick(e)
@@ -44,7 +42,6 @@ export default class App extends React.Component{
 		return (
 			<div id='root'>
 				Your react Node app is set up! 
-				<button onClick={this.handleClick}> CLICK ME</button>
 				<Switch>
 					<Route exact path = "/" render={() => (<Feed data={this.props.data}/>)} />
 					<Route exact path = "/user/:user/:post_id" render={() => (<UserPost data={this.props.data}/>)}/>
@@ -61,10 +58,8 @@ export default class App extends React.Component{
 					<Route exact path = "/contact"  component={Contact} />
 					<Route exact path = "/about"  component={About} />
 				</Switch>	
-				<script type="text/javascript" src="/app/public/bundle.js"/>
+				<script type="text/javascript" src="/public/bundle.js"> </script>
 			</div>
 		);
 	}
 }
-
-module.exports = App;
