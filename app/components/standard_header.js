@@ -125,8 +125,39 @@ export default class StandardHeader extends React.Component {
 		this.search_list = React.createRef();
 	}
 
+	logoutClicked ()
+	{
+	    fetch('/logout', {
+	        method: "POST",
+	        headers: {
+	        	Accept: 'application/json',
+	        	'Authorization': 'Basic',
+	        	'Content-Type': 'application/json',
+	        },
+	    })
+	    .then(function(response) { return response.json();})
+	    .then(function (data) {    	
+	    	location.reload(true);
+	 	})		
+	}
 
   render() {
+
+  	var login_info = <div>
+			    <ul className="nav navbar-nav">
+			        <li>{this.props.username}</li>
+			        <li><button onClick = {this.logoutClicked.bind(this)}>Logout</button></li>
+			    </ul>
+  			   </div>
+  	if (this.props.username == undefined)
+  	{
+	  	login_info = <div>
+			    <ul className="nav navbar-nav">
+			        <li><a href="/register">Register</a></li>
+			        <li><a href="/login">Login</a></li>
+			    </ul>
+			</div>
+  	}
     return (
 
 <div>
@@ -144,10 +175,7 @@ export default class StandardHeader extends React.Component {
 		        <SearchList />
 		        </div>
 		    </div>
-		    <ul className="nav navbar-nav">
-		        <li><a href="/register">Register</a></li>
-		        <li><a href="/login">Login</a></li>
-		    </ul>
+		    {login_info}
 			<ul className="nav navbar-nav">
 				<li><a href="/">Home</a></li>
 				<li><a href="/about">About</a></li>

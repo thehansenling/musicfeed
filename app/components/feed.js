@@ -136,7 +136,6 @@ export default class Feed extends React.Component{
 	{
 		super(props);
 		this.loading_posts_semaphor = false;
-
 		this.offset = 0;
 		this.non_priority_offset = 0;
 		this.global_offset = 0;
@@ -209,7 +208,7 @@ export default class Feed extends React.Component{
 	{
 		return (
 			<div>
-				<StandardHeader />
+				<StandardHeader username = {this.props.data.username}/>
 				<NewPostSubmission />
 				<PostInfo ref = {this.postsRef} songs = {this.props.data.songs} likes = {this.props.data.likes} num_comments = {this.props.data.num_comments}/>
 			</div>

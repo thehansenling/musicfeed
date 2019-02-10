@@ -41,7 +41,6 @@ export default class App extends React.Component{
 	{
 		return (
 			<div id='root'>
-				Your react Node app is set up! 
 				<Switch>
 					<Route exact path = "/" render={() => (<Feed data={this.props.data}/>)} />
 					<Route exact path = "/user/:user/:post_id" render={() => (<UserPost data={this.props.data}/>)}/>

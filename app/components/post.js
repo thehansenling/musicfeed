@@ -26,7 +26,17 @@ class Post extends React.Component
 		{
 			id = that.props.song.id;
 		}
-	    fetch("/like", {
+
+		var post_url = "/like"
+		if (that.props.song.username == undefined)
+		{
+			console.log("global like")
+			post_url = "/global_like"
+		}
+
+
+		console.log("back 0	")
+	    fetch(post_url, {
 	        method: "POST",
 	        headers: {
 	        	Accept: 'application/json',
@@ -36,25 +46,51 @@ class Post extends React.Component
 	        body: JSON.stringify({user: that.props.song.username, id: id,})})
 	    .then(function(response) { return response.json();})
 	    .then(function (data) {    	
-	    	that.likes_score = data.likes_score;
-	    	that.like_state = data.like_state;
-	    	if (that.like_state == 1)
-	    	{
-	    		that.likeRef.current.style.color = 'blue'
-	    		that.dislikeRef.current.style.color = 'black'
-	    	}
-	    	else if (that.like_state == 0)
-	    	{
-	    		that.likeRef.current.style = 'black'
-	    		that.dislikeRef.current.style.color = 'red'
-	    	}
-	    	else
-	    	{
-	    		that.likeRef.current.style = 'black'
-	    		that.dislikeRef.current.style.color = 'black'	    		
-	    	}
-	    	that.forceUpdate();
+	    	// that.likes_score = data.likes_score;
+	    	// that.like_state = data.like_state;
+	    	// if (that.like_state == 1)
+	    	// {
+	    	// 	console.log("back 1")
+	    	// 	that.likeRef.current.style.color = 'blue'
+	    	// 	that.dislikeRef.current.style.color = 'black'
+	    	// }
+	    	// else if (that.like_state == 0)
+	    	// {
+	    	// 	console.log("back 2")
+	    	// 	that.likeRef.current.style = 'black'
+	    	// 	that.dislikeRef.current.style.color = 'red'
+	    	// }
+	    	// else
+	    	// {
+	    	// 	console.log("back 3")
+	    	// 	that.likeRef.current.style = 'black'
+	    	// 	that.dislikeRef.current.style.color = 'black'	    		
+	    	// }
 	 	})	
+
+    	if (this.props.like_state == 1)
+    	{
+       		this.likes_score -= 1;
+    		this.likeRef.current.style = 'black'
+    		this.dislikeRef.current.style.color = 'black'
+    		this.props.like_state = -1;
+    	}
+    	else
+    	{
+    		if (this.props.like_state == -1)
+    		{
+    			this.likes_score += 1;
+    		}
+    		else 
+    		{
+    			this.likes_score += 2;
+    		}
+    		this.likeRef.current.style = 'blue'
+    		this.dislikeRef.current.style.color = 'black'
+    		this.props.like_state = 1;
+    	}
+
+    	this.forceUpdate();
 	}
 
 	dislikeClicked()
@@ -65,7 +101,16 @@ class Post extends React.Component
 		{
 			id = that.props.song.id;
 		}
-	    fetch("/dislike", {
+
+		var post_url = "/dislike"
+		if (that.props.song.username == undefined)
+		{
+			console.log("global dislike")
+			post_url = "/global_dislike"
+		}
+
+
+	    fetch(post_url, {
 	        method: "POST",
 	        headers: {
 	        	Accept: 'application/json',
@@ -75,25 +120,49 @@ class Post extends React.Component
 	        body: JSON.stringify({user: that.props.song.username, id: id,})})
 	    .then(function(response) { return response.json();})
 	    .then(function (data) {    	
-	    	that.likes_score = data.likes_score;
-	    	that.like_state = data.like_state;
-	    	if (that.like_state == 1)
-	    	{
-	    		that.likeRef.current.style.color = 'blue'
-	    		that.dislikeRef.current.style.color = 'black'
-	    	}
-	    	else if (that.like_state == 0)
-	    	{
-	    		that.likeRef.current.style = 'black'
-	    		that.dislikeRef.current.style.color = 'red'
-	    	}
-	    	else
-	    	{
-	    		that.likeRef.current.style = 'black'
-	    		that.dislikeRef.current.style.color = 'black'		
-	    	}
-	    	that.forceUpdate();
+	    	// that.likes_score = data.likes_score;
+	    	// that.like_state = data.like_state;
+	    	// if (that.like_state == 1)
+	    	// {
+	    	// 	that.likeRef.current.style.color = 'blue'
+	    	// 	that.dislikeRef.current.style.color = 'black'
+	    	// }
+	    	// else if (that.like_state == 0)
+	    	// {
+	    	// 	that.likeRef.current.style = 'black'
+	    	// 	that.dislikeRef.current.style.color = 'red'
+	    	// }
+	    	// else
+	    	// {
+	    	// 	that.likeRef.current.style = 'black'
+	    	// 	that.dislikeRef.current.style.color = 'black'		
+	    	// }
+	    	// that.forceUpdate();
 	 	})	
+
+    	if (this.props.like_state == 0)
+    	{
+    		this.likeRef.current.style = 'black'
+    		this.dislikeRef.current.style.color = 'black'	 
+    		this.props.like_state = -1;
+    		this.likes_score += 1;
+    	}
+    	else
+    	{
+    		if (this.props.like_state == -1)
+    		{
+    			this.likes_score -= 1;
+    		}
+    		else 
+    		{
+    			this.likes_score -= 2;
+    		}
+    		this.likeRef.current.style = 'black'
+    		this.dislikeRef.current.style.color = 'red'
+    		this.props.like_state = 0;
+
+    	}
+    	this.forceUpdate();
 	}
 
 	render()
@@ -104,6 +173,7 @@ class Post extends React.Component
 		var poster_username_url = "/artist/" + this.props.song.artist;
 		var content = <h2 style={{position:'relative'}}>{this.props.song.content}</h2>
 		var by_text = " by"
+		var at_text = " posted at "
 
 		var post_id = this.props.song.post_id;
 
@@ -113,18 +183,19 @@ class Post extends React.Component
 		{
 			post_id = this.props.song.id;
 			//post_title = "";
-			by_text = " posted by"
+			by_text = " posted by " 
+			at_text = " at "
 			poster_username = this.props.song.username;
 			poster_username_url = "/user/" + this.props.song.username;
 		}
 
 		var like_style = {color:'black'}
 		var dislike_style = {color:'black'}
-		if (this.like_state == 1)
+		if (this.props.like_state == 1)
 		{
 			like_style.color = 'blue';
 		}
-		else if (this.like_state == 0)
+		else if (this.props.like_state == 0)
 		{
 			dislike_style.color = 'red';
 		}
@@ -156,7 +227,7 @@ class Post extends React.Component
 	 						{content_url}  > {content_name} 
 	 					</a>
 		 				 {by_text}
-		 				<a href ={poster_username_url} > {poster_username} </a> at 
+		 				<a href ={poster_username_url} > {poster_username} </a> {at_text}
 		 				{" " + date.getMonth() + "/" + date.getDate() + "/" + date.getFullYear()} 
 	 				</h3>
 	 				</div>
@@ -190,16 +261,28 @@ export default class PostInfo extends React.Component
 	{
 		var like_state = -1;
 		var current_num_comments = 0;
+		console.log(this.props)
+		console.log("props")
 		for (var like of this.props.likes)
 		{
 			var id = like.post_id
-			if (id = undefined)
+			if (id == undefined)
 			{
 				id = like.id;
 			}
-			if (id == song.post_id)
+
+			var post_id = song.id;
+			if (post_id == undefined)
 			{
+				post_id = song.post_id;
+			}
+
+			if (id == post_id)
+			{
+				console.log("FOUND A LIKE STATE")
+
 				like_state = like.like_state;
+				console.log(like_state)
 			}
 		}
 		for (var num_comments of this.props.num_comments)
@@ -227,15 +310,24 @@ export default class PostInfo extends React.Component
 		{
 			var like_state = -1;
 			var current_num_comments = 0;
+
 			for (var like of likes)
 			{
 				var id = like.post_id
-				if (id = undefined)
+				if (id == undefined)
 				{
 					id = like.id;
 				}
-				if (id == song.post_id)
+
+				var post_id = song.id;
+				if (post_id == undefined)
 				{
+					post_id = song.post_id;
+				}
+
+				if (id == post_id)
+				{
+					console.log("FOUDN ID")
 					like_state = like.like_state;
 				}
 			}

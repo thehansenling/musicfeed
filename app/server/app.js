@@ -295,7 +295,8 @@ function RenderFeed(req, res)
 			// });	
 			var data = {songs: songs_list,
 						likes: likes_list,
-						num_comments: num_comments_list,}
+						num_comments: num_comments_list,
+					    username: req.cookies.username}
 			//var html = ReactDOMServer.renderToString(<StaticRouter location={req.url} context={context}><App data = {data}/></StaticRouter>)
 			//var html = ReactDOMServer.renderToString(<Home test= "testing"/>)
 
@@ -563,64 +564,85 @@ app.get('/user/:user/:post_id', function (req, res) {
 		var user_post = result;
 		var current_post_id = "";
 
-		var comment_promise_0 = GetComments(0, COMMENT_LIMIT, req.params.post_id, -1, req.cookies.username)
-		comment_promise_0.then(function(response_0) {
-		  var comment_promise_1 = GetComments(1, COMMENT_LIMIT, req.params.post_id, response_0['comment_ids'], req.cookies.username)
-		  comment_promise_1.then(function(response_1) {
-			  var comment_promise_2 = GetComments(2, COMMENT_LIMIT, req.params.post_id, response_1['comment_ids'], req.cookies.username)
-			  comment_promise_2.then(function(response_2) {
+		var like_post_id = "";
+		if (result.length != 0)
+		{
+			like_post_id = result[0].post_id;
+		}
 
-			  	  var all_comments = []
-			  	  var all_comment_votes = []
-			  	  for (var comment of response_0['comments'])
-			  	  {
-			  	  	  all_comments.push(comment);
-			  	  }
-			  	  for (var comment of response_1['comments'])
-			  	  {
-			  	  	  all_comments.push(comment);
-			  	  }
-			  	  for (var comment of response_2['comments'])
-			  	  {
-			  	  	  all_comments.push(comment);
-			  	  }
+		var like_state_sql = "SELECT like_state from likes where post_id = '"+ String(like_post_id) + "' AND user_id = '" + req.cookies.username + "'";
+		connection.query(like_state_sql, function (err, result, fields) 
+		{		
+			var user_like_state;
+			if (result.length == 0)
+			{
+				user_like_state = -1;
+			} else 
+			{
+				user_like_state = result[0].like_state;
+			}
 
-			  	  for (var comment_vote of response_0['comment_votes'])
-			  	  {
-			  	  	  all_comment_votes.push(comment_vote);
-			  	  }
-			  	  for (var comment_vote of response_1['comment_votes'])
-			  	  {
-			  	  	  all_comment_votes.push(comment_vote);
-			  	  }
-			  	  for (var comment_vote of response_2['comment_votes'])
-			  	  {
-			  	  	  all_comment_votes.push(comment_vote);
-			  	  }
-			  	  if (user_post.length = 1)
-			  	  	user_post = user_post[0];
 
-					var data = {
-					  user_post: user_post,
-					  comments: all_comments,
-					  comment_votes:all_comment_votes,
-					}
+			var comment_promise_0 = GetComments(0, COMMENT_LIMIT, req.params.post_id, -1, req.cookies.username)
+			comment_promise_0.then(function(response_0) {
+			  var comment_promise_1 = GetComments(1, COMMENT_LIMIT, req.params.post_id, response_0['comment_ids'], req.cookies.username)
+			  comment_promise_1.then(function(response_1) {
+				  var comment_promise_2 = GetComments(2, COMMENT_LIMIT, req.params.post_id, response_1['comment_ids'], req.cookies.username)
+				  comment_promise_2.then(function(response_2) {
 
-					var html = renderPage(req.url, data)
-					res.send(html);
+				  	  var all_comments = []
+				  	  var all_comment_votes = []
+				  	  for (var comment of response_0['comments'])
+				  	  {
+				  	  	  all_comments.push(comment);
+				  	  }
+				  	  for (var comment of response_1['comments'])
+				  	  {
+				  	  	  all_comments.push(comment);
+				  	  }
+				  	  for (var comment of response_2['comments'])
+				  	  {
+				  	  	  all_comments.push(comment);
+				  	  }
 
-			  }, function(error_2) {
-			  	console.error("Failed!", error_2);
+				  	  for (var comment_vote of response_0['comment_votes'])
+				  	  {
+				  	  	  all_comment_votes.push(comment_vote);
+				  	  }
+				  	  for (var comment_vote of response_1['comment_votes'])
+				  	  {
+				  	  	  all_comment_votes.push(comment_vote);
+				  	  }
+				  	  for (var comment_vote of response_2['comment_votes'])
+				  	  {
+				  	  	  all_comment_votes.push(comment_vote);
+				  	  }
+				  	  if (user_post.length = 1)
+				  	  	user_post = user_post[0];
+
+						var data = {
+						  user_post: user_post,
+						  comments: all_comments,
+						  comment_votes:all_comment_votes,
+						  like_state:user_like_state,
+						}
+
+						var html = renderPage(req.url, data)
+						res.send(html);
+
+				  }, function(error_2) {
+				  	console.error("Failed!", error_2);
+				  })
+
+
+			  }, function(error_1) {
+			  	console.error("Failed!", error_1);
 			  })
 
-
-		  }, function(error_1) {
-		  	console.error("Failed!", error_1);
-		  })
-
-		}, function(error_0) {
-		  console.error("Failed!", error_0);
-		})
+			}, function(error_0) {
+			  console.error("Failed!", error_0);
+			})
+		});
 	});
 });
 
@@ -1145,6 +1167,14 @@ app.post('/login', function(req, res)
   	});
 });
 
+app.post('/logout', function(req, res)
+{
+	console.log("LOGGING OUT")
+	res.clearCookie('username')
+	res.send({data:1})
+});
+
+
 app.get('/register', function(req, res)
 {
 	var data = {}
@@ -1382,6 +1412,7 @@ app.post('/global_dislike', function (req, res)
 				like_state = 0
 			}
 		}			
+
 		connection.query(modify_sql, function (err, result, fields){
 			connection.query(sql, function (err, result, fields){
 				//RenderFeed(req, res);

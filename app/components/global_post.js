@@ -11,7 +11,7 @@ class GlobalPostContent extends React.Component
 		this.likes_score = this.props.data.likes - props.data.dislikes;
 		this.likeRef = React.createRef();
 		this.dislikeRef = React.createRef();
-		this.like_state = -1
+		//this.like_state = -1
 	}
 
 	renderiframe(iframe) {
@@ -107,8 +107,20 @@ class GlobalPostContent extends React.Component
 			this.generateAlbumSongs();
 		}
 
+
+
 		var like_style = {color:'black'}
 		var dislike_style = {color:'black'}
+		if (this.props.like_state == 1)
+		{
+			like_style.color = 'blue'
+			dislike_style.color = 'black'
+		}
+		else if (this.props.like_state == 0)
+		{
+			like_style.color = 'black'
+			dislike_style.color = 'red'
+		}
 		return (
 			<div>
 				<div style={{position:'relative', top:'100px', paddingBottom:'100px', height: 'auto', minHeight: '550px'}}>
@@ -153,8 +165,8 @@ export default class GlobalPost extends React.Component
 		return (
 			<div>
 				<StandardHeader/>
-				<GlobalPostContent data = {this.props.data.global_post}/>
-				<CommentSection comments = {this.props.data.comments} comment_votes = {this.props.data.comment_votes} post_id = {this.props.data.global_post.post_id}/>
+				<GlobalPostContent data = {this.props.data.data} like_state = {this.props.data.like_state}/>
+				<CommentSection comments = {this.props.data.comments} comment_votes = {this.props.data.comment_votes} post_id = {this.props.data.data.post_id} />
 			</div>
 		);
 	}
