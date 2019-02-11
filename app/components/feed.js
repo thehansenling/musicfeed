@@ -1,6 +1,7 @@
 import React from 'react';
 import StandardHeader from './standard_header.js'
 import PostInfo from './post.js'
+import utils from './utils.js'
 
 class NewPostSubmission extends React.Component {
 	constructor(props)
@@ -76,6 +77,11 @@ class NewPostSubmission extends React.Component {
 
 	submitPost()
 	{
+		if (!utils.checkLoggedIn())
+		{
+			alert("MUST BE LOGGED IN")
+			return;
+		}
 		var that = this;
 		fetch("/post", {
 			method: "POST",
@@ -208,7 +214,6 @@ export default class Feed extends React.Component{
 	{
 		return (
 			<div>
-				<StandardHeader username = {this.props.data.username}/>
 				<NewPostSubmission />
 				<PostInfo ref = {this.postsRef} songs = {this.props.data.songs} likes = {this.props.data.likes} num_comments = {this.props.data.num_comments}/>
 			</div>

@@ -67,7 +67,6 @@ export default class UserPage extends React.Component{
   render() {
 	return (
 	<div>
-		<StandardHeader/>
 		<UserInfo user = {this.props.data.user}/>
 		<FollowerInfo user = {this.props.data.user} follows={this.props.data.follows} followees={this.props.data.followees}/>
 		<PostInfo songs = {this.props.data.songs} likes = {this.props.data.likes} num_comments = {this.props.data.num_comments}/>

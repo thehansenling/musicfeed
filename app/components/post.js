@@ -1,4 +1,5 @@
 import React from 'react';
+import utils from './utils.js'
 
 class Post extends React.Component 
 {
@@ -20,6 +21,13 @@ class Post extends React.Component
 
 	likeClicked()
 	{
+		
+		if (!utils.checkLoggedIn())
+		{
+			alert("MUST BE LOGGED IN")
+			return;
+		}
+
 		var that = this;
 		var id = that.props.song.post_id;
 		if (id == undefined)
@@ -95,6 +103,11 @@ class Post extends React.Component
 
 	dislikeClicked()
 	{
+		if (!utils.checkLoggedIn())
+		{
+			alert("MUST BE LOGGED IN")
+			return;
+		}
 		var that = this;
 		var id = that.props.song.post_id;
 		if (id == undefined)

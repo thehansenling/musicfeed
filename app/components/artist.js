@@ -41,7 +41,7 @@ class AlbumDisplay extends React.Component
 		for (var album of this.props.data) 
 		{
 			this.albums.push(
-			<div style = {{display: 'flex', flexDirection:'column', padding:'10px'}}>
+			<div key = {album.post_id} style = {{display: 'flex', flexDirection:'column', padding:'10px'}}>
 				{album.album}
 				<div dangerouslySetInnerHTML={this.renderiframe(album.embedded_content)}></div>
 			</div>)
@@ -82,7 +82,7 @@ class SongDisplay extends React.Component
 		for (var song of this.props.data) 
 		{
 			this.songs.push(
-			<div style = {{display: 'flex', flexDirection:'column', padding:'10px'}}>
+			<div key = {song.post_id} style = {{display: 'flex', flexDirection:'column', padding:'10px'}}>
 				{song.song}
 				<div dangerouslySetInnerHTML={this.renderiframe(song.embedded_content)}></div>
 			</div>)
@@ -115,7 +115,6 @@ export default class ArtistPost extends React.Component
 	{
 		return (
 			<div>
-				<StandardHeader />
 				<div className = "info_container" style={{left:'15%', top:'200px', position:'relative',width:'100%'}}>
 					<FollowingInfo />
 					<AlbumDisplay data = {this.props.data.album_data} artist = {this.props.data.artist}/>

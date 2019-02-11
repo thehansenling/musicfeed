@@ -1,6 +1,7 @@
 import React from 'react';
 import StandardHeader from './standard_header.js'
 import CommentSection from './comments.js'
+import utils from './utils.js'
 
 class GlobalPostContent extends React.Component 
 {
@@ -31,6 +32,11 @@ class GlobalPostContent extends React.Component
 
 	likeClicked()
 	{
+		if (!utils.checkLoggedIn())
+		{
+			alert("MUST BE LOGGED IN")
+			return;
+		}
 		var that = this;
 	    fetch("/global_like", {
 	        method: "POST",
@@ -65,6 +71,11 @@ class GlobalPostContent extends React.Component
 
 	dislikeClicked()
 	{
+		if (!utils.checkLoggedIn())
+		{
+			alert("MUST BE LOGGED IN")
+			return;
+		}
 		var that = this;
 	    fetch("/global_dislike", {
 	        method: "POST",
@@ -164,7 +175,6 @@ export default class GlobalPost extends React.Component
 	{
 		return (
 			<div>
-				<StandardHeader/>
 				<GlobalPostContent data = {this.props.data.data} like_state = {this.props.data.like_state}/>
 				<CommentSection comments = {this.props.data.comments} comment_votes = {this.props.data.comment_votes} post_id = {this.props.data.data.post_id} />
 			</div>

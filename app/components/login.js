@@ -42,8 +42,6 @@ export default class LoginPage extends React.Component
 	{
 		return(
 			<div>
-				<StandardHeader />
-
 				<section className = "hero" style = {{position:'absolute', left:'10%', top:'20%'}}>
 					<div className =  "hero-content" >
 						<h2>Login</h2>

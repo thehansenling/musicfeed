@@ -25,7 +25,6 @@ export default class ArtistSongsPage extends React.Component
 		this.generateSongs();
 		return (
 			<div>
-				<StandardHeader />
 				<div className = "songs_display" style = {{left:'15%', top:'100px', position:'relative'}}>
 				<h1> Songs </h1>
 					{this.songs}

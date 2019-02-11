@@ -25,7 +25,6 @@ export default class ArtistAlbumsPage extends React.Component
 		this.generateAlbums();
 		return (
 			<div>
-				<StandardHeader />
 				<div className = "albums_display" style = {{left:'15%', top:'100px', position:'relative'}}>
 				<h1> Albums </h1>
 					{this.albums}

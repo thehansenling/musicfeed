@@ -22,7 +22,6 @@ export default class FollowingPage extends React.Component
 		this.generateFollows();
 		return (
 			<div>
-				<StandardHeader/>
 				<div className = "follows_div" style = {{left:'15%', top:'100px', position:'relative'}}>
 					<h1> Follows </h1>
 						{this.follows}

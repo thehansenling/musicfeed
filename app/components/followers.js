@@ -22,7 +22,6 @@ export default class FollowersPage extends React.Component
 		this.generateFollowers();
 		return (
 			<div>
-				<StandardHeader/>
 				<div className = "followers_div" style = {{left:'15%', top:'100px', position:'relative'}}>
 					<h1> Followers </h1>
 						{this.followers}

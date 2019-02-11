@@ -1,6 +1,7 @@
 import React from 'react';
 import StandardHeader from './standard_header.js'
 import CommentSection from './comments.js'
+import utils from './utils.js'
 
 class UserPostContent extends React.Component 
 {
@@ -20,6 +21,11 @@ class UserPostContent extends React.Component
 	}
 	likeClicked()
 	{
+		if (!utils.checkLoggedIn())
+		{
+			alert("MUST BE LOGGED IN")
+			return;
+		}
 		var that = this;
 
 	    fetch("/like", {
@@ -79,6 +85,11 @@ class UserPostContent extends React.Component
 
 	dislikeClicked()
 	{
+		if (!utils.checkLoggedIn())
+		{
+			alert("MUST BE LOGGED IN")
+			return;
+		}
 		var that = this;
 	    fetch("/dislike", {
 	        method: "POST",
@@ -187,7 +198,6 @@ export default class UserPost extends React.Component
 	{
 		return (
 			<div>
-				<StandardHeader/>
 				<UserPostContent data = {this.props.data.user_post} like_state = {this.props.data.like_state}/>
 				<CommentSection comments = {this.props.data.comments} comment_votes = {this.props.data.comment_votes} post_id = {this.props.data.user_post.id}/>
 			</div>

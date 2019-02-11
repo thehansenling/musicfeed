@@ -1,5 +1,5 @@
 import React from 'react';
-
+import utils from './utils.js'
 
 function generateComments(comments, comment_votes, id, starting_comment_level)
 {
@@ -169,6 +169,11 @@ class Comment extends React.Component
 
 	upvoteClicked()
 	{
+		if (!utils.checkLoggedIn())
+		{
+			alert("MUST BE LOGGED IN")
+			return;
+		}
     	if (this.vote_state == 0 || this.vote_state == -1)
     	{
     		this.upvoteRef.current.style.color = 'blue'
@@ -210,6 +215,11 @@ class Comment extends React.Component
 
 	downvoteClicked()
 	{
+		if (!utils.checkLoggedIn())
+		{
+			alert("MUST BE LOGGED IN")
+			return;
+		}
     	if (this.vote_state == 1 || this.vote_state == -1)
     	{
     		this.upvoteRef.current.style.color = 'black'
@@ -250,6 +260,11 @@ class Comment extends React.Component
 
 	openNewComment()
 	{
+		if (!utils.checkLoggedIn())
+		{
+			alert("MUST BE LOGGED IN")
+			return;
+		}
 		this.new_comment = <div>
 				<textarea ref = {this.newCommentTextRef} class = 'comment_text' id = {this.props.data.comment_id} name='content' rows='10' cols='90' style={{width:'80%',height:'50px',zIndex:'100'}}></textarea>
 				<button onClick = {this.submitNewComment.bind(this)} style={{height:'30px',bottom:'30px',position:'relative'}} type='button' class='submit_new_comment' id = {this.props.data.comment_id}>submit</button>
@@ -431,6 +446,11 @@ export default class CommentSection extends React.Component
 
 	openNewComment()
 	{
+		if (!utils.checkLoggedIn())
+		{
+			alert("MUST BE LOGGED IN")
+			return;
+		}
 		this.new_comment = <div>
 				<textarea ref = {this.newCommentTextRef} class = 'comment_text' id = {this.props.comment_id} name='content' rows='10' cols='90' style={{width:'80%',height:'50px',zIndex:'100'}}></textarea>
 				<button onClick = {this.submitNewComment.bind(this)} style={{height:'30px',bottom:'30px',position:'relative'}} type='button' class='submit_new_comment' id = {this.props.comment_id}>submit</button>

@@ -552,7 +552,7 @@ app.get('/', (req, res) => {
 
 
 app.get('/about', (req, res) => {
-	var html = renderPage(req.url, {});
+	var html = renderPage(req.url, {username: req.cookies.username});
 	res.send(html);
 })
 
@@ -625,6 +625,7 @@ app.get('/user/:user/:post_id', function (req, res) {
 						  comments: all_comments,
 						  comment_votes:all_comment_votes,
 						  like_state:user_like_state,
+						  username: req.cookies.username,
 						}
 
 						var html = renderPage(req.url, data)
@@ -707,6 +708,7 @@ app.get('/user/:user/', (req, res) => {
 								follows: follows_data.length,
 								followees: followees,
 								user: result[0],
+								username: req.cookies.username,
 							}
 							var html = renderPage(req.url, data)
 							res.send(html);
@@ -815,6 +817,7 @@ app.get('/artist/:artist/', (req, res) => {
 						artist: req.params.artist,
 						album_data: ordered_albums,
 						song_data: ordered_songs,
+						username: req.cookies.username,
 					}	
 
 					var html = renderPage(req.url, data)
@@ -885,6 +888,7 @@ app.get('/artist/:artist/songs', function (req, res) {
 			var data =
 			{
 				song_data: ordered_songs,
+				username: req.cookies.username,
 			};		
 			var html = renderPage(req.url, data)
 			res.send(html);
@@ -939,6 +943,7 @@ app.get('/artist/:artist/albums', function (req, res) {
 			var data =
 			{
 				album_data: ordered_albums,
+				username: req.cookies.username,
 			};
 			var html = renderPage(req.url, data)
 			res.send(html);
@@ -1022,6 +1027,7 @@ app.get('/post/:artist/:song', function (req, res) {
 							comments: all_comments,
 							comment_votes:all_comment_votes,
 							like_state: user_like_state,
+							username: req.cookies.username
 						};
 						var html = renderPage(req.url, data)
 						res.send(html);
@@ -1118,6 +1124,7 @@ app.get('/album/:artist/:album', function (req, res) {
 								  comments: all_comments,
 								  comment_votes:all_comment_votes,
 								  like_state: user_like_state,
+								  username: req.cookies.username,
 							  };
 								var html = renderPage(req.url, data)
 								res.send(html);
@@ -1177,7 +1184,7 @@ app.post('/logout', function(req, res)
 
 app.get('/register', function(req, res)
 {
-	var data = {}
+	var data = {username: req.cookies.username}
 	var html = renderPage(req.url, data)
 	res.send(html);
 });
@@ -1189,6 +1196,7 @@ app.get('/followers/:user', function (req, res) {
 		var data = 
 		{
 			followers: result,
+			username: req.cookies.username,
 		};	
 		var html = renderPage(req.url, data)
 		res.send(html);
@@ -1202,6 +1210,7 @@ app.get('/following/:user', function (req, res) {
 		var data = 
 		{
 			following: result,
+			username: req.cookies.username,
 		};	
 		var html = renderPage(req.url, data)
 		res.send(html);
