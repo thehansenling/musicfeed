@@ -3,9 +3,9 @@
 
 // import  {BrowserRouter as Router} from 'react-router-dom'
 // import App from './components/App';
-require('@babel/register')({
-    presets: ['@babel/preset-react']
-});
+// require('@babel/register')({
+//     presets: ['@babel/preset-react']
+// });
 
 // var React = require('react');
 // var ReactDOMServer = require('react-dom/server');
