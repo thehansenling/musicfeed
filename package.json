@@ -20,6 +20,8 @@
     "webpack": "^4.28.2"
   },
   "dependencies": {
+    "@babel/preset-react": "^7.0.0",
+    "@babel/register": "^7.0.0",
     "body-parser": "^1.18.3",
     "cookie-parser": "^1.4.3",
     "express": "^4.16.4",
