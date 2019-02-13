@@ -1605,22 +1605,23 @@ app.post('/post', function (req, res)
 	var date = String(new Date().getTime());
 
 	var url = req.body.song;
+	
 	url = url.substring(url.indexOf("https://") + 0);
 	url = url.substring(0, url.indexOf("width") - 2);
 
-	username = req.cookies.username;
+	var username = req.cookies.username;
 	var post_id = uuidv3(String(temp_username + "/" + req.body.title), uuidv3.URL);
 
-	var username = '44a9442188734ab2999542562c6477c3';
-	var password = '9c24d61cf7234c4a80f6f2f49ecc9c45';
+	var spotify_username = '44a9442188734ab2999542562c6477c3';
+	var spotify_password = '9c24d61cf7234c4a80f6f2f49ecc9c45';
 	if (url == "")
 	{
 		res.send({})
 		return;
 	}
 	var spotify = new Spotify({
-	  id: username,
-	  secret: password
+	  id: spotify_username,
+	  secret: spotify_password
 	});
 	spotify
 	  .request(url)
@@ -1660,11 +1661,15 @@ app.post('/post', function (req, res)
 		else
 		{
 			var release_date = data.substring(data.indexOf('release_date"') + 15, data.indexOf("release_date_precision") - 3);
+
 		    var narrowed = data.split('{"album":{');
+		    console.log("IN HERE1")
 		    narrowed = narrowed[1].substring(narrowed[1].indexOf("width"));
+		    console.log("IN HERE2")
 		    var album = narrowed.substring(narrowed.indexOf("name") + 7, narrowed.indexOf("release_date") - 3);
 		    narrowed = narrowed.split("release_date_precision")
 		    narrowed = narrowed[1].substring(narrowed[1].indexOf("external_urls"))
+
 		    var artist = "";
 		    while (narrowed.indexOf('"type":"artist"') != -1)
 		    {
@@ -1686,17 +1691,22 @@ app.post('/post', function (req, res)
 			});
 		}
 		var sql = "SELECT * from global_posts WHERE song = '" + song_name + "' AND artist = '" + artist + "'";
+		console.log(sql)
 		connection.query(sql, function (err, result, fields) 
 		{
 			var already_in_flag = false;
-			for (var item of result)
+			if (song_name == "NO_SONG_ALBUM_ONLY")
 			{
-				if (item.song == "NO_SONG_ALBUM_ONLY" && item.album == album)
+				for (var item of result)
 				{
-					already_in_flag = true;
+					if (item.song == "NO_SONG_ALBUM_ONLY" && item.album == album)
+					{
+						already_in_flag = true;
+					}
 				}
 			}
-			if (result.length == 0 || !already_in_flag)
+			console.log(result);
+			if (result.length == 0 || (!already_in_flag && song_name == "NO_SONG_ALBUM_ONLY"))
 			{
 				var new_post_id = uuidv3(artist + "/" + album + "/" + song_name, uuidv3.URL);
 				var new_post_timestamp = String(new Date().getTime());

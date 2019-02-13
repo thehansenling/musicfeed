@@ -191,7 +191,7 @@ class Post extends React.Component
 		var post_id = this.props.song.post_id;
 
 
-
+		console.log(this.props.song)
 		if (this.props.song.username != undefined)
 		{
 			post_id = this.props.song.id;
@@ -241,7 +241,7 @@ class Post extends React.Component
 	 					</a>
 		 				 {by_text}
 		 				<a href ={poster_username_url} > {poster_username} </a> {at_text}
-		 				{" " + date.getMonth() + "/" + date.getDate() + "/" + date.getFullYear()} 
+		 				{" " + date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear()} 
 	 				</h3>
 	 				</div>
 	 					{content}
