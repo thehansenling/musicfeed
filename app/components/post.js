@@ -247,7 +247,7 @@ class Post extends React.Component
 	 					</a>
 		 				 {by_text}
 		 				<a href ={poster_username_url} > {poster_username} </a> {at_text}
-		 				{" " + date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear()} 
+		 				{" " + (parseInt(date.getMonth()) + 1) + "/" + date.getDate() + "/" + date.getFullYear()} 
 	 				</h3>
 	 				</div>
 	 					{content}
