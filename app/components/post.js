@@ -6,11 +6,10 @@ class Post extends React.Component
 	constructor(props) 
 	{
 		super(props);
-		console.log("POST PROPS")
-		console.log(props)
 		this.likes_score = this.props.song.likes - props.song.dislikes;
 		this.likeRef = React.createRef();
 		this.dislikeRef = React.createRef();
+
 	}	
 
 	renderiframe(iframe) {
@@ -38,12 +37,9 @@ class Post extends React.Component
 		var post_url = "/like"
 		if (that.props.song.username == undefined)
 		{
-			console.log("global like")
 			post_url = "/global_like"
 		}
 
-
-		console.log("back 0	")
 	    fetch(post_url, {
 	        method: "POST",
 	        headers: {
@@ -118,7 +114,6 @@ class Post extends React.Component
 		var post_url = "/dislike"
 		if (that.props.song.username == undefined)
 		{
-			console.log("global dislike")
 			post_url = "/global_dislike"
 		}
 
@@ -184,14 +179,25 @@ class Post extends React.Component
 		var post_title = <h1 style= {{position:'relative'}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id} > {this.props.song.title}</a></h1>;
 		var poster_username = this.props.song.artist;
 		var poster_username_url = "/artist/" + this.props.song.artist;
-		var content = <h2 style={{position:'relative'}}>{this.props.song.content}</h2>
+		var content_div = []
+		this.props.song.content.split('\n').map((item, i) => {
+			if (item == '')
+			{
+				content_div.push(<br/>)
+			}
+			else
+			{
+				content_div.push(<p key={i}>{item}</p>);
+			}
+		})
+
+		var content = <h2 style={{position:'relative'}}>{content_div}</h2>
+
 		var by_text = " by"
 		var at_text = " posted at "
 
 		var post_id = this.props.song.post_id;
 
-
-		console.log(this.props.song)
 		if (this.props.song.username != undefined)
 		{
 			post_id = this.props.song.id;
@@ -274,8 +280,6 @@ export default class PostInfo extends React.Component
 	{
 		var like_state = -1;
 		var current_num_comments = 0;
-		console.log(this.props)
-		console.log("props")
 		for (var like of this.props.likes)
 		{
 			var id = like.post_id
@@ -292,10 +296,7 @@ export default class PostInfo extends React.Component
 
 			if (id == post_id)
 			{
-				console.log("FOUND A LIKE STATE")
-
 				like_state = like.like_state;
-				console.log(like_state)
 			}
 		}
 		for (var num_comments of this.props.num_comments)
@@ -340,7 +341,6 @@ export default class PostInfo extends React.Component
 
 				if (id == post_id)
 				{
-					console.log("FOUDN ID")
 					like_state = like.like_state;
 				}
 			}

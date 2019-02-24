@@ -351,7 +351,6 @@ function GetCommentChildren(comment_ids, comments, comment_votes, username, res,
 	});
 }
 
-
 function GetComments(level, limit, post_id, comment_ids, username, offset = 0)
 {
 	return new Promise(function(resolve, reject) {
@@ -647,8 +646,99 @@ app.get('/user/:user/:post_id', function (req, res) {
 	});
 });
 
+function GetPosts(condition, req, res, limit = 0)
+{
+	var sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN " + 
+								  "(timestamp - CURRENT_TIMESTAMP)/45000 ELSE LOG(ABS(cast(likes as signed) -" + 
+								  " cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) +" + 
+								  "(timestamp - CURRENT_TIMESTAMP)/45000 END as score FROM user_content " + condition + 
+								  " ORDER BY score DESC LIMIT " + limit + " OFFSET " + req.body.offset;
+	console.log(sql);
+	connection.query(sql, function (err, result, fields) 
+	{					
+	    var PRIORITY_MODIFIER = 2
+	    var songs_list = [];
+		var post_ids = ""
+	    for (var i =0; i < result.length; ++i)
+		{
+			songs_list.push(result[i]);
+			post_ids = post_ids + "'" + result[i].post_id + "',"
+		}
+		if (post_ids.length > 0) post_ids = post_ids.substring(0, post_ids.length-1);
+
+		var like_sql = "SELECT post_id, like_state FROM likes WHERE user_id = '" + 
+						req.params.username + "'" + "AND post_id in (" + post_ids + ")";
+		connection.query(like_sql, function (err, result, fields) 
+		{
+			var likes_list = [];
+			if (result != undefined)
+			{
+				for (i =0; i < result.length; ++i)
+				{
+					likes_list.push(result[i])
+				}
+				var num_comments_sql ="";
+				for (var id of post_ids.split(","))
+				{
+					num_comments_sql = num_comments_sql + "SELECT COUNT(comment_id), post_id FROM comments WHERE post_id =" + id + "; " ;
+				}
+			}
+			connection.query(num_comments_sql, function (err, result, fields) 
+			{
+				var num_comments_list = [];
+				if (result != undefined)
+				{
+					if (result.length == 1)
+					{
+						num_comments_list.push({'count':result[0]["COUNT(comment_id)"], 'post_id':result[0]["post_id"] });
+					}
+					else 
+					{
+						for (i =0; i < result.length; ++i)
+						{
+							if (result[i][0]["post_id"] != null)
+							{
+								num_comments_list.push({'count':result[i][0]["COUNT(comment_id)"], 'post_id':result[i][0]["post_id"] });
+							}
+							
+						}
+					}	
+				}
+				var user_sql = "SELECT * FROM accounts WHERE username = '" + req.params.user +"'";
+				connection.query(user_sql, function (err, result, fields) 
+				{
+					//callback(songs_list, likes_list, num_comments_list);
+					var data = {
+						songs: songs_list,
+						likes: likes_list,
+						num_comments: num_comments_list,
+						username: req.body.username,
+						user: result[0],
+					}
+					console.log(data);
+					//var html = renderPage(req.url, data)
+					//res.send(html);
+					res.send(data);
+			 	});
+				//callback(data);
+			});			
+		});
+	});
+}
+
+app.post('/load_post_data', function (req, res) {
+	console.log("LOADING POSTS")
+	GetPosts("WHERE username = '" + req.body.user + "' ", req, res, 5);
+});
+
+
 app.get('/user/:user/', (req, res) => {
-	var sql = "SELECT * FROM user_content where username = '" + req.params.user + "'ORDER BY timestamp";
+	//var sql = "SELECT * FROM user_content where username = '" + req.params.user + "'ORDER BY timestamp ";
+	var sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN " + 
+								  "(timestamp - CURRENT_TIMESTAMP)/45000 ELSE LOG(ABS(cast(likes as signed) -" + 
+								  " cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) +" + 
+								  "(timestamp - CURRENT_TIMESTAMP)/45000 END as score FROM user_content " + 
+								  "ORDER BY score DESC LIMIT " + 5 + " OFFSET " + 0
 	connection.query(sql, function (err, result, fields) 
 	{
 	    if (err) throw err;
@@ -834,6 +924,8 @@ app.get('/artist/:artist/', (req, res) => {
 
 })
 
+
+
 app.get('/artist/:artist/songs', function (req, res) {
 	var song_sql = "SELECT * from global_posts WHERE artist = '" + req.params.artist + "' AND song != 'NO_SONG_ALBUM_ONLY'";
 	var song_post_ids = "";
@@ -951,7 +1043,6 @@ app.get('/artist/:artist/albums', function (req, res) {
 	});
 });
 
-
 app.get('/post/:artist/:song', function (req, res) {
 	var sql = "SELECT * FROM global_posts WHERE artist = '" + String(req.params.artist) + "'" + " AND song = '" + String(req.params.song) + "'";
 	connection.query(sql, function (err, result, fields) 
@@ -1031,7 +1122,6 @@ app.get('/post/:artist/:song', function (req, res) {
 						};
 						var html = renderPage(req.url, data)
 						res.send(html);
-
 
 				  }, function(error_2) {
 				  	console.error("Failed!", error_2);
@@ -1145,6 +1235,7 @@ app.get('/album/:artist/:album', function (req, res) {
 		});
   	});
 });
+
 
 app.get('/login', function(req, res)
 {
@@ -1603,6 +1694,7 @@ app.post('/post', function (req, res)
 {
 	var temp_username = "hansen";
 	var date = String(new Date().getTime());
+	console.log(req.body)
 
 	var url = req.body.song;
 	

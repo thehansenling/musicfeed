@@ -175,8 +175,8 @@ export default class GlobalPost extends React.Component
 	{
 		return (
 			<div>
-				<GlobalPostContent data = {this.props.data.data} like_state = {this.props.data.like_state}/>
-				<CommentSection comments = {this.props.data.comments} comment_votes = {this.props.data.comment_votes} post_id = {this.props.data.data.post_id} />
+				<GlobalPostContent data = {this.props.data.global_post} like_state = {this.props.data.like_state}/>
+				<CommentSection comments = {this.props.data.comments} comment_votes = {this.props.data.comment_votes} post_id = {this.props.data.global_post.post_id} />
 			</div>
 		);
 	}
