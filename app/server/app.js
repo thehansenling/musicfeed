@@ -736,6 +736,7 @@ app.get('/user/:user/', (req, res) => {
 								  "(timestamp - CURRENT_TIMESTAMP)/45000 ELSE LOG(ABS(cast(likes as signed) -" + 
 								  " cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) +" + 
 								  "(timestamp - CURRENT_TIMESTAMP)/45000 END as score FROM user_content " + 
+								  "WHERE username = '" + req.params.user + "' " + 
 								  "ORDER BY score DESC LIMIT " + 5 + " OFFSET " + 0
 	connection.query(sql, function (err, result, fields) 
 	{
@@ -1112,7 +1113,7 @@ app.get('/post/:artist/:song', function (req, res) {
 				  	  }
 						var data = 
 						{
-							data: content[0],
+							global_post: content[0],
 							comments: all_comments,
 							comment_votes:all_comment_votes,
 							like_state: user_like_state,

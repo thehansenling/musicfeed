@@ -8,28 +8,28 @@ function SortSearch(users, artists, songs, albums)
 	for (var key in users)
 	{
 		var user_display = users[key].username;
-		var user_url = "user/" + users[key].username;
+		var user_url = "/user/" + users[key].username;
 		search_list.push([user_display, user_url]);
  	}
 
  	for (var key in artists)
  	{
 	 	var artist_display = artists[key].artist;
-	 	var artist_url = "artist/" + artists[key].artist
+	 	var artist_url = "/artist/" + artists[key].artist
 	 	search_list.push([artist_display, artist_url]);
 	}
 
 	for (var key in songs)
 	{
 	 	var song_display = songs[key].song;
-	 	var song_url = "post/" + songs[key].artist + "/" + songs[key].song;
+	 	var song_url = "/post/" + songs[key].artist + "/" + songs[key].song;
 	 	search_list.push([song_display, song_url]);
  	}
 
  	for (var key in albums)
  	{
 	 	var album_display = albums[key].album;
-	 	var album_url = "album/" + albums[key].artist + "/" + albums[key].album;
+	 	var album_url = "/album/" + albums[key].artist + "/" + albums[key].album;
 	 	search_list.push([album_display, album_url]);
  	}
 

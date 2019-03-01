@@ -9,8 +9,8 @@ class Post extends React.Component
 		this.likes_score = this.props.song.likes - props.song.dislikes;
 		//this.likeRef = React.createRef();
 		//this.dislikeRef = React.createRef();
-		this.up_image = "small_up.png"
-		this.down_image = "small_down.png"
+		this.up_image = "/small_up.png"
+		this.down_image = "/small_down.png"
 	}
 
 	renderiframe(iframe) {
@@ -78,7 +78,7 @@ class Post extends React.Component
        		this.likes_score -= 1;
     		//this.likeRef.current.style = 'black'
     		//this.dislikeRef.current.style.color = 'black'
-    		this.up_image = "small_up.png"
+    		this.up_image = "/small_up.png"
     		this.props.like_state = -1;
     	}
     	else
@@ -93,8 +93,8 @@ class Post extends React.Component
     		}
     		//this.likeRef.current.style = 'blue'
     		//this.dislikeRef.current.style.color = 'black'
-    		this.up_image = "small_up_on.png"
-    		this.down_image = "small_down.png"
+    		this.up_image = "/small_up_on.png"
+    		this.down_image = "/small_down.png"
     		this.props.like_state = 1;
     	}
 
@@ -156,7 +156,7 @@ class Post extends React.Component
     	{
     		//this.likeRef.current.style = 'black'
     		//this.dislikeRef.current.style.color = 'black'	 
-    		this.down_image = "small_down.png"
+    		this.down_image = "/small_down.png"
     		this.props.like_state = -1;
     		this.likes_score += 1;
     	}
@@ -172,8 +172,8 @@ class Post extends React.Component
     		}
     		//this.likeRef.current.style = 'black'
     		//this.dislikeRef.current.style.color = 'red'
-    		this.down_image = "small_down_on.png"
-    		this.up_image = "small_up.png"
+    		this.down_image = "/small_down_on.png"
+    		this.up_image = "/small_up.png"
     		this.props.like_state = 0;
 
     	}
@@ -224,12 +224,12 @@ class Post extends React.Component
 		if (this.props.like_state == 1)
 		{
 			like_style.color = 'blue';
-			this.up_image = "small_up_on.png"
+			this.up_image = "/small_up_on.png"
 		}
 		else if (this.props.like_state == 0)
 		{
 			dislike_style.color = 'red';
-			this.down_image = "small_down_on.png"
+			this.down_image = "/small_down_on.png"
 		}
 
 		var likes_section = <div>
@@ -271,7 +271,7 @@ class Post extends React.Component
 					<div style = {{float:'left'}}><img onClick = {this.dislikeClicked.bind(this)} src={this.down_image} width="30" height="30" alt=""/></div>
 					<div style = {{float:'left', width:'30px', height:'30px', borderRight: '1px solid black'}}></div>
 					<div style = {{float:'left', width:'30px', height:'30px'}}></div>
-					<div style = {{float:'left'}}><img src="small_comment.png" width="30" height="30" alt=""/></div>
+					<div style = {{float:'left'}}><img src="/small_comment.png" width="30" height="30" alt=""/></div>
 					<div style = {{width:'60px', height:'30px', float:'left', verticalAlign: 'middle', textAlign: 'center', width:'80px', position: 'relative', top: '0px', fontSize: '21px'}}>{this.props.num_comments}</div>
 				</div>
 			</div>

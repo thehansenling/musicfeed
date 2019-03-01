@@ -161,13 +161,25 @@ class UserPostContent extends React.Component
 			dislike_style.color = 'red'
 		}
 
+		var content_div = []
+		this.props.data.content.split('\n').map((item, i) => {
+			if (item == '')
+			{
+				content_div.push(<br/>)
+			}
+			else
+			{
+				content_div.push(<p key={i}>{item}</p>);
+			}
+		})
+
 		return (
 			<div>
 				<div style={{position:'relative', top:'100px', paddingBottom:'100px', height: 'auto', minHeight: '550px'}}>
 					<div style={{position:'relative',float:'left', top:'0px', paddingRight:'20px'}} dangerouslySetInnerHTML={this.renderiframe(this.props.data.embedded_content)}>
 					</div>
 					<div style={{left:'10%', top:'20%'}}>
-					  	{this.props.data.content}
+					  	{content_div}
 					</div>
 
 				</div>
