@@ -109,7 +109,7 @@ class SearchList extends React.Component {
 	{
 		return(
 			<div>
-				<p><label>Search:</label><input onChange={this.handleChange.bind(this)} type='text' name='country' className='search_bar'/></p>
+				<input onChange={this.handleChange.bind(this)} placeholder = "Search" type='text' name='country' className='search_bar'/>
 				<SearchItem ref={this.search_list}/>
 			</div>
 		);
@@ -144,18 +144,15 @@ export default class StandardHeader extends React.Component {
   render() {
 
   	var login_info = <div>
-			    <ul className="nav navbar-nav">
-			        <li>{this.props.username}</li>
-			        <li><button onClick = {this.logoutClicked.bind(this)}>Logout</button></li>
-			    </ul>
+			        <a style = {{marginRight: '10px'}} href = {"/user/" + this.props.username}> {this.props.username} </a>
+			        <a href="/" onClick = {this.logoutClicked.bind(this)}>Logout</a>
   			   </div>
   	if (this.props.username == undefined)
   	{
 	  	login_info = <div>
-			    <ul className="nav navbar-nav">
-			        <li><a href="/register">Register</a></li>
-			        <li><a href="/login">Login</a></li>
-			    </ul>
+
+			        <a style = {{marginRight: '10px'}}href="/register" >Register</a>
+			        <a href="/login">Login</a>
 			</div>
   	}
     return (
@@ -168,20 +165,23 @@ export default class StandardHeader extends React.Component {
 
 	</head>
 	<header>
-		<nav className="navbar navbar-inverse" id = "reacttest" style = {{position:'fixed', backgroundColor: 'gray', width:'100%', zIndex:'10'}}>
-			<a href="/" className="navbar-brand">My Site</a>
-		    <div>
-		        <div className="search_list" id = "MyDropdown" style = {{position:'absolute', display:'block', overflow: 'auto'}}>
+		<div id = "reacttest" style = {{position:'fixed', height:'60px', backgroundColor: '#178275', width:'100%', zIndex:'10'}}>
+			<div style = {{position:'absolute',top:'15px', left:'10px'}}><a href="/" >Home</a></div>
+		    <div style = {{position:'absolute',top:'15px', left:'210px'}}>
+		        <div className="search_list" style = {{overflow: 'auto'}}>
 		        <SearchList />
 		        </div>
 		    </div>
-		    {login_info}
-			<ul className="nav navbar-nav">
-				<li><a href="/">Home</a></li>
-				<li><a href="/about">About</a></li>
-				<li><a href="/contact">Contact</a></li>
-			</ul>
-		</nav>
+		    <div>
+			    <div style = {{position:'absolute',top:'15px', right:'130px'}}>
+			    	{login_info}
+			    </div>
+			    <div style = {{position:'absolute',top:'15px', right:'10px'}}>
+					<a style ={{marginRight: '10px'}}href="/about">About</a>
+					<a href="/contact">Contact</a>
+				</div>
+			</div>
+		</div>
 
 	</header>
 </div>

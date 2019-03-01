@@ -3,6 +3,8 @@ import StandardHeader from './standard_header.js'
 import PostInfo from './post.js'
 import utils from './utils.js'
 
+
+
 class NewPostSubmission extends React.Component {
 	constructor(props)
 	{
@@ -209,10 +211,12 @@ export default class Feed extends React.Component{
 		}
 	}
 
+
 	render()
 	{
 		return (
 			<div>
+
 				<NewPostSubmission />
 				<PostInfo ref = {this.postsRef} songs = {this.props.data.songs} likes = {this.props.data.likes} num_comments = {this.props.data.num_comments}/>
 			</div>

@@ -146,7 +146,6 @@ class GlobalPostContent extends React.Component
 							{this.album_songs}
 						</div>
 
-
 					</div>
 				</div>
 				<br/>

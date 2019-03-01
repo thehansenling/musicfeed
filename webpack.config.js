@@ -1,6 +1,4 @@
 var path = require('path');
-var webpack = require('webpack');
-// var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
 	devtool: 'inline-source-map',
@@ -22,16 +20,4 @@ module.exports = {
 			}
 		]
 	},
-    // plugins: [
-    //     new HtmlWebpackPlugin({ 
-    //         template: './app/public/index.html',
-    //         filename: 'index.html',
-    //         inject: 'body',
-    //     }),
-    //     new HtmlWebpackPlugin({
-    //         template: './app/public/about.html',
-    //         filename: 'about.html',
-    //         inject: 'body',
-    //     }),
-    // ]
 };
