@@ -556,7 +556,6 @@ app.get('/about', (req, res) => {
 })
 
 app.get('/user/:user/:post_id', function (req, res) {
-
 	var sql = "SELECT * FROM user_content WHERE username = '" + req.params.user + "'" + " AND id = '" + req.params.post_id + "'";
 	connection.query(sql, function (err, result, fields) 
 	{
@@ -626,7 +625,6 @@ app.get('/user/:user/:post_id', function (req, res) {
 						  like_state:user_like_state,
 						  username: req.cookies.username,
 						}
-
 						var html = renderPage(req.url, data)
 						res.send(html);
 

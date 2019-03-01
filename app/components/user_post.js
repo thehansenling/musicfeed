@@ -191,6 +191,7 @@ export default class UserPost extends React.Component
 {
 	constructor(props)
 	{
+		console.log(props)
 		super(props);
 	}
 

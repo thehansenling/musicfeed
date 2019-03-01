@@ -43,7 +43,7 @@ export default class App extends React.Component{
 		return (
 			<div id='root' style = {{background:'#FAFAFA'}}>
 				<StandardHeader username = {this.props.data.username}/>
-				<link rel="stylesheet" href="styles.css"/>
+				<link rel="stylesheet" href="/styles.css"/>
 				<Switch>
 					<Route exact path = "/" render={() => (<Feed data={this.props.data}/>)} />
 					<Route exact path = "/user/:user/:post_id" render={() => (<UserPost data={this.props.data}/>)}/>
