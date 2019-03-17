@@ -1,7 +1,7 @@
 import React from 'react';
 import utils from './utils.js'
 
-function generateComments(comments, comment_votes, id, starting_comment_level)
+function generateComments(comments, comment_votes, id, starting_comment_level, is_global = false)
 {
 	var levels = [];
 	var level_zero_comments = 0;
@@ -28,7 +28,6 @@ function generateComments(comments, comment_votes, id, starting_comment_level)
 
 	var comment_map = {};
 	var current_comments = [];
-
 	for (var level = levels.length - 1; level >= 0; level--)
 	{
 		for (var comment of levels[level])
@@ -49,7 +48,7 @@ function generateComments(comments, comment_votes, id, starting_comment_level)
 					comment_vote = vote;
 				}
 			}
-			current_comments.push(<Comment key = {comment.comment_id} data = {comment} child_comments = {comment_map[comment.comment_id]} vote_state = {comment_vote} post_id = {id}/>)
+			current_comments.push(<Comment key = {comment.comment_id} data = {comment} child_comments = {comment_map[comment.comment_id]} vote_state = {comment_vote} post_id = {comment.post_id} is_global = {is_global}/>)
 			//current_comments.push(<div>PLEASE</div>)
 		}
 		if (level == starting_comment_level)
@@ -260,17 +259,26 @@ class Comment extends React.Component
 
 	openNewComment()
 	{
-		if (!utils.checkLoggedIn())
+		
+		if (this.props.is_global != undefined)
 		{
-			alert("MUST BE LOGGED IN")
-			return;
+			
+			window.location = "/user/" + this.props.data.user_id + "/" + this.props.data.post_id
 		}
-		this.new_comment = <div>
-				<textarea ref = {this.newCommentTextRef} class = 'comment_text' id = {this.props.data.comment_id} name='content' rows='10' cols='90' style={{width:'80%',height:'50px',zIndex:'100'}}></textarea>
-				<button onClick = {this.submitNewComment.bind(this)} style={{height:'30px',bottom:'30px',position:'relative'}} type='button' class='submit_new_comment' id = {this.props.data.comment_id}>submit</button>
-				<button onClick = {this.closeNewComment.bind(this)} style={{bottom:'0px',position:'relative',height:'30px'}} type='button' class='close_new_comment' id = {this.props.data.comment_id}>x</button>
-			</div>
-		this.forceUpdate();
+		else
+		{
+			if (!utils.checkLoggedIn())
+			{
+				alert("MUST BE LOGGED IN")
+				return;
+			}
+			this.new_comment = <div>
+					<textarea ref = {this.newCommentTextRef} class = 'comment_text' id = {this.props.data.comment_id} name='content' rows='10' cols='90' style={{width:'80%',height:'50px',zIndex:'100'}}></textarea>
+					<button onClick = {this.submitNewComment.bind(this)} style={{height:'30px',bottom:'30px',position:'relative'}} type='button' class='submit_new_comment' id = {this.props.data.comment_id}>submit</button>
+					<button onClick = {this.closeNewComment.bind(this)} style={{bottom:'0px',position:'relative',height:'30px'}} type='button' class='close_new_comment' id = {this.props.data.comment_id}>x</button>
+				</div>
+			this.forceUpdate();
+		}
 	}
 
 	closeNewComment()
@@ -316,7 +324,7 @@ class Comment extends React.Component
 	    .then(function(response) { return response.json();})
 	    .then(function (data) {    	
 
-	    	var child_comments = generateComments(data.comments, data.comment_votes, that.props.post_id, that.props.data.comment_level + 1)[0]
+	    	var child_comments = generateComments(data.comments, data.comment_votes, that.props.post_id, that.props.data.comment_level + 1, that.global_post == undefined)[0]
 	    	//don't know why this doesn't work
 	    	for (var comment of child_comments)
 	    	{
@@ -363,6 +371,7 @@ class Comment extends React.Component
 			downvote_color = 'red'
 		}
 
+
 		return (
 	      	<div>
 		      	<div className= {comment_level} id= {comment_id} replies= {replies} style={{position:'relative', left:left_offset}}>
@@ -393,23 +402,91 @@ export default class CommentSection extends React.Component
 		super(0);
 		this.comments = [];
 		this.offset = 0;
-
+		this.global_offset = 0;
+		if (props.user_posts != undefined)
+		{
+			this.global_offset += props.user_posts.length
+		}
 		this.loading_comments_semaphor = false;
 
 		this.new_comment = undefined;
 		this.newCommentTextRef = React.createRef();
+		this.user_posts = props.posts;
+	}
+
+	makePosts(user_posts, comments)
+	{
+		if (user_posts != undefined)
+		{
+			var post_and_comments = [];
+			user_posts.map((post) => {
+				var current_comment = undefined;
+				for (var comment of comments)
+				{
+					if (comment.props.post_id == post.post_id)
+					{
+						current_comment = comment;
+						break;
+					}
+				}
+				var date = new Date(post.timestamp);
+				var minutes = date.getMinutes();
+
+				if (String(minutes).length == 1)
+				{
+					minutes = "0" + String(minutes);
+				}
+				var date_text = date.getMonth() + "/" + date.getDate() + "/" + date.getFullYear() + " at " + date.getHours() + ":" + minutes;
+
+				var comment_id = -1;
+				var comment = undefined;
+				
+				if (current_comment != undefined)
+				{
+					var comment_id = current_comment.props.comment_id;
+					var comment = current_comment;						
+				}
+
+				post_and_comments.push( 
+				<div>
+			      	<div  style={{position:'relative', left:'0px'}}>
+				      	<div style={{left:'5%',position:'relative'}}>
+				      		<div style={{borderStyle:'solid', borderBottomStyle: 'none',width:'75%',height:'35px'}} className='comment_header' id = {comment_id}> 
+				      			{post.title + " "}
+				      			{post.username + " " + date_text + " " + parseInt(post.likes - post.dislikes)}
+				      		</div>
+				      		<div style={{borderStyle:'solid', borderTopStyle: 'none', width:'75%'}} className ='comment_body' id = {comment_id}> {post.content} </div> 
+				      	</div>
+			    	</div>		
+					{comment}
+				</div>
+				)})
+			return post_and_comments;
+			
+		}
 	}
 
 	getComments(comments, comment_votes, id)
 	{
-		var comment_result = generateComments(comments, comment_votes, id, 0);		
+		var comment_result = generateComments(comments, comment_votes, id, 0, this.global_post == undefined);		
 		this.comments = comment_result[0];
 		this.offset += comment_result[1]
 	}
 
 	componentDidMount() {
-	    window.addEventListener('scroll', this.handleScroll.bind(this));
+		if (this.props.posts == undefined)
+		{
+	    	window.addEventListener('scroll', this.handleScroll.bind(this));
+	    }
+	    else
+	    {
+	    	window.addEventListener('scroll', this.handleScrollGlobal.bind(this));
+	    }
 	    this.getComments(this.props.comments, this.props.comment_votes, this.props.post_id)
+	    if (this.user_posts != undefined)
+	    {
+	    	this.comments = this.makePosts(this.user_posts, this.comments);
+	    }
 	    this.forceUpdate();
 	}
 
@@ -419,6 +496,8 @@ export default class CommentSection extends React.Component
 
 	handleScroll() {
 		var that = this;
+		this.user_posts = undefined
+
 	    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight && !this.loading_comments_semaphor) {
 	      	this.loading_comments_semaphor = true;
 		    fetch("/load_comments", {
@@ -428,15 +507,65 @@ export default class CommentSection extends React.Component
 		        	'Authorization': 'Basic',
 		        	'Content-Type': 'application/json',
 		        },
-		        body: JSON.stringify({id: that.props.post_id, offset:this.offset})})
+		        body: JSON.stringify({id: that.props.post_id, offset:that.offset})})
 		    .then(function(response) { return response.json();})
 		    .then(function (data) { 
-		    	var comment_result = generateComments(data.comments, data.comment_votes, that.props.post_id, 0)
+		    	var comment_result = generateComments(data.comments, data.comment_votes, that.props.post_id, 0, that.global_post == undefined)
 		    	var child_comments = comment_result[0];
 		    	that.offset += comment_result[1]
 		    	for (var comment of child_comments)
 		    	{
 		    		that.comments.push(comment)
+		    	}
+		    	that.forceUpdate()
+		    	that.loading_comments_semaphor = false;	
+		 	})
+		}
+	}
+
+	handleScrollGlobal() {
+		var that = this;
+		this.user_posts = undefined
+	    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight && !this.loading_comments_semaphor) {
+	      	this.loading_comments_semaphor = true;
+		    fetch("/load_global_posts", {
+		        method: "POST",
+		        headers: {
+		        	'Accept': 'application/json',
+		        	'Authorization': 'Basic',
+		        	'Content-Type': 'application/json',
+		        },
+		        body: JSON.stringify({id: that.props.global_post.post_id, 
+						        	offset:that.offset, 
+						        	song: that.props.global_post.song, 
+						        	artist:that.props.global_post.artist, 
+						        	album:that.props.global_post.album})})
+		    .then(function(response) { return response.json();})
+		    .then(function (data) { 
+		    	that.global_offset += data.user_posts.length;
+		    	var comment_result = generateComments(data.comments, data.comment_votes, that.props.post_id, 0, that.global_post == undefined)
+		    	var child_comments = comment_result[0];
+		    	that.offset += comment_result[1]
+		    	
+				if (data.user_posts == undefined)
+				{		    	
+		    		for (var comment of child_comments)
+		    		{
+		    			that.comments.push(comment)
+		    		}
+		    	}
+		    	else
+		    	{
+		    		var new_comments = []
+		    		for (var comment of child_comments)
+		    		{
+		    			new_comments.push(comment)
+		    		}
+		    		var posts_and_comments = that.makePosts(data.user_posts, new_comments);
+		    		for (var item of posts_and_comments)
+		    		{
+		    			that.comments.push(item)
+		    		}
 		    	}
 		    	that.forceUpdate()
 		    	that.loading_comments_semaphor = false;
@@ -488,6 +617,7 @@ export default class CommentSection extends React.Component
 
 	render()
 	{
+
 		return (
 			<div>
 				<button onClick = {this.openNewComment.bind(this)} type='button' className = 'begin_comment'>Comment</button> 

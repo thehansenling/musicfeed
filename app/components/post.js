@@ -261,7 +261,7 @@ class Post extends React.Component
 			<div style = {{clear:'both'}}>
 				<div style = {{float:'left', paddingLeft: '10px', paddingTop:'3px', fontFamily:'Playfair Display'}}><span dangerouslySetInnerHTML={this.renderiframe(this.props.song.embedded_content)}></span></div>
 				
-				<div style = {{fontSize:'11pt', paddingLeft: '320px', paddingTop:'5px', height: '300px', width:'650px', fontSize: '2em'}}> 
+				<div style = {{fontSize:'11pt', paddingLeft: '10px', paddingTop:'5px', height: '380px', width:'650px', fontSize: '2em', overflow:'hidden', textOverflow:'ellipsis'}}> 
 					{content_div}
 				</div>
 				<div style = {{clear:'both', height:'35px'}}>
@@ -342,10 +342,11 @@ export default class PostInfo extends React.Component
 		}
 		for (var num_comments of this.props.num_comments)
 		{
-			current_num_comments = 0;
+			
 			if (song.post_id == num_comments.post_id)
 			{
-				current_num_comments = num_comments.count			
+				current_num_comments = num_comments.count	
+				break;		
 			}
 		}
 		this.posts.push(<Post key={song.post_id} song={song} like_state = {like_state} num_comments = {current_num_comments}/>);
@@ -394,6 +395,7 @@ export default class PostInfo extends React.Component
 					break;
 				}
 			}
+			
 			this.posts.push(<Post key={song.post_id} song={song} like_state = {like_state} num_comments = {current_num_comments}/>);
 		}
 		this.forceUpdate()
