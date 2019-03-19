@@ -113,19 +113,21 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 	{
 		var followed_artists = "";
 		var followed_users = "";
-		for (var follow of result)
+		if (result != undefined)
 		{
-			if (follow.type == 1)
+			for (var follow of result)
 			{
-				followed_artists +="'" + follow['followee_id'] + "', ";
-			}
-			else 
-			{
-				followed_users += "'" + follow['followee_id'] + "', ";
-			}
+				if (follow.type == 1)
+				{
+					followed_artists +="'" + follow['followee_id'] + "', ";
+				}
+				else 
+				{
+					followed_users += "'" + follow['followee_id'] + "', ";
+				}
 
+			}
 		}
-
 		if (followed_artists.length > 0)
 		{
 			followed_artists = followed_artists.substring(0, followed_artists.length - 2);

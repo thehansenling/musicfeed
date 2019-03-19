@@ -11,6 +11,8 @@ class Post extends React.Component
 		//this.dislikeRef = React.createRef();
 		this.up_image = "/small_up.png"
 		this.down_image = "/small_down.png"
+		this.contentRef = React.createRef();
+		this.ellipsis = <div></div>
 	}
 
 	renderiframe(iframe) {
@@ -180,6 +182,31 @@ class Post extends React.Component
     	this.forceUpdate();
 	}
 
+	componentDidMount() {
+		console.log("CONTENT ISH")
+		console.log(this.contentRef)
+		console.log(this.contentRef.current)
+		console.log(this.contentRef.current.offsetHeight)
+		console.log(this.contentRef.offsetHeight)
+		console.log(this.contentRef.current.height)
+		if (this.contentRef.current.offsetHeight > 390)
+		{
+			var content_url = "/post/" + this.props.song.artist + "/" + this.props.song.song;
+
+			if (this.props.song.song == "NO_SONG_ALBUM_ONLY")
+			{
+				content_url = "/album/" + this.props.song.artist + "/" + this.props.song.album;
+			}
+
+
+			this.ellipsis = <div style = {{paddingLeft:'580px', fontSize:'22pt'}}>
+			<a href = {content_url}> ... </a>
+			</div>
+			this.forceUpdate();
+
+		}
+	}
+
 	render()
 	{
 		var date = new Date(this.props.song.timestamp)
@@ -191,16 +218,7 @@ class Post extends React.Component
 		var artist_url = "/artist/" + this.props.song.artist;
 
 		var content_div = []
-		this.props.song.content.split('\n').map((item, i) => {
-			if (item == '')
-			{
-				content_div.push(<br/>)
-			}
-			else
-			{
-				content_div.push(<p key={i}>{item}</p>);
-			}
-		})
+
 
 		var content = <h2 style={{position:'relative'}}>{content_div}</h2>
 
@@ -217,6 +235,17 @@ class Post extends React.Component
 			at_text = " at "
 			poster_username = this.props.song.username;
 			poster_username_url = "/user/" + this.props.song.username;
+
+			this.props.song.content.split('\n').map((item, i) => {
+				if (item == '')
+				{
+					content_div.push(<br/>)
+				}
+				else
+				{
+					content_div.push(<p key={i}>{item}</p>);
+				}
+			})
 		}
 
 		var like_style = {color:'black'}
@@ -247,6 +276,7 @@ class Post extends React.Component
 			content_name = this.props.song.album;
 		}
 
+
 		return(
 
 
@@ -261,9 +291,12 @@ class Post extends React.Component
 			<div style = {{clear:'both'}}>
 				<div style = {{float:'left', paddingLeft: '10px', paddingTop:'3px', fontFamily:'Playfair Display'}}><span dangerouslySetInnerHTML={this.renderiframe(this.props.song.embedded_content)}></span></div>
 				
-				<div style = {{fontSize:'11pt', paddingLeft: '10px', paddingTop:'5px', height: '380px', width:'650px', fontSize: '2em', overflow:'hidden', textOverflow:'ellipsis'}}> 
-					{content_div}
+				<div  style = {{fontSize:'11pt', paddingLeft: '10px', paddingTop:'5px', height: '390px', width:'650px', fontSize: '2em', overflow:'hidden', textOverflow:'ellipsis'}}> 
+					<div ref = {this.contentRef}>
+						{content_div}
+					</div>
 				</div>
+				{this.ellipsis}
 				<div style = {{clear:'both', height:'35px'}}>
 					<div style = {{float:'left', width:'15px', height:'30px'}}></div>
 					<div style = {{float:'left'}}><img onClick = {this.likeClicked.bind(this)} src={this.up_image} width="30" height="30" alt=""/></div>
