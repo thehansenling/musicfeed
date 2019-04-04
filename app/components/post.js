@@ -444,7 +444,7 @@ export default class PostInfo extends React.Component
 	{
 		
 		return(
-			<div style={{left:'15%', top:'100px', position:'relative',width:'100%'}}>
+			<div style={{left:'5%', top:'100px', position:'relative',width:'980px'}}>
 				{this.posts.map((post) => {return <div> {post} <br/></div>})}
 			</div>
 		);

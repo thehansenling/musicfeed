@@ -173,7 +173,7 @@ class UserPostContent extends React.Component
 		this.props.data.content.split('\n').map((item, i) => {
 			if (item == '')
 			{
-				content_div.push(<br/>)
+				content_div.push(<br key={i} />)
 			}
 			else
 			{
@@ -185,26 +185,24 @@ class UserPostContent extends React.Component
 
 
 		return (
-			<div style = {{paddingBottom:'100px'}}>
-				<div style={{position:'relative', top:'85px', paddingLeft:'10px', height: 'auto', minHeight: '550px'}}>
-					<div style = {{position:'relative', left: '350px', paddingTop:'8px'}}>{this.props.data.title}</div>
-					<div style = {{display:'inlineBlock'}}>
-						<div style={{float:'left',position:'relative', top:'0px', paddingRight:'20px'}} dangerouslySetInnerHTML={this.renderiframe(this.props.data.embedded_content)}>
-						</div>
-						
-						{content_div}
+			<div style = {{background: 'white', position:'relative', top:'85px', paddingLeft:'10px', height: 'auto', minHeight: '550px', maxWidth:'1000px', paddingBottom:'50px', paddingRight:'10px', left:'5%', borderBottom: 'solid black 3px', borderRadius: '4px'}}>
+				<div style = {{position:'relative', left: '40%', paddingTop:'8px', fontSize:'3em'}}>{this.props.data.title}</div>
+				<div style = {{display:'inlineBlock'}}>
+					<div style={{float:'left',position:'relative', top:'0px', paddingRight:'20px'}} dangerouslySetInnerHTML={this.renderiframe(this.props.data.embedded_content)}>
+					</div>
+					
+					{content_div}
 
-					</div>
-					<div style = {{clear:'both', height:'35px'}}>
-						<div style = {{float:'left', width:'15px', height:'30px'}}></div>
-						<div style = {{float:'left'}}><img onClick = {this.likeClicked.bind(this)} src={this.up_image} width="30" height="30" alt=""/></div>
-						<div style = {{width:'60px', height:'30px', float:'left', verticalAlign: 'middle', textAlign: 'center', width:'60px', position: 'relative', top: '0px', fontSize: '21px'}}>{this.likes_score}</div>
-						<div style = {{float:'left'}}><img onClick = {this.dislikeClicked.bind(this)} src={this.down_image} width="30" height="30" alt=""/></div>
-						<div style = {{float:'left', width:'30px', height:'30px', borderRight: '1px solid black'}}></div>
-						<div style = {{float:'left', width:'30px', height:'30px'}}></div>
-						<div style = {{float:'left'}}><img src="/small_comment.png" width="30" height="30" alt=""/></div>
-						<div style = {{width:'60px', height:'30px', float:'left', verticalAlign: 'middle', textAlign: 'center', width:'80px', position: 'relative', top: '0px', fontSize: '21px'}}>{this.props.num_comments}</div>
-					</div>
+				</div>
+				<div style = {{clear:'both', height:'35px'}}>
+					<div style = {{float:'left', width:'15px', height:'30px'}}></div>
+					<div style = {{float:'left'}}><img onClick = {this.likeClicked.bind(this)} src={this.up_image} width="30" height="30" alt=""/></div>
+					<div style = {{width:'60px', height:'30px', float:'left', verticalAlign: 'middle', textAlign: 'center', width:'60px', position: 'relative', top: '0px', fontSize: '21px'}}>{this.likes_score}</div>
+					<div style = {{float:'left'}}><img onClick = {this.dislikeClicked.bind(this)} src={this.down_image} width="30" height="30" alt=""/></div>
+					<div style = {{float:'left', width:'30px', height:'30px', borderRight: '1px solid black'}}></div>
+					<div style = {{float:'left', width:'30px', height:'30px'}}></div>
+					<div style = {{float:'left'}}><img src="/small_comment.png" width="30" height="30" alt=""/></div>
+					<div style = {{width:'60px', height:'30px', float:'left', verticalAlign: 'middle', textAlign: 'center', width:'80px', position: 'relative', top: '0px', fontSize: '21px'}}>{this.props.num_comments}</div>
 				</div>
 
 

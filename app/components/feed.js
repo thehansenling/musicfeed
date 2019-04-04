@@ -15,6 +15,8 @@ class NewPostSubmission extends React.Component {
 		this.songEmbedRef = React.createRef();
 		this.contentRef = React.createRef();
 		this.titleRef = React.createRef();
+
+		this.newPost = "";
 	}
 
 	songInput()
@@ -111,29 +113,45 @@ class NewPostSubmission extends React.Component {
 		}
 	}
 
+	closeNewPost()
+	{
+		this.newPost = undefined;
+		this.forceUpdate();
+	}
+
+	beginNewPost()
+	{
+		console.log("BEGIN NEW POST SECTION")
+		this.newPost = <div key = "what" id = "post" style ={{left:'15%',top:'120px',position:'relative', paddingBottom:'30px'}} width="100%" autoComplete="off">
+			Song/Playlist: 
+			<br/>
+			<input ref = {this.songEmbedRef} onChange = {this.songInput.bind(this)} id="song" type="text" name="song" style={{width:'80%'}}/>
+			<br/>
+				Title:
+			<br/>
+			<input ref = {this.titleRef} id="title" type="text" name="title" style={{width:'80%'}}/>  
+			<br/>
+			<textarea onChange = {this.contentInput} ref = {this.contentRef} id = "content" name="content" rows="10" cols="90" style={{position:'relative',width:'80%',height:'50px'}}></textarea>
+			<br/>
+			<button onClick = {this.submitPost.bind(this)} id = "post_button" type="button">Post</button>
+			<button style = {{float:'right'}} onClick = {this.closeNewPost.bind(this)}> Close </button>
+			<br/>
+			<div id="showsong" style = {{position:'absolute',top:'0',left:'40%'}} dangerouslySetInnerHTML={this.renderiframe(this.embedded_content)}>
+			</div>
+			<meta className = "post_number" content = "0"/>
+			<meta className = "non_priority_post_number" content = "0"/>
+			<meta className = "global_post_number" content = "0"/>
+			<meta className = "non_priority_global_post_number" content = "0"/>
+		</div>
+		this.forceUpdate();
+	}
+
 	render()
 	{
 		return (
-		 	<div key = "what" id = "post" style ={{left:'15%',top:'120px',position:'relative'}} width="100%" autoComplete="off">
-				Song/Playlist: 
-				<br/>
-				<input ref = {this.songEmbedRef} onChange = {this.songInput.bind(this)} id="song" type="text" name="song" style={{width:'80%'}}/>
-				<br/>
-					Title:
-				<br/>
-				<input ref = {this.titleRef} id="title" type="text" name="title" style={{width:'80%'}}/>  
-				<br/>
-				<textarea onChange = {this.contentInput} ref = {this.contentRef} id = "content" name="content" rows="10" cols="90" style={{position:'relative',width:'80%',height:'50px'}}></textarea>
-				<br/>
-				<button onClick = {this.submitPost.bind(this)} id = "post_button" type="button">Post</button>
-				<br/>
-				<br/>
-				<div id="showsong" style = {{position:'absolute',top:'0',left:'40%'}} dangerouslySetInnerHTML={this.renderiframe(this.embedded_content)}>
-				</div>
-				<meta className = "post_number" content = "0"/>
-				<meta className = "non_priority_post_number" content = "0"/>
-				<meta className = "global_post_number" content = "0"/>
-				<meta className = "non_priority_global_post_number" content = "0"/>
+			<div>
+			<button style = {{position:'relative', top:'80px', left:'15%'}} onClick = {this.beginNewPost.bind(this)} > new post </button>
+			{this.newPost}
 			</div>
 		);
 	}

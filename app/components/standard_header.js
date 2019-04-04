@@ -158,14 +158,13 @@ export default class StandardHeader extends React.Component {
     return (
 
 <div>
-<html lang='en'/>
 	<head>
 		<title>My Node Site</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
 
 	</head>
 	<header>
-		<div id = "reacttest" style = {{position:'fixed', height:'60px', backgroundColor: '#178275', width:'100%', zIndex:'10'}}>
+		<div id = "reacttest" style = {{top:'0px', left:'0px', position:'fixed', height:'60px', backgroundColor: '#178275', width:'100%', zIndex:'10'}}>
 			<div style = {{position:'absolute',top:'15px', left:'10px'}}><a href="/" >Home</a></div>
 		    <div style = {{position:'absolute',top:'15px', left:'210px'}}>
 		        <div className="search_list" style = {{overflow: 'auto'}}>

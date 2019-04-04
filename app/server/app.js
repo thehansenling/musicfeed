@@ -27,11 +27,20 @@ var POST_LIMIT = 5;
 var COMMENT_LIMIT = 5;
 var RELEVANT_TIMESTAMP_MAX_AMOUNT = 100;
 
+// var connection = mysql.createConnection({
+//   host     : 'us-cdbr-iron-east-01.cleardb.net',
+//   user     : 'bc7ebf9f6de242',
+//   password : 'aa9b1c1f',
+//   database : 'heroku_cdc4ca7b10e1680',
+//   multipleStatements: true
+// });
+
 var connection = mysql.createConnection({
-  host     : 'us-cdbr-iron-east-01.cleardb.net',
-  user     : 'bc7ebf9f6de242',
-  password : 'aa9b1c1f',
-  database : 'heroku_cdc4ca7b10e1680',
+  port: 3306,
+  host     : 'localhost',
+  user     : 'root',
+  password : 'qwertyman1',
+  database : 'musicfeedreact',
   multipleStatements: true
 });
 
@@ -863,7 +872,7 @@ app.get('/user/:user/', (req, res) => {
 								songs: songs_list,
 								likes: likes_list,
 								num_comments: num_comments_list,
-								follows: follows_data.length,
+								follows: follows_data,
 								followees: followees,
 								user: result[0],
 								username: req.cookies.username,
@@ -877,6 +886,14 @@ app.get('/user/:user/', (req, res) => {
 		});
 	});
 });
+
+app.post('/submit_description', function(req, res)
+{
+	var user_search_sql = "UPDATE accounts SET description = '" + req.body.text + "' WHERE username = '" + req.body.user + "'";
+	connection.query(user_search_sql, function (err, result, fields){
+		res.send({nothing:0});
+	});
+})
 
 app.get('/artist/:artist/', (req, res) => {
 
@@ -971,15 +988,23 @@ app.get('/artist/:artist/', (req, res) => {
 					var song_post_data = AggregateLikes(num_song_comments_list, song_like_data, []);
 					var ordered_song_data = SortPosts(song_post_data);
 					var ordered_songs = OrderPosts(ordered_song_data, song_data);
-					var data = {
-						artist: req.params.artist,
-						album_data: ordered_albums,
-						song_data: ordered_songs,
-						username: req.cookies.username,
-					}	
 
-					var html = renderPage(req.url, data)
-					res.send(html);
+					var follow_sql = "SELECT * FROM follows WHERE followee_id = '" + req.params.artist + "'";
+					connection.query(follow_sql, function (err, result, fields) 
+					{
+						var follows_data = result;
+
+						var data = {
+							artist: req.params.artist,
+							album_data: ordered_albums,
+							song_data: ordered_songs,
+							username: req.cookies.username,
+							follows: follows_data,
+						}	
+
+						var html = renderPage(req.url, data)
+						res.send(html);
+					});
 				});	
 
 
@@ -1485,7 +1510,7 @@ app.post('/follow', function (req, res)
 				
 		} else 
 		{
-			var follow_sql = "INSERT into follows (timestamp, user_id, followee_id) VALUES(" + date + ", '" + req.cookies.username + "', '"+ req.body.followee_id + "')"
+			var follow_sql = "INSERT into follows (timestamp, user_id, followee_id, type) VALUES(" + date + ", '" + req.cookies.username + "', '"+ req.body.followee_id + "'," + req.body.type + ")"
 			connection.query(follow_sql, function (err, result, fields){
 				res.send({})
 			});							
@@ -1764,7 +1789,7 @@ app.post('/downvote', function (req, res)
 			connection.query(sql, function (err, result, fields){
 				//RenderFeed(req, res);
 				res.send({})
-				//res.send({id: req.body.id, state:result[0]['like_state'],})
+				//res.send({id: req.body.id, state:/'[0]['like_state'],})
 			});
 		});
 	});

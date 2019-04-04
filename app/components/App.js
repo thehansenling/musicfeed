@@ -37,11 +37,11 @@ export default class App extends React.Component{
 	{
 		console.log("CLICKED");
 	}
-
+	//#FAFAFA
 	render()
 	{
 		return (
-			<div id='root' style = {{background:'#FAFAFA'}}>
+			<div id='root' style = {{background:'#F0F0F0', width:'100%'}}>
 				<StandardHeader username = {this.props.data.username}/>
 				<link rel="stylesheet" href="/styles.css"/>
 				<Switch>
