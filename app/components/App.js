@@ -41,7 +41,7 @@ export default class App extends React.Component{
 	render()
 	{
 		return (
-			<div id='root' style = {{background:'#F0F0F0', width:'100%'}}>
+			<div id='root' style = {{background:'#F0F0F0', width:'100%', minWidth:'1200px'}}>
 				<StandardHeader username = {this.props.data.username}/>
 				<link rel="stylesheet" href="/styles.css"/>
 				<Switch>
