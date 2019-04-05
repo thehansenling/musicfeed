@@ -27,20 +27,11 @@ var POST_LIMIT = 5;
 var COMMENT_LIMIT = 5;
 var RELEVANT_TIMESTAMP_MAX_AMOUNT = 100;
 
-// var connection = mysql.createConnection({
-//   host     : 'us-cdbr-iron-east-01.cleardb.net',
-//   user     : 'bc7ebf9f6de242',
-//   password : 'aa9b1c1f',
-//   database : 'heroku_cdc4ca7b10e1680',
-//   multipleStatements: true
-// });
-
 var connection = mysql.createConnection({
-  port: 3306,
-  host     : 'localhost',
-  user     : 'root',
-  password : 'qwertyman1',
-  database : 'musicfeedreact',
+  host     : 'us-cdbr-iron-east-01.cleardb.net',
+  user     : 'bc7ebf9f6de242',
+  password : 'aa9b1c1f',
+  database : 'heroku_cdc4ca7b10e1680',
   multipleStatements: true
 });
 
