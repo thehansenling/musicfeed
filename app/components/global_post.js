@@ -28,7 +28,7 @@ class GlobalPostContent extends React.Component
 		//for (key of Object.keys(JSON.parse(data[0].data)))
 		for (var song of Object.keys(JSON.parse(this.props.data.data)))
 		{
-			this.album_songs.push(<div style = {{padding:'0px'}}> {song + "."} <a href = {"/post/" + this.props.data.artist + "/" + JSON.parse(this.props.data.data)[song]}> {JSON.parse(this.props.data.data)[song]} </a></div>)
+			this.album_songs.push(<div key = {JSON.parse(this.props.data.data)[song]} style = {{padding:'0px'}}> {song + "."} <a href = {"/post/" + this.props.data.artist + "/" + JSON.parse(this.props.data.data)[song]}> {JSON.parse(this.props.data.data)[song]} </a></div>)
 		}
 	}
 
@@ -215,7 +215,7 @@ class GlobalPostContent extends React.Component
 			// </div>
 
 		return (
-			<div style = {{background: 'white', position:'relative', top:'85px', paddingLeft:'10px', height: 'auto', minHeight: '550px', maxWidth:'1000px', paddingBottom:'50px', paddingRight:'10px', left:'5%', borderBottom: 'solid black 3px', borderRadius: '4px'}}>
+			<div style = {{background: 'white', position:'relative', top:'85px', paddingLeft:'10px', height: 'auto', minHeight: '550px', maxWidth:'1000px', paddingBottom:'50px', paddingRight:'10px', paddingTop:'10px', left:'5%', borderBottom: 'solid black 3px', borderRadius: '4px'}}>
 
 				<div style = {{display:'inlineBlock'}}>
 					<div style={{float:'left',position:'relative', top:'0px', paddingRight:'20px'}} dangerouslySetInnerHTML={this.renderiframe(this.props.data.embedded_content)}>

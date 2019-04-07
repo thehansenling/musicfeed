@@ -32,11 +32,12 @@ function generateComments(comments, comment_votes, id, starting_comment_level, i
 	{
 		for (var comment of levels[level])
 		{
+			var original_replies = comment.replies
 			if (comment_map[comment.comment_id] != undefined)
 			{
 				for (var child of comment_map[comment.comment_id])
 				{
-					comment.replies = comment.replies - child.props.data.replies - 1;
+					comment.replies = comment.replies - child.props.original_replies - 1;
 				}
 			}
 
@@ -48,7 +49,7 @@ function generateComments(comments, comment_votes, id, starting_comment_level, i
 					comment_vote = vote;
 				}
 			}
-			current_comments.push(<Comment key = {comment.comment_id} data = {comment} child_comments = {comment_map[comment.comment_id]} vote_state = {comment_vote} post_id = {comment.post_id} is_global = {is_global}/>)
+			current_comments.push(<Comment key = {comment.comment_id} original_replies = {original_replies} data = {comment} child_comments = {comment_map[comment.comment_id]} vote_state = {comment_vote} post_id = {comment.post_id} is_global = {is_global}/>)
 			//current_comments.push(<div>PLEASE</div>)
 		}
 		if (level == starting_comment_level)
@@ -141,10 +142,11 @@ class Comment extends React.Component
 		}
 		if (props.data.replies > 0)
 		{
-			var left_offset = String((props.data.comment_level + 1) * 5) + '%'
+			var left_offset = String((props.data.comment_level) * 5 - 1) + '%'
 			this.replies_button = <button onClick = {this.showReplies.bind(this)} className = 'show_replies' style = {{position:'relative', left:left_offset}} id = {props.data.comment_id} > show {props.data.replies} replies </button>;
       	}
-
+      	console.log(props.data.replies)
+      	console.log(props)
       	this.upvoteRef = React.createRef();
       	this.downvoteRef = React.createRef();
       	this.scoreRef = React.createRef();
@@ -286,9 +288,10 @@ class Comment extends React.Component
 				return;
 			}
 			this.new_comment = <div>
-					<textarea ref = {this.newCommentTextRef} class = 'comment_text' id = {this.props.data.comment_id} name='content' rows='10' cols='90' style={{width:'80%',height:'50px',zIndex:'100'}}></textarea>
-					<button onClick = {this.submitNewComment.bind(this)} style={{height:'30px',bottom:'30px',position:'relative'}} type='button' class='submit_new_comment' id = {this.props.data.comment_id}>submit</button>
-					<button onClick = {this.closeNewComment.bind(this)} style={{bottom:'0px',position:'relative',height:'30px'}} type='button' class='close_new_comment' id = {this.props.data.comment_id}>x</button>
+					<textarea ref = {this.newCommentTextRef} class = 'comment_text' id = {this.props.data.comment_id} name='content' rows='10' cols='90' style={{width:'100%',height:'50px',zIndex:'100'}}></textarea>
+					<br/>
+					<button onClick = {this.submitNewComment.bind(this)} style={{position:'relative'}} type='button' class='submit_new_comment' id = {this.props.data.comment_id}>submit</button>
+					<button onClick = {this.closeNewComment.bind(this)} style={{position:'relative'}} type='button' class='close_new_comment' id = {this.props.data.comment_id}>close</button>
 				</div>
 			this.forceUpdate();
 		}
@@ -363,7 +366,6 @@ class Comment extends React.Component
 		var left_spaces = []
 		for (var i = 0; i < this.props.data.comment_level; ++i)
 		{
-			console.log("WHATJSDLKGNSDKLJN")
 			left_spaces.push(<div style = {{borderLeft: "3px solid gray",position:'relative', width:'50px'}}></div>)//<span style = {{borderLeft: "3px solid black", width:'50px', height:'100%'}}> </span>);
 		}
 		//var left_spacing = <div style = {{borderLeft: "3px solid black",position:'relative', width:left_offset}}> {left_spaces} </div>;
@@ -419,9 +421,9 @@ class Comment extends React.Component
 			      		<div style={{width:'75%',height:'25px', fontSize:'10pt'}} onClick = {this.openNewComment.bind(this)} className = 'begin_comment' id = {comment_id}> Reply </div>
 			      	</div>
 		    	</div>
+		    	{this.new_comment}
 	    		{this.child_comments.map((child) => {return child})}
 	    		{this.replies_button}
-	    		{this.new_comment}
 	    		{this.test_text}
 	    	</div>
 		);

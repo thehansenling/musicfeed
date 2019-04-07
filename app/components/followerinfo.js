@@ -65,12 +65,12 @@ export default class FollowerInfo extends React.Component {
 		{
 			following_content = <span> <a href = {"/following/" + this.props.user.username}> Following </a>: {this.props.followees} </span>
 			followers_content = <span> <a href = {"/followers/" + this.props.user.username}> Followers </a>: {this.follows_num} </span>
-			follow_info_style = {paddingTop:'10px', paddingLeft: '10px', paddingBottom:'10px', left:'5%', top:'100px', position:'relative',width:'1000px', background:'white', border:'gray solid 1px', borderRadius:'4px', position:'relative',left:'5%', top:'100px', position:'relative', maxWidth:'980px'}
+			follow_info_style = {margin: '0 auto', paddingTop:'10px', paddingLeft: '10px', paddingBottom:'10px', top:'100px', position:'relative',width:'980px', background:'white', border:'gray solid 1px', borderRadius:'4px', position:'relative', top:'100px', position:'relative', maxWidth:'980px'}
 		} 
 		else if (this.props.follow_type == 1)
 		{
 			followers_content = <span> <a href = {"/followers/" + this.props.artist}> Followers </a>: {this.follows_num} </span>
-			follow_info_style = {paddingTop:'10px', paddingLeft: '10px', paddingBottom:'10px', left:'5%', top:'100px', position:'relative',width:'800px', background:'white', border:'gray solid 1px', borderRadius:'4px', position:'relative',left:'0%', top:'0px', position:'relative', maxWidth:'800px'}
+			follow_info_style = {left: '0%', paddingTop:'10px', paddingLeft: '10px', paddingBottom:'10px', top:'100px', position:'relative',width:'980px', background:'white', border:'gray solid 1px', borderRadius:'4px', position:'relative', top:'0px', position:'relative', maxWidth:'800px'}
 		}
 		return(
 			<div className = "user_body" style={follow_info_style}>

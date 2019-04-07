@@ -55,7 +55,7 @@ class UserInfo extends React.Component {
 	render ()
 	{
 		return(
-			<div className = "user_info" style={{paddingTop:'10px', paddingLeft: '10px', paddingBottom:'10px', background:'white', border:'gray solid 1px', borderRadius:'4px', position:'relative',left:'5%', top:'100px', position:'relative', maxWidth:'980px'}}>
+			<div className = "user_info" style={{margin: '0 auto', paddingTop:'10px', paddingLeft: '10px', paddingBottom:'10px', background:'white', border:'gray solid 1px', borderRadius:'4px', position:'relative', top:'100px', position:'relative', maxWidth:'980px'}}>
 				<div style = {{fontSize:'30pt'}}>{this.props.user.username}</div>
 				<div style = {{fontSize:'18pt'}}>{this.description}</div>
 				{this.description_ui}

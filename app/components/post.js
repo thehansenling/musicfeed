@@ -199,7 +199,7 @@ class Post extends React.Component
 			}
 
 
-			this.ellipsis = <div style = {{paddingLeft:'580px', fontSize:'22pt'}}>
+			this.ellipsis = <div style = {{paddingLeft:'305px', fontSize:'22pt'}}>
 			<a href = {content_url}> ... </a>
 			</div>
 			this.forceUpdate();
@@ -280,7 +280,7 @@ class Post extends React.Component
 		return(
 
 
-		<div key = {this.props.song.post_id} style = {{border: '1px solid #BABABA', borderRadius: '4px', width:'980px', background:'white'}}>
+		<div key = {this.props.song.post_id} style = {{margin: '0 auto', border: '1px solid #BABABA', borderRadius: '4px', width:'980px', background:'white'}}>
 			<div style=  {{float:'left', width:'300px', paddingLeft:'10px', paddingTop:'10px'}}>
 				<div style = {{float:'left', fontFamily:'Playfair Display'}}> <a href ={poster_username_url} > {poster_username} </a></div>
 				<div style = {{float:'right', paddingRight:'10px'}}>{(parseInt(date.getMonth()) + 1) + "/" + date.getDate() + "/" + date.getFullYear()}</div>
@@ -296,16 +296,19 @@ class Post extends React.Component
 						{content_div}
 					</div>
 				</div>
-				{this.ellipsis}
-				<div style = {{clear:'both', height:'35px'}}>
-					<div style = {{float:'left', width:'15px', height:'30px'}}></div>
-					<div style = {{float:'left'}}><img onClick = {this.likeClicked.bind(this)} src={this.up_image} width="30" height="30" alt=""/></div>
-					<div style = {{width:'60px', height:'30px', float:'left', verticalAlign: 'middle', textAlign: 'center', width:'60px', position: 'relative', top: '0px', fontSize: '21px'}}>{this.likes_score}</div>
-					<div style = {{float:'left'}}><img onClick = {this.dislikeClicked.bind(this)} src={this.down_image} width="30" height="30" alt=""/></div>
-					<div style = {{float:'left', width:'30px', height:'30px', borderRight: '1px solid black'}}></div>
-					<div style = {{float:'left', width:'30px', height:'30px'}}></div>
-					<div style = {{float:'left'}}><img src="/small_comment.png" width="30" height="30" alt=""/></div>
-					<div style = {{width:'60px', height:'30px', float:'left', verticalAlign: 'middle', textAlign: 'center', width:'80px', position: 'relative', top: '0px', fontSize: '21px'}}>{this.props.num_comments}</div>
+				<div style = {{display:'flex', flexDirection:'row'}}>
+					
+					<div style = {{clear:'both', height:'35px'}}>
+						<div style = {{float:'left', width:'15px', height:'30px'}}></div>
+						<div style = {{float:'left'}}><img onClick = {this.likeClicked.bind(this)} src={this.up_image} width="30" height="30" alt=""/></div>
+						<div style = {{width:'60px', height:'30px', float:'left', verticalAlign: 'middle', textAlign: 'center', width:'60px', position: 'relative', top: '0px', fontSize: '21px'}}>{this.likes_score}</div>
+						<div style = {{float:'left'}}><img onClick = {this.dislikeClicked.bind(this)} src={this.down_image} width="30" height="30" alt=""/></div>
+						<div style = {{float:'left', width:'30px', height:'30px', borderRight: '1px solid black'}}></div>
+						<div style = {{float:'left', width:'30px', height:'30px'}}></div>
+						<div style = {{float:'left'}}><img src="/small_comment.png" width="30" height="30" alt=""/></div>
+						<div style = {{width:'60px', height:'30px', float:'left', verticalAlign: 'middle', textAlign: 'center', width:'80px', position: 'relative', top: '0px', fontSize: '21px'}}>{this.props.num_comments}</div>
+					</div>
+					{this.ellipsis}
 				</div>
 			</div>
 		</div>
@@ -444,7 +447,7 @@ export default class PostInfo extends React.Component
 	{
 		
 		return(
-			<div style={{left:'5%', top:'100px', position:'relative',width:'980px'}}>
+			<div style={{margin: '0 auto', top:'100px', position:'relative',width:'980px'}}>
 				{this.posts.map((post) => {return <div> {post} <br/></div>})}
 			</div>
 		);

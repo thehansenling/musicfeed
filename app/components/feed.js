@@ -17,6 +17,7 @@ class NewPostSubmission extends React.Component {
 		this.titleRef = React.createRef();
 
 		this.newPost = "";
+		this.div_height = '100px'
 	}
 
 	songInput()
@@ -26,20 +27,21 @@ class NewPostSubmission extends React.Component {
 		var content_str = this.contentRef.current.value;
 	   	if(this.songEmbedRef.current.value != "")
 	   	{
-	   		this.songEmbedRef.current.style.width = '30%'
-	   		this.contentRef.current.style.width = '30%'
-	   		this.contentRef.current.style.height = '200px'
-	   		this.titleRef.current.style.width = '30%'
+	   		this.songEmbedRef.current.style.width = '65%'
+	   		this.contentRef.current.style.width = '65%'
+	   		this.contentRef.current.style.height = '300px'
+	   		this.titleRef.current.style.width = '65%'
 	   		this.embedded_content = this.songEmbedRef.current.value;
 	   	}
 	   	else 
 	   	{
-	   		this.songEmbedRef.current.style.width = '80%'
-	   		this.contentRef.current.style.width = '80%'
+	   		this.songEmbedRef.current.style.width = '100%'
+	   		this.contentRef.current.style.width = '100%'
 	   		this.contentRef.current.style.height = '50px'
-	   		this.titleRef.current.style.width = '80%'
+	   		this.titleRef.current.style.width = '100%'
 	   		this.embedded_content = this.songEmbedRef.current.value;
 	   	}
+	   	console.log(this.embedded_content)
 	   	this.forceUpdate();
 	}
 
@@ -50,29 +52,29 @@ class NewPostSubmission extends React.Component {
 		var content_str = this.contentRef.current.value;
 	   	if(this.songEmbedRef.current.value != "")
 	   	{
-	   		this.songEmbedRef.current.style.width = '30%'
-	   		this.contentRef.current.style.width = '30%'
-	   		this.contentRef.current.style.height = '200px'
-	   		this.titleRef.current.style.width = '30%'
+	   		this.songEmbedRef.current.style.width = '65%'
+	   		this.contentRef.current.style.width = '65%'
+	   		this.contentRef.current.style.height = '300px'
+	   		this.titleRef.current.style.width = '65%'
 	   		this.embedded_content = this.songEmbedRef.current.value;
 	   	}
 	   	else 
 	   	{
-	   		this.songEmbedRef.current.style.width = '80%'
-	   		this.contentRef.current.style.width = '80%'
+	   		this.songEmbedRef.current.style.width = '100%'
+	   		this.contentRef.current.style.width = '100%'
 	   		this.contentRef.current.style.height = '50px'
-	   		this.titleRef.current.style.width = '80%'
+	   		this.titleRef.current.style.width = '100%'
 	   	}
 
     	if (content_str != "")
     	{
-    		this.contentRef.current.style.height = '200px'
+    		this.contentRef.current.style.height = '300px'
     	}
     	else
     	{
     		this.contentRef.current.style.height = '50px'
     	}
-
+    	console.log(this.embedded_content)
 	   	this.forceUpdate();
 
 
@@ -116,28 +118,29 @@ class NewPostSubmission extends React.Component {
 	closeNewPost()
 	{
 		this.newPost = undefined;
+		this.embedded_content = ""
 		this.forceUpdate();
 	}
 
 	beginNewPost()
 	{
 		console.log("BEGIN NEW POST SECTION")
-		this.newPost = <div key = "what" id = "post" style ={{left:'15%',top:'120px',position:'relative', paddingBottom:'30px'}} width="100%" autoComplete="off">
+		this.newPost = <div key = "what" id = "post" style ={{top:'0px',position:'relative', paddingBottom:'30px', width:'980px'}}  autoComplete="off">
 			Song/Playlist: 
 			<br/>
-			<input ref = {this.songEmbedRef} onChange = {this.songInput.bind(this)} id="song" type="text" name="song" style={{width:'80%'}}/>
+			<input ref = {this.songEmbedRef} onChange = {this.songInput.bind(this)} id="song" type="text" name="song" style={{width:'100%'}}/>
 			<br/>
 				Title:
 			<br/>
-			<input ref = {this.titleRef} id="title" type="text" name="title" style={{width:'80%'}}/>  
+			<input ref = {this.titleRef} id="title" type="text" name="title" style={{width:'100%'}}/>  
 			<br/>
-			<textarea onChange = {this.contentInput} ref = {this.contentRef} id = "content" name="content" rows="10" cols="90" style={{position:'relative',width:'80%',height:'50px'}}></textarea>
+			<textarea onChange = {this.contentInput} ref = {this.contentRef} id = "content" name="content" rows="10" cols="90" style={{position:'relative',width:'100%',height:'50px'}}></textarea>
 			<br/>
-			<button onClick = {this.submitPost.bind(this)} id = "post_button" type="button">Post</button>
-			<button style = {{float:'right'}} onClick = {this.closeNewPost.bind(this)}> Close </button>
+			<button style = {{float:'left'}} onClick = {this.submitPost.bind(this)} id = "post_button" type="button">Post</button>
+			<button onClick = {this.closeNewPost.bind(this)}> Close </button>
 			<br/>
-			<div id="showsong" style = {{position:'absolute',top:'0',left:'40%'}} dangerouslySetInnerHTML={this.renderiframe(this.embedded_content)}>
-			</div>
+			
+			
 			<meta className = "post_number" content = "0"/>
 			<meta className = "non_priority_post_number" content = "0"/>
 			<meta className = "global_post_number" content = "0"/>
@@ -149,9 +152,12 @@ class NewPostSubmission extends React.Component {
 	render()
 	{
 		return (
-			<div>
-			<button style = {{position:'relative', top:'80px', left:'15%'}} onClick = {this.beginNewPost.bind(this)} > new post </button>
+			<div style = {{position:'relative', margin: '0 auto', width:'980px', top:'100px'}}>
+			<button style = {{ width:'100px', position:'relative'}} onClick = {this.beginNewPost.bind(this)} > new post </button>
+
 			{this.newPost}
+			<div id="showsong" style = {{position:'relative',top:'-443px',left:'680px'}} dangerouslySetInnerHTML={this.renderiframe(this.embedded_content)}>
+			</div>
 			</div>
 		);
 	}
