@@ -9,11 +9,14 @@ export default class RegisterPage extends React.Component
 		this.usernameRef = React.createRef();
 		this.passwordRef = React.createRef();
 		this.confirmRef = React.createRef();
-		var that = this;
+		this.registration_message = "";
+		
 	}
 	
 	submitRegistration(e)
 	{
+		var that = this;
+		console.log("SUBMITTING REGISTRATION")
 	    fetch("/register", {
 	        method: "POST",
 	        headers: {
@@ -26,9 +29,19 @@ export default class RegisterPage extends React.Component
 	        	   password_confirm: this.confirmRef.current.value}),
 	    }).then(function(response) { return response.json();})
 	    .then(function (data) {    	
-
+	  		console.log(data)
+	  		console.log(data.message)
+	  		that.registration_message = data.message
+	  		if (data.message == "Registration Successful")
+	  		{
+	  			window.location.href = "/"
+	  		}
+	  		else
+	  		{
+	  			that.forceUpdate();
+	  		}
 	 	})			
-
+	    
 	}
 
 	render()
@@ -48,7 +61,9 @@ export default class RegisterPage extends React.Component
 				  <p>
 				  <button href = "/" type="submit" id="submitButton" className="btn btn-lg btn-primary" onClick={this.submitRegistration.bind(this)}>Register</button>
 				  </p>
-
+					<p>
+						{this.registration_message}
+					</p>
 				</div>
 				</section>
 

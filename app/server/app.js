@@ -593,17 +593,17 @@ function renderPage(url, data)
 
 var context = {};
 
-app.post('/register', function(req, res)
-{
-	if (req.body.password == req.body.password_confirm)
-	{
-		var sql = "INSERT INTO accounts (username, password) VALUES ('" + req.body.username + "', '" + req.body.password + "')";
-		connection.query(sql, function (err, result) {
-	    	if (err) throw err;
-  		});
-	}
-	//res.send();
-}); 
+// app.post('/register', function(req, res)
+// {
+// 	if (req.body.password == req.body.password_confirm)
+// 	{
+// 		var sql = "INSERT INTO accounts (username, password) VALUES ('" + req.body.username + "', '" + req.body.password + "')";
+// 		connection.query(sql, function (err, result) {
+// 	    	if (err) throw err;
+//   		});
+// 	}
+// 	//res.send();
+// }); 
 
 
 
@@ -1456,6 +1456,44 @@ app.get('/register', function(req, res)
 	res.send(html);
 });
 
+app.post('/register', function(req, res)
+{
+	if (req.body.password == req.body.password_confirm)
+	{
+		var username_check_sql = "SELECT * from accounts WHERE username = '" + req.body.username + "'";
+		var data;
+		connection.query(username_check_sql, function (err, result) {
+			if (result.length == 0)
+			{
+				var sql = "INSERT INTO accounts (username, password) VALUES ('" + req.body.username + "', '" + req.body.password + "')";
+				connection.query(sql, function (err, result) {
+			    	if (err) throw err;
+		  		});
+		  		data = {
+					message: "Registration Successful"
+				}
+				res.cookie('username', req.body.username);
+		  		res.send(data);			
+			}
+			else
+			{
+		  		data = {
+					message: "Username already taken"
+				}
+				res.send(data);
+			}
+		});
+	}
+	else
+	{
+		data = {
+			message: "Passwords don't match"
+		}
+		res.send(data)
+	}
+	
+}); 
+
 app.get('/followers/:user', function (req, res) {
 	var follow_sql = "SELECT * FROM follows WHERE followee_id = '" + req.params.user + "'";
 	connection.query(follow_sql, function (err, result, fields) 
@@ -2029,19 +2067,6 @@ app.post('/about', (req, res) => {
 		res.send({});
 	}
 })
-
-app.post('/register', function(req, res)
-{
-	if (req.body.password == req.body.password_confirm)
-	{
-		var sql = "INSERT INTO accounts (username, password) VALUES ('" + req.body.username + "', '" + req.body.password + "')";
-		connection.query(sql, function (err, result) {
-	    	if (err) throw err;
-  		});
-	}
-	res.send({});
-}); 
-
 
 setInterval(function () {
     connection.query('SELECT 1');
