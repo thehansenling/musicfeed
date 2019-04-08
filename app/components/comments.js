@@ -145,8 +145,6 @@ class Comment extends React.Component
 			var left_offset = String((props.data.comment_level) * 5 - 1) + '%'
 			this.replies_button = <button onClick = {this.showReplies.bind(this)} className = 'show_replies' style = {{position:'relative', left:left_offset}} id = {props.data.comment_id} > show {props.data.replies} replies </button>;
       	}
-      	console.log(props.data.replies)
-      	console.log(props)
       	this.upvoteRef = React.createRef();
       	this.downvoteRef = React.createRef();
       	this.scoreRef = React.createRef();
@@ -173,7 +171,6 @@ class Comment extends React.Component
 
 	upvoteClicked()
 	{
-		console.log("UPVOTE")
 		if (!utils.checkLoggedIn())
 		{
 			alert("MUST BE LOGGED IN")
@@ -274,7 +271,6 @@ class Comment extends React.Component
 
 	openNewComment()
 	{
-		console.log(this.props.is_global)
 		if (this.props.is_global)
 		{
 			
@@ -369,7 +365,6 @@ class Comment extends React.Component
 			left_spaces.push(<div style = {{borderLeft: "3px solid gray",position:'relative', width:'50px'}}></div>)//<span style = {{borderLeft: "3px solid black", width:'50px', height:'100%'}}> </span>);
 		}
 		//var left_spacing = <div style = {{borderLeft: "3px solid black",position:'relative', width:left_offset}}> {left_spaces} </div>;
-		console.log(left_offset)
 
 		var user_id = this.props.data.user_id;
 

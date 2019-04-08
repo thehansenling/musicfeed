@@ -41,7 +41,6 @@ class NewPostSubmission extends React.Component {
 	   		this.titleRef.current.style.width = '100%'
 	   		this.embedded_content = this.songEmbedRef.current.value;
 	   	}
-	   	console.log(this.embedded_content)
 	   	this.forceUpdate();
 	}
 
@@ -74,7 +73,6 @@ class NewPostSubmission extends React.Component {
     	{
     		this.contentRef.current.style.height = '50px'
     	}
-    	console.log(this.embedded_content)
 	   	this.forceUpdate();
 
 
@@ -124,7 +122,6 @@ class NewPostSubmission extends React.Component {
 
 	beginNewPost()
 	{
-		console.log("BEGIN NEW POST SECTION")
 		this.newPost = <div key = "what" id = "post" style ={{top:'0px',position:'relative', paddingBottom:'30px', width:'980px'}}  autoComplete="off">
 			Song/Playlist: 
 			<br/>
@@ -134,7 +131,7 @@ class NewPostSubmission extends React.Component {
 			<br/>
 			<input ref = {this.titleRef} id="title" type="text" name="title" style={{width:'100%'}}/>  
 			<br/>
-			<textarea onChange = {this.contentInput} ref = {this.contentRef} id = "content" name="content" rows="10" cols="90" style={{position:'relative',width:'100%',height:'50px'}}></textarea>
+			<textarea onChange = {this.contentInput.bind(this)} ref = {this.contentRef} id = "content" name="content" rows="10" cols="90" style={{position:'relative',width:'100%',height:'50px'}}></textarea>
 			<br/>
 			<button style = {{float:'left'}} onClick = {this.submitPost.bind(this)} id = "post_button" type="button">Post</button>
 			<button onClick = {this.closeNewPost.bind(this)}> Close </button>

@@ -183,12 +183,6 @@ class Post extends React.Component
 	}
 
 	componentDidMount() {
-		console.log("CONTENT ISH")
-		console.log(this.contentRef)
-		console.log(this.contentRef.current)
-		console.log(this.contentRef.current.offsetHeight)
-		console.log(this.contentRef.offsetHeight)
-		console.log(this.contentRef.current.height)
 		if (this.contentRef.current.offsetHeight > 390)
 		{
 			var content_url = "/post/" + this.props.song.artist + "/" + this.props.song.song;
@@ -210,7 +204,7 @@ class Post extends React.Component
 	render()
 	{
 		var date = new Date(this.props.song.timestamp)
-		var post_title = <h1 style= {{position:'relative'}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id} > {this.props.song.title}</a></h1>;
+		var post_title = <h1 style= {{position:'relative', textAlign:'center'}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id} > {this.props.song.title}</a></h1>;
 		var poster_username = '';//this.props.song.artist;
 		var poster_username_url = '';//"/artist/" + this.props.song.artist;
 
@@ -280,14 +274,17 @@ class Post extends React.Component
 		return(
 
 
-		<div key = {this.props.song.post_id} style = {{margin: '0 auto', border: '1px solid #BABABA', borderRadius: '4px', width:'980px', background:'white'}}>
-			<div style=  {{float:'left', width:'300px', paddingLeft:'10px', paddingTop:'10px'}}>
+		<div key = {this.props.song.post_id} style = {{border: '1px solid #BABABA', borderRadius: '4px', width:'980px', background:'white'}}>
+			<div style = {{display:'flex', flexDirection:'row'}}>
+			<div style=  {{width:'300px', paddingLeft:'10px', paddingTop:'10px'}}>
 				<div style = {{float:'left', fontFamily:'Playfair Display'}}> <a href ={poster_username_url} > {poster_username} </a></div>
 				<div style = {{float:'right', paddingRight:'10px'}}>{(parseInt(date.getMonth()) + 1) + "/" + date.getDate() + "/" + date.getFullYear()}</div>
 				<div style = {{clear:'both'}}><a href ={artist_url} > {artist_name} </a></div>
 				<div> <a href = {content_url} >{content_name} </a></div>
 			</div>
-				<div style = {{float:'left', paddingLeft: '180px', paddingTop:'8px'}}>{post_title}</div>
+			<div style = {{paddingTop:'8px', width:'680px', margin: '0px auto'}}>{post_title}</div>
+
+			</div>
 			<div style = {{clear:'both'}}>
 				<div style = {{float:'left', paddingLeft: '10px', paddingTop:'3px', fontFamily:'Playfair Display'}}><span dangerouslySetInnerHTML={this.renderiframe(this.props.song.embedded_content)}></span></div>
 				

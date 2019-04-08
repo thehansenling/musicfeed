@@ -992,7 +992,6 @@ app.get('/artist/:artist/', (req, res) => {
 							username: req.cookies.username,
 							follows: follows_data,
 						}	
-
 						var html = renderPage(req.url, data)
 						res.send(html);
 					});
@@ -1215,7 +1214,6 @@ app.get('/post/:artist/:song', function (req, res) {
 							};
 							var html = renderPage(req.url, data)
 							res.send(html);
-
 					  }, function(error_2) {
 					  	console.error("Failed!", error_2);
 					  })

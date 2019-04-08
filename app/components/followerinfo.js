@@ -15,6 +15,7 @@ export default class FollowerInfo extends React.Component {
 				break;
 			}
 		}
+		this.button_text = "Follow"
 	}
 
 	followClicked()
@@ -23,12 +24,14 @@ export default class FollowerInfo extends React.Component {
 		if (this.following_state)
 		{
 			this.following_ui = "Not Following"
+			this.button_text = "Follow"
 			this.following_state = false
 			this.follows_num -= 1
 		}
 		else
 		{
 			this.following_ui = "Following"
+			this.button_text = "Unfollow"
 			this.following_state = true;
 			this.follows_num += 1
 		}
@@ -79,7 +82,7 @@ export default class FollowerInfo extends React.Component {
 					{following_content}
 				</div>
 
-				<button className = 'follow_button' id = "follow_button" type="button" onClick = {this.followClicked.bind(this)}>Follow</button>
+				<button className = 'follow_button' id = "follow_button" type="button" onClick = {this.followClicked.bind(this)}>{this.button_text}</button>
 				<div className="follow_icon">
 					{this.following_ui}
 				</div>

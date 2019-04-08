@@ -186,7 +186,7 @@ class UserPostContent extends React.Component
 
 		return (
 			<div style = {{background: 'white', position:'relative', top:'85px', paddingLeft:'10px', height: 'auto', minHeight: '550px', maxWidth:'980px', paddingBottom:'50px', paddingRight:'10px', left:'5%', borderBottom: 'solid black 3px', borderRadius: '4px'}}>
-				<div style = {{position:'relative', left: '40%', paddingTop:'8px', fontSize:'3em'}}>{this.props.data.title}</div>
+				<div style = {{position:'relative', left: '60%', paddingTop:'8px', fontSize:'3em'}}>{this.props.data.title}</div>
 				<div style = {{display:'inlineBlock'}}>
 					<div style={{float:'left',position:'relative', top:'0px', paddingRight:'20px'}} dangerouslySetInnerHTML={this.renderiframe(this.props.data.embedded_content)}>
 					</div>
