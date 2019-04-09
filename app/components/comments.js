@@ -479,9 +479,16 @@ export default class CommentSection extends React.Component
 				post_and_comments.push( 
 				<div>
 			      	<div style={{position:'relative', left:'0%', top:'20px', background:'white', paddingLeft:'5px', paddingBottom:'5px', borderBottom:'solid black 3px', maxWidth:'1000px'}}>
-				      		<div style={{width:'75%',height:'35px', fontSize:'16pt'}} className='comment_header' id = {comment_id}> 
-				      			{post.title + " "}
-				      			{post.username + " " + date_text + " " + parseInt(post.likes - post.dislikes)}
+				      		<div style={{width:'100%',height:'35px', fontSize:'16pt', textAlign:'center', display:'flex', flexDirection:'row'}} className='comment_header' id = {comment_id}> 
+				      			<div style = {{margin:'0'}}>
+				      				{post.username  + " | " + parseInt(post.likes - post.dislikes)}
+				      			</div>
+				      			<div style = {{margin:'0 auto'}}>
+				      				{post.title}
+				      			</div>
+				      			<div style = {{marginRight:'0px'}}>
+				      				{date_text}
+				      			</div>
 				      		</div>
 				      		<div style={{width:'75%'}} className ='comment_body' id = {comment_id}> {post.content} </div> 
 			    	</div>	
