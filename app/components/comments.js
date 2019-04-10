@@ -5,6 +5,8 @@ function generateComments(comments, comment_votes, id, starting_comment_level, i
 {
 	var levels = [];
 	var level_zero_comments = 0;
+	console.log(comments);
+	console.log(is_global)
 	for (var comment of comments)
 	{
 		if(comment.comment_level == 0)
@@ -25,13 +27,16 @@ function generateComments(comments, comment_votes, id, starting_comment_level, i
 			levels[comment.comment_level].push(comment);
 		}
 	}
-
+	console.log("levels")
+	console.log(levels)
 	var comment_map = {};
 	var current_comments = [];
 	for (var level = levels.length - 1; level >= 0; level--)
 	{
 		for (var comment of levels[level])
 		{
+			console.log("comment")
+			console.log(comment)
 			var original_replies = comment.replies
 			if (comment_map[comment.comment_id] != undefined)
 			{
@@ -271,10 +276,10 @@ class Comment extends React.Component
 
 	openNewComment()
 	{
+		console.log(this.props)
 		if (this.props.is_global)
 		{
-			
-			//window.location = "/user/" + this.props.data.user_id + "/" + this.props.data.post_id
+			window.location = "/user/" + this.props.data.user_id + "/" + this.props.data.post_id
 		}
 		else
 		{
@@ -335,7 +340,7 @@ class Comment extends React.Component
 	    .then(function(response) { return response.json();})
 	    .then(function (data) {    	
 
-	    	var child_comments = generateComments(data.comments, data.comment_votes, that.props.post_id, that.props.data.comment_level + 1, that.global_post == undefined)[0]
+	    	var child_comments = generateComments(data.comments, data.comment_votes, that.props.post_id, that.props.data.comment_level + 1, that.props.global_post != undefined)[0]
 	    	//don't know why this doesn't work
 	    	for (var comment of child_comments)
 	    	{
@@ -432,10 +437,6 @@ export default class CommentSection extends React.Component
 		this.comments = [];
 		this.offset = 0;
 		this.global_offset = 0;
-		if (props.user_posts != undefined)
-		{
-			this.global_offset += props.user_posts.length
-		}
 		this.loading_comments_semaphor = false;
 
 		this.new_comment = undefined;
@@ -447,15 +448,15 @@ export default class CommentSection extends React.Component
 	{
 		if (user_posts != undefined)
 		{
+			this.global_offset += user_posts.length;
 			var post_and_comments = [];
 			user_posts.map((post) => {
-				var current_comment = undefined;
+				var current_comments = [];
 				for (var comment of comments)
 				{
 					if (comment.props.post_id == post.post_id)
 					{
-						current_comment = comment;
-						break;
+						current_comments.push(comment);
 					}
 				}
 				var date = new Date(post.timestamp);
@@ -468,23 +469,21 @@ export default class CommentSection extends React.Component
 				var date_text = date.getMonth() + "/" + date.getDate() + "/" + date.getFullYear() + " at " + date.getHours() + ":" + minutes;
 
 				var comment_id = -1;
-				var comment = undefined;
 				
-				if (current_comment != undefined)
+				if (current_comments.length != 0)
 				{
-					var comment_id = current_comment.props.comment_id;
-					var comment = current_comment;						
+					var comment_id = current_comments[0].props.comment_id;				
 				}
-
+				console.log(post);
 				post_and_comments.push( 
 				<div>
 			      	<div style={{position:'relative', left:'0%', top:'20px', background:'white', paddingLeft:'5px', paddingBottom:'5px', borderBottom:'solid black 3px', maxWidth:'1000px'}}>
-				      		<div style={{width:'100%',height:'35px', fontSize:'16pt', textAlign:'center', display:'flex', flexDirection:'row'}} className='comment_header' id = {comment_id}> 
+				      		<div style={{width:'100%',height:'35px', fontSize:'18pt', textAlign:'center', display:'flex', flexDirection:'row'}} className='comment_header' id = {comment_id}> 
 				      			<div style = {{margin:'0'}}>
 				      				{post.username  + " | " + parseInt(post.likes - post.dislikes)}
 				      			</div>
 				      			<div style = {{margin:'0 auto'}}>
-				      				{post.title}
+				      				<a href= {"/user/" + post.username + "/" + post.post_id}>{post.title} </a>
 				      			</div>
 				      			<div style = {{marginRight:'0px'}}>
 				      				{date_text}
@@ -493,7 +492,7 @@ export default class CommentSection extends React.Component
 				      		<div style={{width:'75%'}} className ='comment_body' id = {comment_id}> {post.content} </div> 
 			    	</div>	
 			    	<div style={{position:'relative', top:'20px'}}>
-						{comment}
+						{current_comments}
 					</div>
 					<br/>
 					<br/>
@@ -506,9 +505,11 @@ export default class CommentSection extends React.Component
 
 	getComments(comments, comment_votes, id)
 	{
-		var comment_result = generateComments(comments, comment_votes, id, 0, this.global_post != undefined);		
+		console.log(this.props.global_post)
+		var comment_result = generateComments(comments, comment_votes, id, 0, this.props.global_post != undefined);		
 		this.comments = comment_result[0];
 		this.offset += comment_result[1]
+		console.log(comments)
 	}
 
 	componentDidMount() {
@@ -548,7 +549,7 @@ export default class CommentSection extends React.Component
 		        body: JSON.stringify({id: that.props.post_id, offset:that.offset})})
 		    .then(function(response) { return response.json();})
 		    .then(function (data) { 
-		    	var comment_result = generateComments(data.comments, data.comment_votes, that.props.post_id, 0, that.global_post == undefined)
+		    	var comment_result = generateComments(data.comments, data.comment_votes, that.props.post_id, 0, that.props.global_post != undefined)
 		    	var child_comments = comment_result[0];
 		    	that.offset += comment_result[1]
 		    	for (var comment of child_comments)
@@ -574,14 +575,13 @@ export default class CommentSection extends React.Component
 		        	'Content-Type': 'application/json',
 		        },
 		        body: JSON.stringify({id: that.props.global_post.post_id, 
-						        	offset:that.offset, 
+						        	offset:that.global_offset, 
 						        	song: that.props.global_post.song, 
 						        	artist:that.props.global_post.artist, 
 						        	album:that.props.global_post.album})})
 		    .then(function(response) { return response.json();})
 		    .then(function (data) { 
-		    	that.global_offset += data.user_posts.length;
-		    	var comment_result = generateComments(data.comments, data.comment_votes, that.props.post_id, 0, that.global_post == undefined)
+		    	var comment_result = generateComments(data.comments, data.comment_votes, that.props.post_id, 0, that.props.global_post != undefined)
 		    	var child_comments = comment_result[0];
 		    	that.offset += comment_result[1]
 		    	
@@ -658,7 +658,7 @@ export default class CommentSection extends React.Component
 	{
 
 		return (
-			<div style = {{position:'relative', left: '5%', paddingTop:'100px'}}>
+			<div style = {{position:'relative', left: '5%', paddingTop:'100px', maxWidth:'1000px'}}>
 				<button onClick = {this.openNewComment.bind(this)} type='button' className = 'begin_comment'>Comment</button> 
 				{this.new_comment}
 				<br/>

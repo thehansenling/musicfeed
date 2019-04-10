@@ -27,18 +27,18 @@ class NewPostSubmission extends React.Component {
 		var content_str = this.contentRef.current.value;
 	   	if(this.songEmbedRef.current.value != "")
 	   	{
-	   		this.songEmbedRef.current.style.width = '65%'
-	   		this.contentRef.current.style.width = '65%'
+	   		this.songEmbedRef.current.style.width = '670px'
+	   		this.contentRef.current.style.width = '670px'
 	   		this.contentRef.current.style.height = '300px'
-	   		this.titleRef.current.style.width = '65%'
+	   		this.titleRef.current.style.width = '670px'
 	   		this.embedded_content = this.songEmbedRef.current.value;
 	   	}
 	   	else 
 	   	{
-	   		this.songEmbedRef.current.style.width = '100%'
-	   		this.contentRef.current.style.width = '100%'
+	   		this.songEmbedRef.current.style.width = '980px'
+	   		this.contentRef.current.style.width = '980px'
 	   		this.contentRef.current.style.height = '50px'
-	   		this.titleRef.current.style.width = '100%'
+	   		this.titleRef.current.style.width = '980px'
 	   		this.embedded_content = this.songEmbedRef.current.value;
 	   	}
 	   	this.forceUpdate();
@@ -51,18 +51,18 @@ class NewPostSubmission extends React.Component {
 		var content_str = this.contentRef.current.value;
 	   	if(this.songEmbedRef.current.value != "")
 	   	{
-	   		this.songEmbedRef.current.style.width = '65%'
-	   		this.contentRef.current.style.width = '65%'
+	   		this.songEmbedRef.current.style.width = '670px'
+	   		this.contentRef.current.style.width = '670px'
 	   		this.contentRef.current.style.height = '300px'
-	   		this.titleRef.current.style.width = '65%'
+	   		this.titleRef.current.style.width = '670px'
 	   		this.embedded_content = this.songEmbedRef.current.value;
 	   	}
 	   	else 
 	   	{
-	   		this.songEmbedRef.current.style.width = '100%'
-	   		this.contentRef.current.style.width = '100%'
+	   		this.songEmbedRef.current.style.width = '980px'
+	   		this.contentRef.current.style.width = '980px'
 	   		this.contentRef.current.style.height = '50px'
-	   		this.titleRef.current.style.width = '100%'
+	   		this.titleRef.current.style.width = '980px'
 	   	}
 
     	if (content_str != "")
@@ -122,16 +122,16 @@ class NewPostSubmission extends React.Component {
 
 	beginNewPost()
 	{
-		this.newPost = <div key = "what" id = "post" style ={{top:'0px',position:'relative', paddingBottom:'30px', width:'980px'}}  autoComplete="off">
+		this.newPost = <div key = "what" id = "post" style ={{top:'0px',position:'relative', paddingBottom:'30px', width:'680px'}}  autoComplete="off">
 			Song/Playlist: 
 			<br/>
-			<input ref = {this.songEmbedRef} onChange = {this.songInput.bind(this)} id="song" type="text" name="song" style={{width:'100%'}}/>
+			<input ref = {this.songEmbedRef} onChange = {this.songInput.bind(this)} id="song" type="text" name="song" style={{width:'980px'}}/>
 			<br/>
 				Title:
 			<br/>
-			<input ref = {this.titleRef} id="title" type="text" name="title" style={{width:'100%'}}/>  
+			<input ref = {this.titleRef} id="title" type="text" name="title" style={{width:'980px'}}/>  
 			<br/>
-			<textarea onChange = {this.contentInput.bind(this)} ref = {this.contentRef} id = "content" name="content" rows="10" cols="90" style={{position:'relative',width:'100%',height:'50px'}}></textarea>
+			<textarea onChange = {this.contentInput.bind(this)} ref = {this.contentRef} id = "content" name="content" rows="10" cols="90" style={{position:'relative',width:'980px',height:'50px'}}></textarea>
 			<br/>
 			<button style = {{float:'left'}} onClick = {this.submitPost.bind(this)} id = "post_button" type="button">Post</button>
 			<button onClick = {this.closeNewPost.bind(this)}> Close </button>
@@ -151,9 +151,10 @@ class NewPostSubmission extends React.Component {
 		return (
 			<div style = {{position:'relative', margin: '0 auto', width:'980px', top:'100px'}}>
 			<button style = {{ width:'100px', position:'relative'}} onClick = {this.beginNewPost.bind(this)} > new post </button>
-
-			{this.newPost}
-			<div id="showsong" style = {{position:'relative',top:'-443px',left:'680px'}} dangerouslySetInnerHTML={this.renderiframe(this.embedded_content)}>
+			<div style = {{display:'flex', flexDirection:'row'}}>
+				{this.newPost}
+				<div id="showsong" style = {{position:'relative', top:'24px'}} dangerouslySetInnerHTML={this.renderiframe(this.embedded_content)}>
+			</div>
 			</div>
 			</div>
 		);
