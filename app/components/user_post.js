@@ -182,11 +182,33 @@ class UserPostContent extends React.Component
 		})
 
 		var post_id = this.props.data.id;
+		var date = new Date(this.props.data.timestamp)
+		//<div style = {{position:'relative', textAlign:'center', paddingTop:'8px', fontSize:'3em'}}>{this.props.data.title}</div>
+		var content_url = "/post/" + this.props.data.artist + "/" + this.props.data.song;
+		var content_name = this.props.data.song;
 
+		if (this.props.data.song == "NO_SONG_ALBUM_ONLY")
+		{
+			content_url = "/album/" + this.props.data.artist + "/" + this.props.data.album;
+			content_name = this.props.data.album;
+		}
 
 		return (
 			<div style = {{background: 'white', position:'relative', top:'85px', paddingLeft:'10px', height: 'auto', minHeight: '550px', maxWidth:'980px', paddingBottom:'50px', paddingRight:'10px', left:'5%', borderBottom: 'solid black 3px', borderRadius: '4px'}}>
-				<div style = {{position:'relative', textAlign:'center', paddingTop:'8px', fontSize:'3em'}}>{this.props.data.title}</div>
+				<div style = {{}} >
+
+			<div style = {{display:'flex', flexDirection:'row'}}>
+			<div style=  {{width:'300px', paddingLeft:'10px', paddingTop:'10px'}}>
+				<div style = {{float:'left', fontFamily:'Playfair Display'}}> <a href ={"/user/" + this.props.data.username} > {this.props.data.username}</a></div>
+				<div style = {{float:'right', paddingRight:'10px'}}>{(parseInt(date.getMonth()) + 1) + "/" + date.getDate() + "/" + date.getFullYear()}</div>
+				<div style = {{clear:'both'}}><a href ={"/artist/" + this.props.data.artist} > {this.props.data.artist} </a></div>
+				<div> <a href = {content_url} >{content_name} </a></div>
+			</div>
+			<div style = {{paddingTop:'8px', width:'680px', margin: '0px auto', textAlign:'center', fontSize:'36px'}}>{this.props.data.title}</div>
+
+			</div>
+
+				</div>
 				<div style = {{display:'inlineBlock'}}>
 					<div style={{float:'left',position:'relative', top:'0px', paddingRight:'20px'}} dangerouslySetInnerHTML={this.renderiframe(this.props.data.embedded_content)}>
 					</div>
