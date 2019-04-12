@@ -223,7 +223,7 @@ class GlobalPostContent extends React.Component
 					
 					<div>
 						{song}
-						<div> Album: {this.props.data.album} </div>
+						<div> Album: <a href = {"/album/" + this.props.data.artist + "/" + this.props.data.album}> {this.props.data.album} </a> </div>
 						<div> Released on: {this.props.data.release_date} </div>
 						{this.album_songs}
 					</div>

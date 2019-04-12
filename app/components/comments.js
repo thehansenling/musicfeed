@@ -5,8 +5,6 @@ function generateComments(comments, comment_votes, id, starting_comment_level, i
 {
 	var levels = [];
 	var level_zero_comments = 0;
-	console.log(comments);
-	console.log(is_global)
 	for (var comment of comments)
 	{
 		if(comment.comment_level == 0)
@@ -27,16 +25,12 @@ function generateComments(comments, comment_votes, id, starting_comment_level, i
 			levels[comment.comment_level].push(comment);
 		}
 	}
-	console.log("levels")
-	console.log(levels)
 	var comment_map = {};
 	var current_comments = [];
 	for (var level = levels.length - 1; level >= 0; level--)
 	{
 		for (var comment of levels[level])
 		{
-			console.log("comment")
-			console.log(comment)
 			var original_replies = comment.replies
 			if (comment_map[comment.comment_id] != undefined)
 			{
@@ -276,7 +270,6 @@ class Comment extends React.Component
 
 	openNewComment()
 	{
-		console.log(this.props)
 		if (this.props.is_global)
 		{
 			window.location = "/user/" + this.props.data.user_id + "/" + this.props.data.post_id
@@ -474,7 +467,6 @@ export default class CommentSection extends React.Component
 				{
 					var comment_id = current_comments[0].props.comment_id;				
 				}
-				console.log(post);
 				post_and_comments.push( 
 				<div>
 			      	<div style={{position:'relative', left:'0%', top:'20px', background:'white', paddingLeft:'5px', paddingBottom:'5px', borderBottom:'solid black 3px', maxWidth:'1000px'}}>
@@ -505,11 +497,9 @@ export default class CommentSection extends React.Component
 
 	getComments(comments, comment_votes, id)
 	{
-		console.log(this.props.global_post)
 		var comment_result = generateComments(comments, comment_votes, id, 0, this.props.global_post != undefined);		
 		this.comments = comment_result[0];
 		this.offset += comment_result[1]
-		console.log(comments)
 	}
 
 	componentDidMount() {
