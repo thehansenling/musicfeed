@@ -258,10 +258,25 @@ export default class GlobalPost extends React.Component
 
 	render()
 	{
-		return (
-			<div>
+		var page;
+
+
+		if (this.props.data.global_post == undefined)
+		{
+			page = <div style = {{top: '100px', left:'5%', position:'relative'}}>
+				Content not posted yet
+			</div>
+		}
+		else
+		{
+		 	page = <div>
 				<GlobalPostContent data = {this.props.data.global_post} like_state = {this.props.data.like_state}/>
 				<CommentSection comments = {this.props.data.comments} comment_votes = {this.props.data.comment_votes} post_id = {this.props.data.global_post.post_id} posts = {this.props.data.user_posts} global_post = {this.props.data.global_post} />
+				</div>
+		}
+		return (
+			<div>
+			{page}
 			</div>
 		);
 	}

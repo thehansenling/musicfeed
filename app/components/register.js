@@ -16,7 +16,6 @@ export default class RegisterPage extends React.Component
 	submitRegistration(e)
 	{
 		var that = this;
-		console.log("SUBMITTING REGISTRATION")
 	    fetch("/register", {
 	        method: "POST",
 	        headers: {
@@ -29,8 +28,6 @@ export default class RegisterPage extends React.Component
 	        	   password_confirm: this.confirmRef.current.value}),
 	    }).then(function(response) { return response.json();})
 	    .then(function (data) {    	
-	  		console.log(data)
-	  		console.log(data.message)
 	  		that.registration_message = data.message
 	  		if (data.message == "Registration Successful")
 	  		{

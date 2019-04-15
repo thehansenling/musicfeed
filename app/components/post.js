@@ -183,14 +183,15 @@ class Post extends React.Component
 	}
 
 	componentDidMount() {
+		console.log(this.props)
 		if (this.contentRef.current.offsetHeight > 390)
 		{
-			var content_url = "/post/" + this.props.song.artist + "/" + this.props.song.song;
+			var content_url = "/user/" + this.props.song.username+ "/" + this.props.song.post_id
 
-			if (this.props.song.song == "NO_SONG_ALBUM_ONLY")
-			{
-				content_url = "/album/" + this.props.song.artist + "/" + this.props.song.album;
-			}
+			// if (this.props.song.song == "NO_SONG_ALBUM_ONLY")
+			// {
+			// 	content_url = "/album/" + this.props.song.artist + "/" + this.props.song.album;
+			// }
 
 
 			this.ellipsis = <div style = {{paddingLeft:'305px', fontSize:'22pt'}}>

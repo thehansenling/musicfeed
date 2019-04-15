@@ -57,7 +57,7 @@ export default class App extends React.Component{
 					<Route exact path = "/artist/:artist" render={() => (<ArtistPost data = {this.props.data}/>)} />
 					<Route exact path = "/artist/:artist/songs" render={() => (<ArtistSongsPost data = {this.props.data}/>)} />
 					<Route exact path = "/artist/:artist/albums" render={() => (<ArtistAlbumsPost data = {this.props.data}/>)} />
-					<Route exact path = "/contact"  component={Contact} />
+					<Route exact path = "/contact" render={() => (<Contact data = {this.props.data}/>)} />
 					<Route exact path = "/about"  component={About} />
 				</Switch>	
 				<script type="text/javascript" src="/public/bundle.js"> </script>

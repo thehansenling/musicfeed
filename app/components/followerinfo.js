@@ -1,4 +1,5 @@
 import React from 'react';
+import utils from './utils.js';
 
 export default class FollowerInfo extends React.Component {
 	constructor(props) {
@@ -20,6 +21,11 @@ export default class FollowerInfo extends React.Component {
 
 	followClicked()
 	{
+		if (!utils.checkLoggedIn())
+		{
+			alert("MUST BE LOGGED IN")
+			return;
+		}
 		var that = this;
 		if (this.following_state)
 		{

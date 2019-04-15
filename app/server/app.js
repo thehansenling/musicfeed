@@ -612,6 +612,10 @@ app.get('/', (req, res) => {
 
 })
 
+app.get('/contact', (req, res) => {
+	var html = renderPage(req.url, {username: req.cookies.username});
+	res.send(html);
+})
 
 app.get('/about', (req, res) => {
 	var html = renderPage(req.url, {username: req.cookies.username});
@@ -1136,6 +1140,21 @@ app.get('/post/:artist/:song', function (req, res) {
 		{
 			like_post_id = result[0].post_id;
 		}
+		else
+		{
+			var data = 
+			{
+				global_post: undefined,
+				comments: undefined,
+				comment_votes:undefined,
+				like_state: undefined,
+				username: req.cookies.username,
+				user_posts: undefined,
+			};
+			var html = renderPage(req.url, data)
+			res.send(html);
+			return;
+		}
 
 		var user_posts_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN " + 
 							  "(timestamp - CURRENT_TIMESTAMP)/45000 ELSE LOG(ABS(cast(likes as signed) -" + 
@@ -1323,6 +1342,24 @@ app.get('/album/:artist/:album', function (req, res) {
 	{
 
 		var content = result;
+
+		if (result.length == 0)
+		{
+
+			var data = 
+			{
+				global_post: undefined,
+				comments: undefined,
+				comment_votes:undefined,
+				like_state: undefined,
+				username: req.cookies.username,
+				user_posts: undefined,
+			};
+			var html = renderPage(req.url, data)
+			res.send(html);
+			return
+		}
+
 		var like_state_sql = "SELECT like_state from likes where post_id = '"+ String(result[0].post_id) + "' AND user_id = '" + req.cookies.username + "'";
 		connection.query(like_state_sql, function (err, result, fields) 
 		{		
@@ -1423,7 +1460,7 @@ app.get('/login', function(req, res)
 
 app.post('/login', function(req, res)
 {
-	var sql = "SELECT * FROM accounts where username = '" + req.body.username + "' AND password = '"+ req.body.password +"'";
+	var sql = "SELECT * FROM accounts where username = '" + req.body.username + "' AND password = '"+ req.body.password +"' COLLATE utf8mb4_bin";
 	connection.query(sql, function (err, result, fields) {
 	    if (err) throw err;
 	    var login_message = "Login Failure";

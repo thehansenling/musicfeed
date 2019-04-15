@@ -1,0 +1,36 @@
+background
+	- separating content from background
+		- figure out how to set entire background to color
+			- why is there a border on the left side
+			- why does the white space expand to the right 
+
+buttons
+	- comment
+		- for new comments on posts 
+	- show replies
+		- just text?
+	- new posts
+		- open new
+		- post and close
+	- follow buttons on user and artist pages
+
+figure out what should be the layout for global posts
+	- songs
+	- albums
+		fix released on for albums
+
+artists
+	- main page
+	- songs
+	- albums
+
+user page
+	- make portraits smaller?
+
+
+
+Boundaries for user/global posts
+
+Getting the post ui into its own clickable popout 
+
+Once finished with other things, do similar for global posts
