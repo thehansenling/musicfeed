@@ -2073,7 +2073,47 @@ app.post('/', (req, res) => {
 	res.send({ hello: 'world' });
 })
 
-app.post('/about', (req, res) => {
+app.get('/random', (req, res) => {
+	var user_content_number_sql = "SELECT COUNT(*) from user_content"
+	connection.query(user_content_number_sql, function (err, result, fields){
+		var num_user_content = result[0]['COUNT(*)']
+		var global_posts_number_sql = "SELECT COUNT(*) from global_posts"
+		connection.query(global_posts_number_sql, function (err, result, fields){
+			var num_global_posts = result[0]['COUNT(*)']
+			if (Math.random() > num_global_posts / (num_global_posts + num_user_content))
+			{
+				var user_search_sql = "SELECT * FROM user_content ORDER BY RAND() LIMIT 1";
+				connection.query(user_search_sql, function (err, result, fields){
+					result = result[0]
+					if (result.username != undefined)
+					{
+						req.url = '/user/' + result.username + "/" + result.id;
+
+					} 
+					res.redirect(req.url)
+				});
+			}
+			else
+			{
+				var global_search_sql = "SELECT * FROM global_posts ORDER BY RAND() LIMIT 1";
+				connection.query(global_search_sql, function (err, result, fields){
+					result = result[0]
+					if (result.song == "NO_SONG_ALBUM_ONLY")
+					{
+						req.url = '/album/' + result.artist + "/" + result.album;
+					}
+					else
+					{
+						req.url = '/post/' + result.artist + "/" + result.song;
+					}
+					res.redirect(req.url)
+				});				
+			}
+		});
+	});
+})
+
+app.post('/search', (req, res) => {
 	if (req.body.text != "")
 	{
 		var user_search_sql = "SELECT * from accounts where username LIKE '" + req.body.text + "%'";

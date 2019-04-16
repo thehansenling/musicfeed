@@ -82,11 +82,10 @@ class SearchList extends React.Component {
 
 	handleChange()
 	{
-
 		var input = event.target.value;
 		var that = this;
 
-	    fetch("/about", {
+	    fetch("/search", {
 	        method: "POST",
 	        headers: {
 	        	Accept: 'application/json',
@@ -172,10 +171,11 @@ export default class StandardHeader extends React.Component {
 		        </div>
 		    </div>
 		    <div>
-			    <div style = {{position:'absolute',top:'15px', right:'130px'}}>
+			    <div style = {{position:'absolute',top:'15px', right:'200px'}}>
 			    	{login_info}
 			    </div>
 			    <div style = {{position:'absolute',top:'15px', right:'10px'}}>
+			    	<a style ={{marginRight: '10px'}}href="/random">Random</a>
 					<a style ={{marginRight: '10px'}}href="/about">About</a>
 					<a href="/contact">Contact</a>
 				</div>
