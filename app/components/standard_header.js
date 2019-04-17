@@ -156,34 +156,34 @@ export default class StandardHeader extends React.Component {
   	}
     return (
 
-<div>
-	<head>
-		<title>My Node Site</title>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
+	<div>
+		<head>
+			<title>My Node Site</title>
+			<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
 
-	</head>
-	<header>
-		<div id = "reacttest" style = {{top:'0px', left:'0px', position:'fixed', height:'60px', backgroundColor: '#178275', width:'100%', zIndex:'10'}}>
-			<div style = {{position:'absolute',top:'15px', left:'10px'}}><a href="/" >Home</a></div>
-		    <div style = {{position:'absolute',top:'15px', left:'210px'}}>
-		        <div className="search_list" style = {{overflow: 'auto'}}>
-		        <SearchList />
-		        </div>
-		    </div>
-		    <div>
-			    <div style = {{position:'absolute',top:'15px', right:'200px'}}>
-			    	{login_info}
+		</head>
+		<header>
+			<div id = "reacttest" style = {{top:'0px', left:'0px', position:'fixed', height:'60px', backgroundColor: '#178275', width:'100%', zIndex:'10'}}>
+				<div style = {{position:'absolute',top:'15px', left:'10px'}}><a href="/" >Home</a></div>
+			    <div style = {{position:'absolute',top:'15px', left:'210px'}}>
+			        <div className="search_list" style = {{overflow: 'auto'}}>
+			        <SearchList />
+			        </div>
 			    </div>
-			    <div style = {{position:'absolute',top:'15px', right:'10px'}}>
-			    	<a style ={{marginRight: '10px'}}href="/random">Random</a>
-					<a style ={{marginRight: '10px'}}href="/about">About</a>
-					<a href="/contact">Contact</a>
+			    <div>
+				    <div style = {{position:'absolute',top:'15px', right:'200px'}}>
+				    	{login_info}
+				    </div>
+				    <div style = {{position:'absolute',top:'15px', right:'10px'}}>
+				    	<a style ={{marginRight: '10px'}}href="/random">Random</a>
+						<a style ={{marginRight: '10px'}}href="/about">About</a>
+						<a href="/contact">Contact</a>
+					</div>
 				</div>
 			</div>
-		</div>
 
-	</header>
-</div>
+		</header>
+	</div>
 
 	);
 }

@@ -1,5 +1,6 @@
 
 import React from 'react';
+import {render} from 'react-dom';
 import {
 	BrowserRouter as Router,
 	Redirect, 
@@ -37,11 +38,19 @@ export default class App extends React.Component{
 	{
 		console.log("CLICKED");
 	}
+	componentWillMount()
+	{
+		if (typeof window !== 'undefined') 
+		{
+			document.body.style.backgroundColor = "#F0F0F0";
+		}
+	}
 	//#FAFAFA
 	render()
 	{
+
 		return (
-			<div id='root' style = {{background:'#F0F0F0', width:'100%', minWidth:'1200px'}}>
+			<div id='root' style = {{width:'100%', minWidth:'1200px'}}>
 				<StandardHeader username = {this.props.data.username}/>
 				<link rel="stylesheet" href="/styles.css"/>
 				<Switch>
