@@ -1460,7 +1460,7 @@ app.get('/login', function(req, res)
 
 app.post('/login', function(req, res)
 {
-	var sql = "SELECT * FROM accounts where username = '" + req.body.username + "' AND password = '"+ req.body.password +"' COLLATE utf8mb4_bin";
+	var sql = "SELECT * FROM accounts where username = '" + req.body.username + "' AND password = '"+ req.body.password +"' COLLATE utf8_bin";
 	connection.query(sql, function (err, result, fields) {
 	    if (err) throw err;
 	    var login_message = "Login Failure";
