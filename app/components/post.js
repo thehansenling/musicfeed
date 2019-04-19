@@ -183,7 +183,6 @@ class Post extends React.Component
 	}
 
 	componentDidMount() {
-		console.log(this.props)
 		if (this.contentRef.current.offsetHeight > 390)
 		{
 			var content_url = "/user/" + this.props.song.username+ "/" + this.props.song.post_id
@@ -394,7 +393,7 @@ export default class PostInfo extends React.Component
 		}
 	}
 
-	addPosts(songs, likes, all_num_comments)
+	addPosts(songs, likes, all_num_comments, all_num_posts)
 	{
 		for (var song of songs)
 		{
@@ -420,16 +419,30 @@ export default class PostInfo extends React.Component
 					like_state = like.like_state;
 				}
 			}
-			for (var num_comments of all_num_comments)
+			if (song.username != undefined)
 			{
-				var id = num_comments.post_id
-				if (id == song.post_id)
+				for (var num_comments of all_num_comments)
 				{
-					current_num_comments = num_comments.count;
-					break;
+					var id = num_comments.post_id
+					if (id == song.post_id)
+					{
+						current_num_comments = num_comments.count;
+						break;
+					}
 				}
 			}
-			
+			else
+			{
+				for (var num_posts of all_num_posts)
+				{
+					var id = num_posts.post_id
+					if (id == song.post_id)
+					{
+						current_num_comments = num_posts.count;
+						break;
+					}
+				}			
+			}
 			this.posts.push(<Post key={song.post_id} song={song} like_state = {like_state} num_comments = {current_num_comments}/>);
 		}
 		this.forceUpdate()

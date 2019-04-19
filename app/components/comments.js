@@ -39,8 +39,7 @@ function generateComments(comments, comment_votes, id, starting_comment_level, i
 					comment.replies = comment.replies - child.props.original_replies - 1;
 				}
 			}
-
-			var comment_vote;
+			var comment_vote = -1;
 			for (var vote of comment_votes)
 			{
 				if (vote.comment_id == comment.comment_id)
@@ -155,7 +154,6 @@ class Comment extends React.Component
 		{
 			this.vote_state = this.props.vote_state.vote_state
 		}
-
 		this.new_comment = undefined;
 		this.newCommentTextRef = React.createRef();
 
@@ -298,6 +296,8 @@ class Comment extends React.Component
 
 	submitNewComment()
 	{
+		var submit_text = this.newCommentTextRef.current.value;
+		var that = this
 	    fetch("/comment", {
 	        method: "POST",
 	        headers: {
@@ -312,9 +312,23 @@ class Comment extends React.Component
 	        					  parent_comment_id: this.props.data.comment_id}),})
 	    .then(function(response) { return response.json();})
 	    .then(function (data) {    	
-	    	//location.reload(true);
+		    var new_comment_data = {
+		    	post_id: data.comment_id,
+		    	user_id: data.username,
+		    	text: submit_text, 
+		    	timestamp: parseInt(data.timestamp),
+		    	upvotes: 0,
+		    	downvotes: 0,
+		    	replies: 0,
+		    	comment_id: data.comment_id,
+		    	parent_comment_id: that.props.data.comment_id,
+		    	comment_level: that.props.data.comment_level + 1,
+		    }
+		    that.child_comments.splice(0, 0,<Comment key = {data.comment_id} original_replies = {0} data = {new_comment_data} child_comments = {[]} vote_state = {-1} post_id = {data.comment_id} is_global = {that.props.global_post != undefined}/>)
+		    that.forceUpdate()
 	    })	    
 	    this.closeNewComment();
+
 	}
 
 	showReplies()
@@ -375,7 +389,6 @@ class Comment extends React.Component
 		}
 		var date_text = date.getMonth() + "/" + date.getDate() + "/" + date.getFullYear() + " at " + date.getHours() + ":" + minutes;
 		var comment_text = this.props.data.text;
-
 		var upvote_color = 'black'
 		var downvote_color = 'black'
 
@@ -625,6 +638,8 @@ export default class CommentSection extends React.Component
 
 	submitNewComment()
 	{
+		var that = this;
+		var submit_text = this.newCommentTextRef.current.value
 	    fetch("/comment", {
 	        method: "POST",
 	        headers: {
@@ -639,17 +654,36 @@ export default class CommentSection extends React.Component
 	        					  parent_comment_id: -1,})})
 	    .then(function(response) { return response.json();})
 	    .then(function (data) { 
-	    	location.reload(true);
+		    var new_comment_data = {
+		    	post_id: data.comment_id,
+		    	user_id: data.username,
+		    	text: submit_text, 
+		    	timestamp: parseInt(data.timestamp),
+		    	upvotes: 0,
+		    	downvotes: 0,
+		    	replies: 0,
+		    	comment_id: data.comment_id,
+		    	parent_comment_id: -1,
+		    	comment_level: 0,
+		    }
+		    that.comments.splice(0, 0,<Comment key = {data.comment_id} original_replies = {0} data = {new_comment_data} child_comments = {[]} vote_state = {-1} post_id = {data.comment_id} is_global = {that.props.global_post != undefined}/>)
+		    that.forceUpdate()
 	    })
+
 	    this.closeNewComment();
 	}
 
+
 	render()
 	{
-
+		var new_comment_button = <button onClick = {this.openNewComment.bind(this)} type='button' className = 'begin_comment'>Comment</button>
+		if (this.props.global_post != undefined)
+		{
+			new_comment_button = undefined
+		}
 		return (
 			<div style = {{position:'relative', left: '5%', paddingTop:'100px', maxWidth:'1000px'}}>
-				<button onClick = {this.openNewComment.bind(this)} type='button' className = 'begin_comment'>Comment</button> 
+				{new_comment_button}
 				{this.new_comment}
 				<br/>
 				<br/>

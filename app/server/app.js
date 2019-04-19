@@ -210,13 +210,17 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 					    merged_result = merged_result[0]
 					    var songs_list = [];
 						var post_ids = ""
+						var global_post_info = []
 					    for (var i =0; i < merged_result.length; ++i)
 						{
 							songs_list.push(merged_result[i]);
 							post_ids = post_ids + "'" + merged_result[i].post_id + "',"
+							if (merged_result[i].username == undefined)
+							{
+								global_post_info.push([merged_result[i].artist, merged_result[i].album, merged_result[i].song, merged_result[i].post_id])
+							}
 						}
 						if (post_ids.length > 0) post_ids = post_ids.substring(0, post_ids.length-1);
-
 						var like_sql = "SELECT post_id, like_state FROM likes WHERE user_id = '" + 
 										req.cookies.username + "'" + "AND post_id in (" + post_ids + ")";
 						connection.query(like_sql, function (err, result, fields) 
@@ -255,7 +259,36 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 										}
 									}	
 								}
-								callback(songs_list, likes_list, num_comments_list);
+								var global_num_posts_sql = "";
+								var num_posts_list = [];
+								for (var i = 0 ; i < global_post_info.length; ++i)
+								{
+									global_num_posts_sql += "SELECT COUNT(*), post_id FROM user_content WHERE artist = '" + global_post_info[i][0] + "' AND album = '" + global_post_info[i][1] + "' AND song = '" + global_post_info[i][2] + "';"
+								}
+								connection.query(global_num_posts_sql, function (err, result, fields) 
+								{		
+									if (result != undefined)
+									{
+										if (result.length == 1)
+										{
+											num_posts_list.push({'count':result[0]["COUNT(*)"],'post_id':global_post_info[0][3] });
+										}
+										else 
+										{
+											for (i =0; i < result.length; ++i)
+											{
+												if (result[i][0]["post_id"] != null)
+												{
+													num_posts_list.push({'count':result[i][0]["COUNT(*)"], 'post_id':global_post_info[i][3] });
+												}
+												
+											}
+										}	
+									}
+									callback(songs_list, likes_list, num_comments_list, num_posts_list);
+								});				
+
+								
 							});			
 						});
 					});
@@ -268,12 +301,13 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 function SendFeed(req, res, limit)
 {
 	var data = GetFeed(req, res, 
-		function (songs_list, likes_list, num_comments_list) {
+		function (songs_list, likes_list, num_comments_list, num_posts_list) {
 			res.send(
 			{
 				songs: songs_list,
 				likes: likes_list,
 				num_comments: num_comments_list,
+				num_posts: num_posts_list,
 				post_limit: limit,
 			});	
 		}, 
@@ -287,7 +321,7 @@ function SendFeed(req, res, limit)
 function RenderFeed(req, res)
 {
 	var data = GetFeed(req, res, 
-		function (songs_list, likes_list, num_comments_list) {
+		function (songs_list, likes_list, num_comments_list, num_posts_list) {
 
 			// res.render('pages/feed', 
 			// {
@@ -298,6 +332,7 @@ function RenderFeed(req, res)
 			var data = {songs: songs_list,
 						likes: likes_list,
 						num_comments: num_comments_list,
+						num_posts: num_posts_list,
 					    username: req.cookies.username}
 			//var html = ReactDOMServer.renderToString(<StaticRouter location={req.url} context={context}><App data = {data}/></StaticRouter>)
 			//var html = ReactDOMServer.renderToString(<Home test= "testing"/>)
@@ -1258,8 +1293,9 @@ app.post('/load_global_posts', function(req, res)
 						  "(timestamp - CURRENT_TIMESTAMP)/45000 ELSE LOG(ABS(cast(likes as signed) -" + 
 						  " cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + " + 
 						  "(timestamp - CURRENT_TIMESTAMP)/45000 END as score FROM user_content " + 
-						  "WHERE artist = '" + req.body.artist + "' AND song = '" + req.body.song + "' " + 
+						  "WHERE artist = '" + req.body.artist + "' AND album = '" + req.body.album + "' AND song = '" + req.body.song + "' " + 
 						  "ORDER BY score DESC LIMIT " + 5 + " OFFSET " + req.body.offset;
+
 	connection.query(user_posts_sql, function (err, result, fields) 
 	{		
 		var user_posts = result;
@@ -1337,60 +1373,92 @@ app.post('/load_global_posts', function(req, res)
 
 
 app.get('/album/:artist/:album', function (req, res) {
-	var sql = "SELECT * FROM global_posts WHERE artist = '" + req.params.artist + "'" + " AND album = '" + req.params.album + "' AND type = 1";
-	connection.query(sql, function (err, result, fields) 
-	{
 
-		var content = result;
-
-		if (result.length == 0)
+	var user_posts_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN " + 
+						  "(timestamp - CURRENT_TIMESTAMP)/45000 ELSE LOG(ABS(cast(likes as signed) -" + 
+						  " cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + " + 
+						  "(timestamp - CURRENT_TIMESTAMP)/45000 END as score FROM user_content " + 
+						  "WHERE artist = '" + req.params.artist + "' AND album = '" + req.params.album + "' AND song = 'NO_SONG_ALBUM_ONLY'" + 
+						  "ORDER BY score DESC LIMIT " + 5 + " OFFSET " + 0;
+	connection.query(user_posts_sql, function (err, result, fields) 
+	{		
+		var user_posts = result;
+		var post_ids = ""
+		if (result != undefined)
+		{
+			var songs_list = []
+		    for (var i = 0; i < result.length; ++i)
+			{
+				songs_list.push(result[i]);
+				post_ids = post_ids + "'" + result[i].post_id + "',"
+			}
+			if (post_ids.length > 0) post_ids = post_ids.substring(0, post_ids.length-1);
+		}
+		var sql = "SELECT * FROM global_posts WHERE artist = '" + req.params.artist + "'" + " AND album = '" + req.params.album + "' AND type = 1";
+		connection.query(sql, function (err, result, fields) 
 		{
 
-			var data = 
-			{
-				global_post: undefined,
-				comments: undefined,
-				comment_votes:undefined,
-				like_state: undefined,
-				username: req.cookies.username,
-				user_posts: undefined,
-			};
-			var html = renderPage(req.url, data)
-			res.send(html);
-			return
-		}
+			var content = result;
 
-		var like_state_sql = "SELECT like_state from likes where post_id = '"+ String(result[0].post_id) + "' AND user_id = '" + req.cookies.username + "'";
-		connection.query(like_state_sql, function (err, result, fields) 
-		{		
-			var user_like_state;
 			if (result.length == 0)
 			{
-				user_like_state = -1;	
-			} else 
-			{
-				user_like_state = result[0].like_state;
+
+				var data = 
+				{
+					global_post: undefined,
+					comments: undefined,
+					comment_votes:undefined,
+					like_state: undefined,
+					username: req.cookies.username,
+					user_posts: undefined,
+				};
+				var html = renderPage(req.url, data)
+				res.send(html);
+				return
 			}
 
-			sql = "SELECT * FROM user_content where artist = '" + req.params.artist + "' AND album = '" + req.params.album + "'";
-			connection.query(sql, function (err, result, fields) 
-			{
 
-				var post_ids = ""
-				if (result != undefined)
+
+			var like_state_sql = "SELECT like_state from likes where post_id = '"+ String(result[0].post_id) + "' AND user_id = '" + req.cookies.username + "'";
+			connection.query(like_state_sql, function (err, result, fields) 
+			{		
+				var user_like_state;
+				if (result.length == 0)
 				{
-				    for (var i = 0; i < result.length; ++i)
-					{
-						post_ids = post_ids + "'" + result[i].post_id + "',"
-					}
-					if (post_ids.length > 0) post_ids = post_ids.substring(0, post_ids.length-1);
+					user_like_state = -1;	
+				} else 
+				{
+					user_like_state = result[0].like_state;
 				}
-					var comment_promise_0 = GetComments(0, COMMENT_LIMIT, content[0].post_id, -1, req.cookies.username)
+
+				sql = "SELECT * FROM user_content where artist = '" + req.params.artist + "' AND album = '" + req.params.album + "'";
+				connection.query(sql, function (err, result, fields) 
+				{
+
+					var post_ids = ""
+					if (result != undefined)
+					{
+					    for (var i = 0; i < result.length; ++i)
+						{
+							post_ids = post_ids + "'" + result[i].post_id + "',"
+						}
+						if (post_ids.length > 0) post_ids = post_ids.substring(0, post_ids.length-1);
+					}
+
+
+					var comment_promise_0 = GetCommentsFromPost(COMMENT_LIMIT, "(" + post_ids + ")", -1, req.cookies.username)
 					comment_promise_0.then(function(response_0) {
-					  var comment_promise_1 = GetComments(1, COMMENT_LIMIT, content[0].post_id, response_0['comment_ids'], req.cookies.username)
+					  var comment_promise_1 = GetComments(1, COMMENT_LIMIT, content[0]['post_id'], response_0['comment_ids'], req.cookies.username, 0, false)
 					  comment_promise_1.then(function(response_1) {
-						  var comment_promise_2 = GetComments(2, COMMENT_LIMIT, content[0].post_id, response_1['comment_ids'], req.cookies.username)
+						  var comment_promise_2 = GetComments(2, COMMENT_LIMIT, content[0]['post_id'], response_1['comment_ids'], req.cookies.username, 0, false)
 						  comment_promise_2.then(function(response_2) {
+
+						// var comment_promise_0 = GetComments(0, COMMENT_LIMIT, content[0].post_id, -1, req.cookies.username)
+						// comment_promise_0.then(function(response_0) {
+						//   var comment_promise_1 = GetComments(1, COMMENT_LIMIT, content[0].post_id, response_0['comment_ids'], req.cookies.username)
+						//   comment_promise_1.then(function(response_1) {
+						// 	  var comment_promise_2 = GetComments(2, COMMENT_LIMIT, content[0].post_id, response_1['comment_ids'], req.cookies.username)
+						// 	  comment_promise_2.then(function(response_2) {
 
 						  	  var all_comments = []
 						  	  var all_comment_votes = []
@@ -1420,8 +1488,6 @@ app.get('/album/:artist/:album', function (req, res) {
 						  	  	  all_comment_votes.push(comment_vote);
 						  	  }
 
-
-
 						      var data =
 							  {
 								  global_post: content[0],
@@ -1429,6 +1495,7 @@ app.get('/album/:artist/:album', function (req, res) {
 								  comment_votes:all_comment_votes,
 								  like_state: user_like_state,
 								  username: req.cookies.username,
+								  user_posts: user_posts
 							  };
 								var html = renderPage(req.url, data)
 								res.send(html);
@@ -1445,7 +1512,9 @@ app.get('/album/:artist/:album', function (req, res) {
 					}, function(error_0) {
 					  console.error("Failed!", error_0);
 					})
+				});
 			});
+
 		});
   	});
 });
@@ -1870,7 +1939,8 @@ app.post('/comment', function (req, res)
 		update_replies(req.body.parent_comment_id);
 
 		res.send({comment_id:comment_id,
-				  timestamp:timestamp});
+				  timestamp:timestamp,
+				  username: res.req.cookies.username});
 
 	});
 });
