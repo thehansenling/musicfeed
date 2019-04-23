@@ -374,7 +374,7 @@ class Comment extends React.Component
 		var left_spaces = []
 		for (var i = 0; i < this.props.data.comment_level; ++i)
 		{
-			left_spaces.push(<div style = {{borderLeft: "3px solid gray",position:'relative', width:'50px'}}></div>)//<span style = {{borderLeft: "3px solid black", width:'50px', height:'100%'}}> </span>);
+			left_spaces.push(<div style = {{borderLeft: "3px solid #C5C5C5",position:'relative', width:'50px', left:'8px'}}></div>)//<span style = {{borderLeft: "3px solid black", width:'50px', height:'100%'}}> </span>);
 		}
 		//var left_spacing = <div style = {{borderLeft: "3px solid black",position:'relative', width:left_offset}}> {left_spaces} </div>;
 
@@ -409,7 +409,7 @@ class Comment extends React.Component
 		return (
 			<div style = {{background:'white', borderRadius:'4px', maxWidth:'1000px'}}>
 	      		
-		      	<div className= {comment_level} id= {comment_id} replies= {replies} style={{position:'relative', paddingBottom:'10px', display:'flex', flexDirection:'row', flex: '1 1 auto'}}>
+		      	<div className= {comment_level} id= {comment_id} replies= {replies} style={{position:'relative', display:'flex', flexDirection:'row', flex: '1 1 auto'}}>
 			      	{left_spaces}
 			      	<div style={{position:'relative', height:'60px', width:'5%'}}>
 
