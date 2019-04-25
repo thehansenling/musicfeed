@@ -141,7 +141,7 @@ class Comment extends React.Component
 		if (props.data.replies > 0)
 		{
 			var left_offset = String((props.data.comment_level) * 5 - 1) + '%'
-			this.replies_button = <button onClick = {this.showReplies.bind(this)} className = 'show_replies' style = {{position:'relative', left:left_offset}} id = {props.data.comment_id} > show {props.data.replies} replies </button>;
+			this.replies_button = <button onClick = {this.showReplies.bind(this)} className = 'show_replies' style = {{position:'relative', left:left_offset, fontSize:'12px'}} id = {props.data.comment_id} > show {props.data.replies} replies </button>;
       	}
       	this.upvoteRef = React.createRef();
       	this.downvoteRef = React.createRef();
@@ -418,13 +418,13 @@ class Comment extends React.Component
 
 			      	</div>
 			      	<div style={{position:'relative', width:'100%'}}>
-			      		<div ref = {this.scoreRef} style={{width:'75%',height:'20px', fontSize:'10pt'}} className='comment_header' id = {comment_id}> 
+			      		<div ref = {this.scoreRef} style={{width:'75%',height:'20px', fontSize:'10pt', color: '#5b5b5b'}} className='comment_header' id = {comment_id}> 
 			      			{user_id + " | " + this.votes_score + " | "+ date_text}
 			      			
 			      			
 			      		</div>
 			      		<div style={{width:'75%'}} className ='comment_body' id = {comment_id}> {comment_text} </div> 
-			      		<div style={{width:'75%',height:'25px', fontSize:'10pt'}} onClick = {this.openNewComment.bind(this)} className = 'begin_comment' id = {comment_id}> Reply </div>
+			      		<div style={{width:'75%',height:'25px', fontSize:'10pt', color: '#5b5b5b'}} onClick = {this.openNewComment.bind(this)} className = 'begin_comment' id = {comment_id}> Reply </div>
 			      	</div>
 		    	</div>
 		    	{this.new_comment}

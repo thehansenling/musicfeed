@@ -269,31 +269,38 @@ class Post extends React.Component
 			content_url = "/album/" + this.props.song.artist + "/" + this.props.song.album;
 			content_name = this.props.song.album;
 		}
-
+		var leftpadding = '0px'
+		var content_section = <div  style = {{paddingLeft: '10px', paddingTop:'5px', height: '390px', width:'650px', fontSize: '2em', overflow:'hidden', textOverflow:'ellipsis'}}> 
+					<div ref = {this.contentRef}>
+						{content_div}
+					</div>
+				</div>
+		var date_float = 'right'
+		if (this.props.song.username == undefined)
+		{
+			leftpadding = '340px'
+			content_section = <div ref = {this.contentRef}></div>
+			date_float = 'left'
+		}
 
 		return(
 
-
-		<div key = {this.props.song.post_id} style = {{border: '1px solid #BABABA', borderRadius: '4px', width:'980px', background:'white'}}>
-			<div style = {{display:'flex', flexDirection:'row'}}>
+		<div key = {this.props.song.post_id} style = {{border: '1px solid #BABABA', borderRadius: '4px', width:'980px', background:'white', minHeight:'513px'}}>
+			<div style = {{paddingLeft: leftpadding, display:'flex', flexDirection:'row'}}>
 			<div style=  {{width:'300px', paddingLeft:'10px', paddingTop:'10px'}}>
 				<div style = {{float:'left', fontFamily:'Playfair Display'}}> <a href ={poster_username_url} > {poster_username} </a></div>
-				<div style = {{float:'right', paddingRight:'10px'}}>{(parseInt(date.getMonth()) + 1) + "/" + date.getDate() + "/" + date.getFullYear()}</div>
+				<div style = {{float:date_float, paddingRight:'10px'}}>{(parseInt(date.getMonth()) + 1) + "/" + date.getDate() + "/" + date.getFullYear()}</div>
 				<div style = {{clear:'both'}}><a href ={artist_url} > {artist_name} </a></div>
 				<div> <a href = {content_url} >{content_name} </a></div>
 			</div>
 			<div style = {{paddingTop:'8px', width:'680px', margin: '0px auto'}}>{post_title}</div>
 
 			</div>
-			<div style = {{clear:'both'}}>
+			<div style = {{clear:'both', paddingLeft:leftpadding}}>
 				<div style = {{float:'left', paddingLeft: '10px', paddingTop:'3px', fontFamily:'Playfair Display'}}><span dangerouslySetInnerHTML={this.renderiframe(this.props.song.embedded_content)}></span></div>
-				
-				<div  style = {{fontSize:'11pt', paddingLeft: '10px', paddingTop:'5px', height: '390px', width:'650px', fontSize: '2em', overflow:'hidden', textOverflow:'ellipsis'}}> 
-					<div ref = {this.contentRef}>
-						{content_div}
-					</div>
-				</div>
-				<div style = {{display:'flex', flexDirection:'row'}}>
+				{content_section}
+
+				<div style = {{clear:'both', display:'flex', flexDirection:'row'}}>
 					
 					<div style = {{clear:'both', height:'35px'}}>
 						<div style = {{float:'left', width:'15px', height:'30px'}}></div>
