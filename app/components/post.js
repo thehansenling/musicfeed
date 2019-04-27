@@ -209,6 +209,14 @@ class Post extends React.Component
 		var poster_username_url = '';//"/artist/" + this.props.song.artist;
 
 		var artist_name = this.props.song.artist;
+
+		var artist_names = []
+		this.props.song.artist.split('^').map((item, i) => {
+			artist_names.push(<a key = {i} href ={"/artist/" + item} > {item} </a>);
+			artist_names.push(',')
+		})
+		artist_names = artist_names.slice(0, artist_names.length-1)
+
 		var artist_url = "/artist/" + this.props.song.artist;
 
 		var content_div = []
@@ -290,7 +298,7 @@ class Post extends React.Component
 			<div style=  {{width:'300px', paddingLeft:'10px', paddingTop:'10px'}}>
 				<div style = {{float:'left', fontFamily:'Playfair Display'}}> <a href ={poster_username_url} > {poster_username} </a></div>
 				<div style = {{float:date_float, paddingRight:'10px'}}>{(parseInt(date.getMonth()) + 1) + "/" + date.getDate() + "/" + date.getFullYear()}</div>
-				<div style = {{clear:'both'}}><a href ={artist_url} > {artist_name} </a></div>
+				<div style = {{clear:'both'}}>{artist_names}</div>
 				<div> <a href = {content_url} >{content_name} </a></div>
 			</div>
 			<div style = {{paddingTop:'8px', width:'680px', margin: '0px auto'}}>{post_title}</div>
