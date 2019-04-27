@@ -6,6 +6,7 @@ export default class RegisterPage extends React.Component
 	constructor(props)
 	{
 		super(props)
+		this.emailRef = React.createRef();
 		this.usernameRef = React.createRef();
 		this.passwordRef = React.createRef();
 		this.confirmRef = React.createRef();
@@ -25,7 +26,8 @@ export default class RegisterPage extends React.Component
 	        },
 	        body: JSON.stringify({username: this.usernameRef.current.value, 
 	        	   password: this.passwordRef.current.value,
-	        	   password_confirm: this.confirmRef.current.value}),
+	        	   password_confirm: this.confirmRef.current.value,
+	        	   email: this.emailRef.current.value}),
 	    }).then(function(response) { return response.json();})
 	    .then(function (data) {    	
 	  		that.registration_message = data.message
@@ -49,12 +51,14 @@ export default class RegisterPage extends React.Component
 				<div className=  "hero-content" >
 					<h2>Register</h2>
 
+				  <label style={{color:'black'}} >Enter Email:</label>	
+				  <input ref = {this.emailRef} type="text" name="email"/><br/>
 				  <label style={{color:'black'}} >Enter Username:</label>
 				  <input ref = {this.usernameRef} type="text" name="username"/><br/>
 				  <label style={{color:'black'}} >Enter Password:</label>
-				  <input ref = {this.passwordRef} type="text" name="password" /><br/>
-				    <label style={{color:'black'}}>Confirm Password:</label>
-				  <input ref = {this.confirmRef} type="text" name="password_confirm"/>
+				  <input type = 'password' ref = {this.passwordRef} name="password" /><br/>
+				  <label style={{color:'black'}}>Confirm Password:</label>
+				  <input type = 'password' ref = {this.confirmRef} name="password_confirm"/>
 				  <p>
 				  <button href = "/" type="submit" id="submitButton" className="btn btn-lg btn-primary" onClick={this.submitRegistration.bind(this)}>Register</button>
 				  </p>

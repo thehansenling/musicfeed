@@ -123,7 +123,7 @@ class NewPostSubmission extends React.Component {
 	beginNewPost()
 	{
 		this.newPost = <div key = "what" id = "post" style ={{top:'0px',position:'relative', paddingBottom:'30px', width:'680px'}}  autoComplete="off">
-			Song/Playlist: 
+			Song/Album: 
 			<br/>
 			<input ref = {this.songEmbedRef} onChange = {this.songInput.bind(this)} id="song" type="text" name="song" style={{width:'980px'}}/>
 			<br/>

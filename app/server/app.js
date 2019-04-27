@@ -1718,7 +1718,7 @@ app.post('/register', function(req, res)
 		connection.query(username_check_sql, function (err, result) {
 			if (result.length == 0)
 			{
-				var sql = "INSERT INTO accounts (username, password) VALUES ('" + req.body.username + "', '" + req.body.password + "')";
+				var sql = "INSERT INTO accounts (username, password, email) VALUES ('" + req.body.username + "', '" + req.body.password + "', '" + req.body.email + "' )";
 				connection.query(sql, function (err, result) {
 			    	if (err) throw err;
 		  		});
