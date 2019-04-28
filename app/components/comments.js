@@ -654,20 +654,20 @@ export default class CommentSection extends React.Component
 	        					  parent_comment_id: -1,})})
 	    .then(function(response) { return response.json();})
 	    .then(function (data) { 
-		    var new_comment_data = {
-		    	post_id: data.comment_id,
-		    	user_id: data.username,
-		    	text: submit_text, 
-		    	timestamp: parseInt(data.timestamp),
-		    	upvotes: 0,
-		    	downvotes: 0,
-		    	replies: 0,
-		    	comment_id: data.comment_id,
-		    	parent_comment_id: -1,
-		    	comment_level: 0,
-		    }
-		    that.comments.splice(0, 0,<Comment key = {data.comment_id} original_replies = {0} data = {new_comment_data} child_comments = {[]} vote_state = {-1} post_id = {data.comment_id} is_global = {that.props.global_post != undefined}/>)
-		    that.forceUpdate()
+		    // var new_comment_data = {
+		    // 	post_id: data.comment_id,
+		    // 	user_id: data.username,
+		    // 	text: submit_text, 
+		    // 	timestamp: parseInt(data.timestamp),
+		    // 	upvotes: 0,
+		    // 	downvotes: 0,
+		    // 	replies: 0,
+		    // 	comment_id: data.comment_id,
+		    // 	parent_comment_id: -1,
+		    // 	comment_level: 0,
+		    // }
+		    // that.comments.splice(0, 0,<Comment key = {data.comment_id} original_replies = {0} data = {new_comment_data} child_comments = {[]} vote_state = {-1} post_id = {data.comment_id} is_global = {that.props.global_post != undefined}/>)
+		    // that.forceUpdate()
 	    })
 
 	    this.closeNewComment();

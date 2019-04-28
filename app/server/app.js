@@ -165,11 +165,11 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 			{
 			    if (err) throw err; 
 			    var non_priority_results = result;
-				var priority_global_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (timestamp - CURRENT_TIMESTAMP)/45000 ELSE " + score_sql + " END as score FROM global_posts WHERE artist in " + followed_artists + " AND valid_feed_post != 0 ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + global_offset;
+				var priority_global_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (relevant_timestamp - CURRENT_TIMESTAMP)/45000 ELSE " + score_sql + " END as score FROM global_posts WHERE artist in " + followed_artists + " AND valid_feed_post != 0 ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + global_offset;
 				connection.query(priority_global_sql, function (err, result, fields) 
 				{
 					var priority_global_results = result;
-					var non_priority_global_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (timestamp - CURRENT_TIMESTAMP)/45000 ELSE " + score_sql + " END as score FROM global_posts WHERE artist NOT in " + followed_artists + " AND valid_feed_post != 0 ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + non_priority_global_offset;
+					var non_priority_global_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (relevant_timestamp - CURRENT_TIMESTAMP)/45000 ELSE " + score_sql + " END as score FROM global_posts WHERE artist NOT in " + followed_artists + " AND valid_feed_post != 0 ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + non_priority_global_offset;
 					connection.query(non_priority_global_sql, function (err, result, fields) 
 					{					
 
@@ -2309,26 +2309,28 @@ app.post('/post', function (req, res)
 				{
 					//temp, need to correctly replace, backslash doesn't work
 					album_songs[key] = album_songs[key].replace("'", "~")
-					album_songs[key] = album_songs[key].replace('"', '~')	
+					//album_songs[key] = album_songs[key].replace('"', '~')	shouldn't need this right
 				}
-
 
 				var new_global_post_sql = "INSERT into global_posts(post_id, timestamp, likes, embedded_content, content, song, album, type, artist, data, release_date, relevant_timestamp) "+
 				"VALUES('" + new_post_id + "', " + new_post_timestamp + ", 0, '" + req.body.song + "', '" + String(req.body.content) + "', '" + 
-				song_name + "', '" + album  + "',"+ type + " , '" + artist + "', '" + JSON.stringify(album_songs) + "', '" + release_date + "', " + new_post_timestamp + ");"
+				song_name + "', '" + album  + "',"+ type + " , '" + artist + "', '" + JSON.stringify(album_songs) + "', '" + release_date + "', " + (new_post_timestamp - 86400000) + ");"
 				connection.query(new_global_post_sql, function (err, result, fields) 
 				{
 				});
-			    for (var i = 0; i < all_artists.length; ++i)
-			    {
-					new_global_post_sql = "INSERT into global_posts(post_id, timestamp, likes, embedded_content, content, song, album, type, artist, data, release_date, relevant_timestamp, valid_feed_post, all_artists) "+
-					"VALUES('" + new_post_id + "', " + new_post_timestamp + ", 0, '" + req.body.song + "', '" + String(req.body.content) + "', '" + 
-					song_name + "', '" + album  + "',"+ type + " , '" + all_artists[i] + "', '" + JSON.stringify(album_songs) + "', '" + release_date + "', " + new_post_timestamp + ", 0, '" + artist + "');"			    	
-					connection.query(new_global_post_sql, function (err, result, fields) 
-					{
+				if (all_artists.length > 1)
+				{
+				    for (var i = 0; i < all_artists.length; ++i)
+				    {
+						new_global_post_sql = "INSERT into global_posts(post_id, timestamp, likes, embedded_content, content, song, album, type, artist, data, release_date, relevant_timestamp, valid_feed_post, all_artists) "+
+						"VALUES('" + new_post_id + "', " + new_post_timestamp + ", 0, '" + req.body.song + "', '" + String(req.body.content) + "', '" + 
+						song_name + "', '" + album  + "',"+ type + " , '" + all_artists[i] + "', '" + JSON.stringify(album_songs) + "', '" + release_date + "', " + (new_post_timestamp - 86400000) + ", 0, '" + artist + "');"			    	
+						connection.query(new_global_post_sql, function (err, result, fields) 
+						{
 
-					});
-			    }
+						});
+				    }
+				}
 			}
 		});
 		res.send({});

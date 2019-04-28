@@ -193,6 +193,13 @@ class UserPostContent extends React.Component
 			content_name = this.props.data.album;
 		}
 
+		var artist_names = []
+		this.props.data.artist.split('^').map((item, i) => {
+			artist_names.push(<a key = {i} href ={"/artist/" + item} > {item} </a>);
+			artist_names.push(',')
+		})
+		artist_names = artist_names.slice(0, artist_names.length-1)
+
 		return (
 			<div style = {{background: 'white', position:'relative', top:'85px', paddingLeft:'10px', height: 'auto', minHeight: '550px', maxWidth:'980px', paddingBottom:'50px', paddingRight:'10px', left:'5%', borderBottom: 'solid black 3px', borderRadius: '4px'}}>
 				<div style = {{}} >
@@ -201,7 +208,7 @@ class UserPostContent extends React.Component
 			<div style=  {{width:'300px', paddingLeft:'10px', paddingTop:'10px'}}>
 				<div style = {{float:'left', fontFamily:'Playfair Display'}}> <a href ={"/user/" + this.props.data.username} > {this.props.data.username}</a></div>
 				<div style = {{float:'right', paddingRight:'10px'}}>{(parseInt(date.getMonth()) + 1) + "/" + date.getDate() + "/" + date.getFullYear()}</div>
-				<div style = {{clear:'both'}}><a href ={"/artist/" + this.props.data.artist} > {this.props.data.artist} </a></div>
+				<div style = {{clear:'both'}}>{artist_names}</div>
 				<div> <a href = {content_url} >{content_name} </a></div>
 			</div>
 			<div style = {{paddingTop:'8px', width:'680px', margin: '0px auto', textAlign:'center', fontSize:'36px'}}>{this.props.data.title}</div>

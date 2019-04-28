@@ -165,7 +165,15 @@ class GlobalPostContent extends React.Component
 
 	render()
 	{
-		var song = <div> {this.props.data.song + " by "} <a href = {"/artist/" + this.props.data.artist}> {this.props.data.artist} </a> </div>
+
+		var artist_names = []
+		this.props.data.artist.split('^').map((item, i) => {
+			artist_names.push(<a key = {i} href ={"/artist/" + item} > {item} </a>);
+			artist_names.push(',')
+		})
+		artist_names = artist_names.slice(0, artist_names.length-1)
+
+		var song = <div> {this.props.data.song + " by "} {artist_names} </div>
 		if (this.props.data.type == 1)
 		{
 			song = ""
@@ -213,6 +221,7 @@ class GlobalPostContent extends React.Component
 			// 	</div>
 			// 	<meta className = "comment_offset" content = "0" />
 			// </div>
+
 
 		return (
 			<div style = {{background: 'white', position:'relative', top:'85px', paddingLeft:'10px', height: 'auto', minHeight: '550px', maxWidth:'1000px', paddingBottom:'50px', paddingRight:'10px', paddingTop:'10px', left:'5%', borderBottom: 'solid black 3px', borderRadius: '4px'}}>
