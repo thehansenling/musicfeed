@@ -86,12 +86,12 @@ function MergeSortPosts(list1, list2, list1_full=false, list2_full=false)
 		}
 		else if (list1_index >= list1.length)
 		{
-			merged.push(list2.slice(list2_index));
+			merged = merged.concat(list2.slice(list2_index, list2.length));
 			return [merged, false];
 		}
 		else if (list2_index >= list2.length)
 		{
-			merged.push(list1.slice(list1_index));
+			merged = merged.concat(list1.slice(list1_index, list1.length));
 			return [merged, false];
 		}
 		else 
@@ -172,8 +172,7 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 					var non_priority_global_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (relevant_timestamp - CURRENT_TIMESTAMP)/45000 ELSE " + score_sql + " END as score FROM global_posts WHERE artist NOT in " + followed_artists + " AND valid_feed_post != 0 ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + non_priority_global_offset;
 					connection.query(non_priority_global_sql, function (err, result, fields) 
 					{					
-
-						var non_priority_global_results = result;
+						var non_priority_global_results = result
 
 					    //increase the score of the priority posts
 					    if (priority_results != undefined)
@@ -206,7 +205,15 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 								post['offset_type'] = 3;
 							}
 						}
-
+						// var non_priority_global_results = result;
+						// console.log("priority")
+						// console.log(priority_global_results)
+						// console.log("non-priority")
+						// console.log(non_priority_global_results)
+						// console.log("priority2")
+						// console.log(priority_results)
+						// console.log("non-priority2")
+						// console.log(non_priority_results)
 					    //merge sort the two lists
 					    // test if priority result or result doesn't exist
 					    var merged_user = MergeSortPosts(priority_results, non_priority_results, 
