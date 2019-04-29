@@ -22,6 +22,7 @@ class UserPostContent extends React.Component
 			__html: iframe
 		};
 	}
+
 	likeClicked()
 	{
 		if (!utils.checkLoggedIn())
@@ -30,7 +31,6 @@ class UserPostContent extends React.Component
 			return;
 		}
 		var that = this;
-
 	    fetch("/like", {
 	        method: "POST",
 	        headers: {
@@ -58,7 +58,7 @@ class UserPostContent extends React.Component
 	    	// 	that.likeRef.current.style = 'black'
 	    	// 	that.dislikeRef.current.style.color = 'black'	    		
 	    	// }
-	    	// that.forceUpdate();
+	    	//that.forceUpdate();
 	 	})	
     	if (this.props.like_state == 1)
     	{
@@ -123,7 +123,7 @@ class UserPostContent extends React.Component
 	    	// 	that.likeRef.current.style = 'black'
 	    	// 	that.dislikeRef.current.style.color = 'black'		
 	    	// }
-	    	// that.forceUpdate();
+	    	//that.forceUpdate();
 	 	})	
     	if (this.props.like_state == 0)
     	{
@@ -223,6 +223,7 @@ class UserPostContent extends React.Component
 					{content_div}
 
 				</div>
+
 				<div style = {{clear:'both', height:'35px'}}>
 					<div style = {{float:'left', width:'15px', height:'30px'}}></div>
 					<div style = {{float:'left'}}><img onClick = {this.likeClicked.bind(this)} src={this.up_image} width="30" height="30" alt=""/></div>

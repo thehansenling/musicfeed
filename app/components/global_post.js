@@ -50,8 +50,8 @@ class GlobalPostContent extends React.Component
 	        body: JSON.stringify({id: this.props.data.post_id,})})
 	    .then(function(response) { return response.json();})
 	    .then(function (data) {    	
-	    	that.likes_score = data.likes_score;
-	    	that.like_state = data.like_state;
+	    	// that.likes_score = data.likes_score;
+	    	// that.like_state = data.like_state;
 	    	// if (that.like_state == 1)
 	    	// {
 	    	// 	that.likeRef.current.style.color = 'blue'
@@ -67,7 +67,7 @@ class GlobalPostContent extends React.Component
 	    	// 	that.likeRef.current.style = 'black'
 	    	// 	that.dislikeRef.current.style.color = 'black'	    		
 	    	// }
-	    	that.forceUpdate();
+	    	//that.forceUpdate();
 	 	})	
     	if (this.props.like_state == 1)
     	{
@@ -115,8 +115,8 @@ class GlobalPostContent extends React.Component
 	        body: JSON.stringify({id: this.props.data.post_id,})})
 	    .then(function(response) { return response.json();})
 	    .then(function (data) {    	
-	    	that.likes_score = data.likes_score;
-	    	that.like_state = data.like_state;
+	    	// that.likes_score = data.likes_score;
+	    	// that.like_state = data.like_state;
 	    	// if (that.like_state == 1)
 	    	// {
 	    	// 	that.likeRef.current.style.color = 'blue'
@@ -132,7 +132,7 @@ class GlobalPostContent extends React.Component
 	    	// 	that.likeRef.current.style = 'black'
 	    	// 	that.dislikeRef.current.style.color = 'black'		
 	    	// }
-	    	that.forceUpdate();
+	    	//that.forceUpdate();
 	 	})	
     	if (this.props.like_state == 0)
     	{

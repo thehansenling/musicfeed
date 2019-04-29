@@ -694,7 +694,7 @@ export default class CommentSection extends React.Component
 			new_comment_button = undefined
 		}
 		return (
-			<div style = {{position:'relative', left: '5%', paddingTop:'100px', maxWidth:'1000px'}}>
+			<div style = {{position:'relative', left: '5%', top:'100px', maxWidth:'1000px'}}>
 				{new_comment_button}
 				{this.new_comment}
 				<br/>
