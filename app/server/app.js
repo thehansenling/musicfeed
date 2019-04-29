@@ -48,6 +48,27 @@ var connection = mysql.createConnection({
   multipleStatements: true
 });
 
+function replaceAll(string, delimiter, replace)
+{
+	var rest_string = string;
+	var new_string = ""
+	var current_index  = rest_string.indexOf(delimiter)
+	if (current_index == -1)
+	{
+		return string
+	}
+	var substring;
+	while(current_index != -1)
+	{
+		substring = rest_string.substring(0, current_index);
+		new_string = new_string + substring + replace
+		rest_string = rest_string.substring(current_index + delimiter.length)
+		current_index = rest_string.indexOf(delimiter)
+	}
+	new_string = new_string + rest_string
+	return new_string
+}
+
 function getregexartists(artists)
 {
 	var expression = ""
@@ -2111,6 +2132,7 @@ app.post('/downvote', function (req, res)
 
 app.post('/comment', function (req, res)
 {
+	req.body.text = replaceAll(req.body.text, "'", "\\\'")
 	var timestamp = String(new Date().getTime());
 	var comment_id = uuidv3(String("comment/" + req.cookies.username + "/" + timestamp), uuidv3.URL);
 	var sql = "INSERT INTO comments (post_id, user_id, text, timestamp, comment_id, parent_comment_id, comment_level) values('" + req.body.id + "','" + req.cookies.username + "','" + req.body.text + "', "  + timestamp + ",'" + comment_id + "','" + req.body.parent_comment_id + "'," + req.body.comment_level + ")";
@@ -2204,7 +2226,8 @@ app.post('/post', function (req, res)
 
 	var username = req.cookies.username;
 	var post_id = uuidv3(String(temp_username + "/" + req.body.title), uuidv3.URL);
-
+	req.body.content = replaceAll(req.body.content, "'", "\\\'")
+	req.body.title = replaceAll(req.body.title, "'", "\\\'")
 	var spotify_username = '44a9442188734ab2999542562c6477c3';
 	var spotify_password = '9c24d61cf7234c4a80f6f2f49ecc9c45';
 	if (url == "")
@@ -2297,7 +2320,6 @@ app.post('/post', function (req, res)
 		    var song_name = narrowed.substring(narrowed.indexOf("name") + 7, narrowed.indexOf("popularity") - 3);
 		    var type = 0;
 		    
-
 			var sql = "INSERT into user_content (id, username, embedded_content, content, timestamp, likes, dislikes, post_id, title, artist, album, song) VALUES('" + String(post_id) + "','" 
 			    	+ username + "','" + String(req.body.song)+ "','" + String(req.body.content) + "','" + String(date) +"', 0 "+ ", 0,'" + String(post_id) + "',\"" + String(req.body.title) 
 			    	+ "\", '" + String(artist) + "', '" + String(album) + "', '" + String(song_name) + "')";
