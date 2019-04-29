@@ -7,16 +7,18 @@ export default class FollowerInfo extends React.Component {
 		this.following_state = false;
 		this.following_ui = "Not Following"
 		this.follows_num = this.props.follows.length;
+		this.button_text = "Follow"
 		for (var follow of props.follows)
 		{
 			if (follow.user_id == props.username)
 			{
+				this.button_text = "Unfollow"
 				this.following_ui = "Following"
 				this.following_state = true;
 				break;
 			}
 		}
-		this.button_text = "Follow"
+		
 	}
 
 	followClicked()

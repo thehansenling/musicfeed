@@ -388,7 +388,19 @@ class Comment extends React.Component
 			minutes = "0" + String(minutes);
 		}
 		var date_text = date.getMonth() + "/" + date.getDate() + "/" + date.getFullYear() + " at " + date.getHours() + ":" + minutes;
-		var comment_text = this.props.data.text;
+
+		var comment_div = []
+		this.props.data.text.split('\n').map((item, i) => {
+			if (item == '')
+			{
+				comment_div.push(<br/>)
+			}
+			else
+			{
+				comment_div.push(<p key={i}>{item}</p>);
+			}
+		})
+
 		var upvote_color = 'black'
 		var downvote_color = 'black'
 
@@ -423,7 +435,7 @@ class Comment extends React.Component
 			      			
 			      			
 			      		</div>
-			      		<div style={{width:'75%'}} className ='comment_body' id = {comment_id}> {comment_text} </div> 
+			      		<div style={{width:'75%'}} className ='comment_body' id = {comment_id}> {comment_div} </div> 
 			      		<div style={{width:'75%',height:'25px', fontSize:'10pt', color: '#5b5b5b'}} onClick = {this.openNewComment.bind(this)} className = 'begin_comment' id = {comment_id}> Reply </div>
 			      	</div>
 		    	</div>
