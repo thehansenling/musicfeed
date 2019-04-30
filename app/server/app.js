@@ -31,7 +31,6 @@ var PRIORITY_MODIFIER = 8640 /2
 
 var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - CURRENT_TIMESTAMP)/45000 "
 
-
 // var connection = mysql.createConnection({
 //   host     : 'us-cdbr-iron-east-01.cleardb.net',
 //   user     : 'bc7ebf9f6de242',
@@ -2262,14 +2261,17 @@ app.post('/post', function (req, res)
 			}
 			var release_date = data.substring(data.indexOf('release_date"') + 15, data.indexOf("release_date_precision") - 3);
 			var narrowed = data.split('script id="resource"')[1];
-			var artist = narrowed.substring(narrowed.indexOf("name") + 7, narrowed.indexOf('"type"') - 2);
-		 //    while (narrowed.indexOf('"type":"artist"') != -1)
-		 //    {
-		 //    	all_artists.push(narrowed.substring(narrowed.indexOf("name") + 7, narrowed.indexOf("type") - 3))
-		 //    	artist += narrowed.substring(narrowed.indexOf("name") + 7, narrowed.indexOf("type") - 3) + "^" ;
-		 //    	narrowed = narrowed.substring(narrowed.indexOf("uri"));
-		 //    	narrowed = narrowed.substring(narrowed.indexOf("external_urls"));
-			// }
+			var artist_narrowed = narrowed.substring(0, narrowed.indexOf("genre"))
+			var artist = ""//narrowed.substring(narrowed.indexOf("name") + 7, narrowed.indexOf('"type"') - 2);
+			
+		    while (artist_narrowed.indexOf('name') != -1)
+		    {
+		    	all_artists.push(artist_narrowed.substring(artist_narrowed.indexOf("name") + 7, artist_narrowed.indexOf('"type"') - 2))
+		    	artist += artist_narrowed.substring(artist_narrowed.indexOf("name") + 7, artist_narrowed.indexOf('"type"') - 2) + "^" ;
+		    	artist_narrowed = artist_narrowed.substring(artist_narrowed.indexOf('"type"'), artist_narrowed.length);
+		    	artist_narrowed = artist_narrowed.substring(artist_narrowed.indexOf("external_urls"), artist_narrowed.length);
+			}
+			artist = artist.substring(0, artist.length-1);
 			narrowed = narrowed.split("label")[1];
 			var album = narrowed.substring(narrowed.indexOf("name") + 7, narrowed.indexOf("popularity") - 3);
 			var song_name = "NO_SONG_ALBUM_ONLY";
