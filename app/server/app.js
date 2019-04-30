@@ -2275,6 +2275,11 @@ app.post('/post', function (req, res)
 			var song_name = "NO_SONG_ALBUM_ONLY";
 			var type = 1;
 
+			//replace with a sanitize function
+			artist = replaceAll(artist, "\\u00e9", 'é')
+			song_name = replaceAll(song_name, "\\u00e9", 'é')
+			album = replaceAll(album, "\\u00e9", 'é')
+
 			var sql = "INSERT into user_content (id, username, embedded_content, content, timestamp, likes, dislikes, post_id, title, artist, album, song, data) VALUES('" + String(post_id) + "','" 
 			    	+ username + "','" + String(req.body.song)+ "','" + String(req.body.content) + "','" + String(date) +"', 0 "+ ", 0,'" + String(post_id) + "',\"" + String(req.body.title) 
 			    	+ "\", '" + String(artist) + "', '" + String(album) + "', '" + String(song_name) +  "'," + "'{}'" + ")";
@@ -2319,11 +2324,13 @@ app.post('/post', function (req, res)
 			artist = artist.substring(0, artist.length - 1);
 		    var song_name = narrowed.substring(narrowed.indexOf("name") + 7, narrowed.indexOf("popularity") - 3);
 		    var type = 0;
-		    
+			//replace with a sanitize function
+			artist = replaceAll(artist, "\\u00e9", 'é')
+			song_name = replaceAll(song_name, "\\u00e9", 'é')
+			album = replaceAll(album, "\\u00e9", 'é')
 			var sql = "INSERT into user_content (id, username, embedded_content, content, timestamp, likes, dislikes, post_id, title, artist, album, song) VALUES('" + String(post_id) + "','" 
 			    	+ username + "','" + String(req.body.song)+ "','" + String(req.body.content) + "','" + String(date) +"', 0 "+ ", 0,'" + String(post_id) + "',\"" + String(req.body.title) 
 			    	+ "\", '" + String(artist) + "', '" + String(album) + "', '" + String(song_name) + "')";
-
 			connection.query(sql, function (err, result, fields) 
 			{
 
