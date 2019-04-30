@@ -48,7 +48,7 @@ export default class LoginPage extends React.Component
 						  <label style={{color:'black'}}>Username:</label>
 						  <input ref = {this.usernameRef} type="text" name="username"/><br/>
 						  <label style={{color:'black'}}>Password:</label>
-						  <input ref = {this.passwordRef} type="text" name="password"/>
+						  <input ref = {this.passwordRef} type = 'password' name="password"/>
 							<p>
 							  <button onClick= {this.submitLogin.bind(this)} type="submit" id="submitButton" className="btn btn-lg btn-primary" >Login</button>
 							  <a href = "/register" id="submitButton" className="btn btn-lg btn-primary" >Register</a>
