@@ -220,7 +220,6 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 					connection.query(non_priority_global_sql, function (err, result, fields) 
 					{					
 						var non_priority_global_results = result
-
 					    //increase the score of the priority posts
 					    if (priority_results != undefined)
 					    {
@@ -1985,8 +1984,8 @@ app.post('/global_like', function (req, res)
 				//RenderFeed(req, res);
 				var timestamp = String(new Date().getTime());
 				var relevant_timestamp_sql = "UPDATE global_posts set relevant_timestamp = CASE" + 
-												" WHEN likes + dislikes = 0 THEN " + timestamp + 
-												" WHEN relevant_timestamp + (" + timestamp + "- relevant_timestamp) / (0.5 * (((likes + dislikes) + " + RELEVANT_TIMESTAMP_MAX_AMOUNT + ") - ABS((likes + dislikes) - " + RELEVANT_TIMESTAMP_MAX_AMOUNT + "))) > " + timestamp + " THEN " + timestamp + 
+												" WHEN likes + dislikes = 0 THEN (" + timestamp + " - relevant_timestamp) / " + RELEVANT_TIMESTAMP_MAX_AMOUNT + 
+												" WHEN relevant_timestamp + (" + timestamp + "- relevant_timestamp) / (0.5 * (((likes + dislikes) + " + RELEVANT_TIMESTAMP_MAX_AMOUNT + ") - ABS((likes + dislikes) - " + RELEVANT_TIMESTAMP_MAX_AMOUNT + "))) > " + timestamp + " THEN (" + timestamp + " - relevant_timestamp) / " + RELEVANT_TIMESTAMP_MAX_AMOUNT + 
 												" ELSE relevant_timestamp + (" + timestamp + " - relevant_timestamp) / (0.5 * (((likes + dislikes) + " + RELEVANT_TIMESTAMP_MAX_AMOUNT + ") - ABS((likes + dislikes) - " + RELEVANT_TIMESTAMP_MAX_AMOUNT + "))) END " +
 											" WHERE post_id = '" + req.body.id + "'";
 				connection.query(relevant_timestamp_sql, function (err, result, fields){
@@ -2042,8 +2041,8 @@ app.post('/global_dislike', function (req, res)
 
 
 				var relevant_timestamp_sql = "UPDATE global_posts set relevant_timestamp = CASE" + 
-												" WHEN likes + dislikes = 0 THEN " + timestamp + 
-												" WHEN relevant_timestamp + (" + timestamp + "- relevant_timestamp) / (0.5 * (((likes + dislikes) + " + RELEVANT_TIMESTAMP_MAX_AMOUNT + ") - ABS((likes + dislikes) - " + RELEVANT_TIMESTAMP_MAX_AMOUNT + "))) > " + timestamp + " THEN " + timestamp + 
+												" WHEN likes + dislikes = 0 THEN (" + timestamp + " - relevant_timestamp) / " + RELEVANT_TIMESTAMP_MAX_AMOUNT + 
+												" WHEN relevant_timestamp + (" + timestamp + "- relevant_timestamp) / (0.5 * (((likes + dislikes) + " + RELEVANT_TIMESTAMP_MAX_AMOUNT + ") - ABS((likes + dislikes) - " + RELEVANT_TIMESTAMP_MAX_AMOUNT + "))) > " + timestamp + " THEN (" + timestamp + " - relevant_timestamp) / " + RELEVANT_TIMESTAMP_MAX_AMOUNT + 
 												" ELSE relevant_timestamp + (" + timestamp + " - relevant_timestamp) / (0.5 * (((likes + dislikes) + " + RELEVANT_TIMESTAMP_MAX_AMOUNT + ") - ABS((likes + dislikes) - " + RELEVANT_TIMESTAMP_MAX_AMOUNT + "))) END " +
 											" WHERE post_id = '" + req.body.id + "'";
 				connection.query(relevant_timestamp_sql, function (err, result, fields){
