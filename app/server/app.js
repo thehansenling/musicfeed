@@ -2379,19 +2379,19 @@ app.post('/post', function (req, res)
 				connection.query(new_global_post_sql, function (err, result, fields) 
 				{
 				});
-				if (all_artists.length > 1)
-				{
-				    for (var i = 0; i < all_artists.length; ++i)
-				    {
-						new_global_post_sql = "INSERT into global_posts(post_id, timestamp, likes, embedded_content, content, song, album, type, artist, data, release_date, relevant_timestamp, valid_feed_post, all_artists) "+
-						"VALUES('" + new_post_id + "', " + new_post_timestamp + ", 0, '" + req.body.song + "', '" + String(req.body.content) + "', '" + 
-						song_name + "', '" + album  + "',"+ type + " , '" + all_artists[i] + "', '" + JSON.stringify(album_songs) + "', '" + release_date + "', " + (new_post_timestamp - 86400000) + ", 0, '" + artist + "');"			    	
-						connection.query(new_global_post_sql, function (err, result, fields) 
-						{
+				// if (all_artists.length > 1)
+				// {
+				//     for (var i = 0; i < all_artists.length; ++i)
+				//     {
+				// 		new_global_post_sql = "INSERT into global_posts(post_id, timestamp, likes, embedded_content, content, song, album, type, artist, data, release_date, relevant_timestamp, valid_feed_post, all_artists) "+
+				// 		"VALUES('" + new_post_id + "', " + new_post_timestamp + ", 0, '" + req.body.song + "', '" + String(req.body.content) + "', '" + 
+				// 		song_name + "', '" + album  + "',"+ type + " , '" + all_artists[i] + "', '" + JSON.stringify(album_songs) + "', '" + release_date + "', " + (new_post_timestamp - 86400000) + ", 0, '" + artist + "');"			    	
+				// 		connection.query(new_global_post_sql, function (err, result, fields) 
+				// 		{
 
-						});
-				    }
-				}
+				// 		});
+				//     }
+				// }
 			}
 		});
 		res.send({});
@@ -2459,6 +2459,21 @@ app.post('/search', (req, res) => {
 				var song_search = result;
 				connection.query(artist_search_sql, function (err, result, fields){
 					var artist_search = result;
+					console.log(artist_search);
+					for (var i = 0; i < artist_search.length; ++i)
+					{
+						var split_artists = artist_search[i].artist.split('^');
+						if (split_artists.length > 1)
+						{
+							var parsed_artists;
+							artist_search.splice(i, 1)
+							for(var j = 0; j < split_artists.length; ++j)
+							{
+								if (split_artists[j].indexOf(req.body.text) != -1)
+								artist_search.push({artist:split_artists[j]})
+							}
+						}
+					}
 					connection.query(album_search_sql, function (err, result, fields){
 						var album_search = result;
 						res.send({
