@@ -239,14 +239,7 @@ class Post extends React.Component
 			poster_username_url = "/user/" + this.props.song.username;
 
 			this.props.song.content.split('\n').map((item, i) => {
-				if (item == '')
-				{
-					content_div.push(<br/>)
-				}
-				else
-				{
-					content_div.push(<p key={i}>{item}</p>);
-				}
+				content_div.push(<p key={i}>{item}</p>);
 			})
 		}
 

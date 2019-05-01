@@ -391,14 +391,7 @@ class Comment extends React.Component
 
 		var comment_div = []
 		this.props.data.text.split('\n').map((item, i) => {
-			if (item == '')
-			{
-				comment_div.push(<br/>)
-			}
-			else
-			{
-				comment_div.push(<p key={i}>{item}</p>);
-			}
+			comment_div.push(<p key={i}>{item}</p>);
 		})
 
 		var upvote_color = 'black'
@@ -487,11 +480,17 @@ export default class CommentSection extends React.Component
 				var date_text = date.getMonth() + "/" + date.getDate() + "/" + date.getFullYear() + " at " + date.getHours() + ":" + minutes;
 
 				var comment_id = -1;
-				
+	
 				if (current_comments.length != 0)
 				{
 					var comment_id = current_comments[0].props.comment_id;				
 				}
+
+				var content_div = []
+				post.content.split('\n').map((item, i) => {
+					content_div.push(<p key={i}>{item}</p>);
+				})
+
 				post_and_comments.push( 
 				<div>
 			      	<div style={{position:'relative', left:'0%', top:'20px', background:'white', paddingLeft:'5px', paddingBottom:'5px', borderBottom:'solid black 3px', maxWidth:'1000px'}}>
@@ -506,7 +505,7 @@ export default class CommentSection extends React.Component
 				      				{date_text}
 				      			</div>
 				      		</div>
-				      		<div style={{width:'75%'}} className ='comment_body' id = {comment_id}> {post.content} </div> 
+				      		<div style={{width:'75%'}} className ='comment_body' id = {comment_id}> {content_div} </div> 
 			    	</div>	
 			    	<div style={{position:'relative', top:'20px'}}>
 						{current_comments}

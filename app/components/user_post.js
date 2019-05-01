@@ -171,14 +171,7 @@ class UserPostContent extends React.Component
 
 		var content_div = []
 		this.props.data.content.split('\n').map((item, i) => {
-			if (item == '')
-			{
-				content_div.push(<br key={i} />)
-			}
-			else
-			{
-				content_div.push(<p key={i}>{item}</p>);
-			}
+			content_div.push(<p key={i}>{item}</p>);
 		})
 
 		var post_id = this.props.data.id;
