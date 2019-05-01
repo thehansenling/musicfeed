@@ -26,10 +26,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 var POST_LIMIT = 5;
 var COMMENT_LIMIT = 5;
 var RELEVANT_TIMESTAMP_MAX_AMOUNT = 100;
-var SCORE_MODIFIER = 500;
+var SCORE_MODIFIER = 2;
 var PRIORITY_MODIFIER = 8640 /2
 
-var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - CURRENT_TIMESTAMP)/45000 "
+var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - UNIX_TIMESTAMP())/45000000 "
 
 // var connection = mysql.createConnection({
 //   host     : 'us-cdbr-iron-east-01.cleardb.net',
@@ -203,20 +203,20 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 
 		//var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - CURRENT_TIMESTAMP)/45000 "
 
-		var priority_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (timestamp - CURRENT_TIMESTAMP)/45000 ELSE " + score_sql + " END as score FROM user_content WHERE username in " + followed_users + " OR artist REGEXP '" + regular_artists + "' ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + offset;
+		var priority_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM user_content WHERE username in " + followed_users + " OR artist REGEXP '" + regular_artists + "' ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + offset;
 		connection.query(priority_sql, function (err, result, fields) 
 			{
 			var priority_results = result;
-			var sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (timestamp - CURRENT_TIMESTAMP)/45000 ELSE " + score_sql + "  END as score FROM user_content WHERE username NOT in " + followed_users + " AND artist NOT REGEXP '" + regular_artists + "' ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + non_priority_offset;
+			var sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + "  END as score FROM user_content WHERE username NOT in " + followed_users + " AND artist NOT REGEXP '" + regular_artists + "' ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + non_priority_offset;
 			connection.query(sql, function (err, result, fields)  
 			{
 			    if (err) throw err; 
 			    var non_priority_results = result;
-				var priority_global_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (relevant_timestamp - CURRENT_TIMESTAMP)/45000 ELSE " + score_sql + " END as score FROM global_posts WHERE artist REGEXP '" + regular_artists + "' AND valid_feed_post != 0 ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + global_offset;
+				var priority_global_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (relevant_timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM global_posts WHERE artist REGEXP '" + regular_artists + "' AND valid_feed_post != 0 ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + global_offset;
 				connection.query(priority_global_sql, function (err, result, fields) 
 				{
 					var priority_global_results = result;
-					var non_priority_global_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (relevant_timestamp - CURRENT_TIMESTAMP)/45000 ELSE " + score_sql + " END as score FROM global_posts WHERE artist NOT REGEXP '" + regular_artists + "' AND valid_feed_post != 0 ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + non_priority_global_offset;
+					var non_priority_global_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (relevant_timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM global_posts WHERE artist NOT REGEXP '" + regular_artists + "' AND valid_feed_post != 0 ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + non_priority_global_offset;
 					connection.query(non_priority_global_sql, function (err, result, fields) 
 					{					
 						var non_priority_global_results = result
@@ -969,7 +969,7 @@ app.get('/user/:user/:post_id', function (req, res) {
 function GetPosts(condition, req, res, limit = 0)
 {
 	var sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN " + 
-								  "(timestamp - CURRENT_TIMESTAMP)/45000 ELSE " + score_sql + " END as score FROM user_content " + condition + 
+								  "(timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM user_content " + condition + 
 								  " ORDER BY score DESC LIMIT " + limit + " OFFSET " + req.body.offset;
 	connection.query(sql, function (err, result, fields) 
 	{					
@@ -1051,7 +1051,7 @@ app.get('/user/:user/', (req, res) => {
 	//var sql = "SELECT * FROM user_content where username = '" + req.params.user + "'ORDER BY timestamp ";
 	//var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - CURRENT_TIMESTAMP)/45000 "
 	var sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN " + 
-								  "(timestamp - CURRENT_TIMESTAMP)/45000 ELSE " + score_sql + " END as score FROM user_content " + 
+								  "(timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM user_content " + 
 								  "WHERE username = '" + req.params.user + "' " + 
 								  "ORDER BY score DESC LIMIT " + 5 + " OFFSET " + 0
 	connection.query(sql, function (err, result, fields) 
@@ -1401,7 +1401,7 @@ app.get('/post/:artist/:song', function (req, res) {
 
 		//var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - CURRENT_TIMESTAMP)/45000 "
 		var user_posts_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN " + 
-							  "(timestamp - CURRENT_TIMESTAMP)/45000 ELSE " + score_sql+ " END as score FROM user_content " + 
+							  "(timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql+ " END as score FROM user_content " + 
 							  "WHERE artist = '" + req.params.artist + "' AND song = '" + req.params.song + "' " + 
 							  "ORDER BY score DESC LIMIT " + 5 + " OFFSET " + 0;
 		connection.query(user_posts_sql, function (err, result, fields) 
@@ -1497,7 +1497,7 @@ app.post('/load_global_posts', function(req, res)
 {
 	//var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - CURRENT_TIMESTAMP)/45000 "
 	var user_posts_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN " + 
-						  "(timestamp - CURRENT_TIMESTAMP)/45000 ELSE " + score_sql + " END as score FROM user_content " + 
+						  "(timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM user_content " + 
 						  "WHERE artist = '" + req.body.artist + "' AND album = '" + req.body.album + "' AND song = '" + req.body.song + "' " + 
 						  "ORDER BY score DESC LIMIT " + 5 + " OFFSET " + req.body.offset;
 	connection.query(user_posts_sql, function (err, result, fields) 
@@ -1579,7 +1579,7 @@ app.get('/album/:artist/:album', function (req, res) {
 
 	//var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - CURRENT_TIMESTAMP)/45000 "
 	var user_posts_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN " + 
-						  "(timestamp - CURRENT_TIMESTAMP)/45000 ELSE " + score_sql + " END as score FROM user_content " + 
+						  "(timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM user_content " + 
 						  "WHERE artist = '" + req.params.artist + "' AND album = '" + req.params.album + "' AND song = 'NO_SONG_ALBUM_ONLY' " + 
 						  "ORDER BY score DESC LIMIT " + 5 + " OFFSET " + 0;
 	connection.query(user_posts_sql, function (err, result, fields) 
