@@ -31,21 +31,21 @@ var PRIORITY_MODIFIER = 8640 /2
 
 var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - UNIX_TIMESTAMP())/45000000 "
 
-// var connection = mysql.createConnection({
-//   host     : 'us-cdbr-iron-east-01.cleardb.net',
-//   user     : 'bc7ebf9f6de242',
-//   password : 'aa9b1c1f',
-//   database : 'heroku_cdc4ca7b10e1680',
-//   multipleStatements: true
-// });
-
 var connection = mysql.createConnection({
-  host     : 'us-iron-auto-sfo-03-bh.cleardb.net',
-  user     : 'b82ff0c686544a',
-  password : '52ad3adb',
-  database : 'heroku_4df94195b1d1e6b',
+  host     : 'us-cdbr-iron-east-01.cleardb.net',
+  user     : 'bc7ebf9f6de242',
+  password : 'aa9b1c1f',
+  database : 'heroku_cdc4ca7b10e1680',
   multipleStatements: true
 });
+
+// var connection = mysql.createConnection({
+//   host     : 'us-iron-auto-sfo-03-bh.cleardb.net',
+//   user     : 'b82ff0c686544a',
+//   password : '52ad3adb',
+//   database : 'heroku_4df94195b1d1e6b',
+//   multipleStatements: true
+// });
 
 function replaceAll(string, delimiter, replace)
 {
@@ -2249,7 +2249,6 @@ app.post('/post', function (req, res)
 	  	var all_artists = [];
 	  	if (data.indexOf('"track_number":2') != -1 && data.indexOf('"track_number":1') != -1)
 		{
-			
 			var track_number = 1;
 			while (data.indexOf('"track_number":' + track_number) != -1)
 			{
@@ -2277,10 +2276,15 @@ app.post('/post', function (req, res)
 			var album = narrowed.substring(narrowed.indexOf("name") + 7, narrowed.indexOf("popularity") - 3);
 			var song_name = "NO_SONG_ALBUM_ONLY";
 			var type = 1;
+
 			//replace with a sanitize function
 			artist = replaceAll(artist, "\\u00e9", 'é')
 			song_name = replaceAll(song_name, "\\u00e9", 'é')
 			album = replaceAll(album, "\\u00e9", 'é')
+			artist = replaceAll(artist, "'", "\\\'")
+			song_name = replaceAll(song_name, "'", "\\\'")
+			album = replaceAll(album, "'", "\\\'")
+
 			var sql = "INSERT into user_content (id, username, embedded_content, content, timestamp, likes, dislikes, post_id, title, artist, album, song, data) VALUES('" + String(post_id) + "','" 
 			    	+ username + "','" + String(req.body.song)+ "','" + String(req.body.content) + "','" + String(date) +"', 0 "+ ", 0,'" + String(post_id) + "',\"" + String(req.body.title) 
 			    	+ "\", '" + String(artist) + "', '" + String(album) + "', '" + String(song_name) +  "'," + "'{}'" + ")";
@@ -2324,10 +2328,15 @@ app.post('/post', function (req, res)
 			artist = artist.substring(0, artist.length - 1);
 		    var song_name = narrowed.substring(narrowed.indexOf("name") + 7, narrowed.indexOf("popularity") - 3);
 		    var type = 0;
+
 			//replace with a sanitize function
 			artist = replaceAll(artist, "\\u00e9", 'é')
 			song_name = replaceAll(song_name, "\\u00e9", 'é')
 			album = replaceAll(album, "\\u00e9", 'é')
+			artist = replaceAll(artist, "'", "\\\'")
+			song_name = replaceAll(song_name, "'", "\\\'")
+			album = replaceAll(album, "'", "\\\'")
+
 			var sql = "INSERT into user_content (id, username, embedded_content, content, timestamp, likes, dislikes, post_id, title, artist, album, song) VALUES('" + String(post_id) + "','" 
 			    	+ username + "','" + String(req.body.song)+ "','" + String(req.body.content) + "','" + String(date) +"', 0 "+ ", 0,'" + String(post_id) + "',\"" + String(req.body.title) 
 			    	+ "\", '" + String(artist) + "', '" + String(album) + "', '" + String(song_name) + "')";
