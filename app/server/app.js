@@ -1256,7 +1256,8 @@ app.get('/artist/:artist/', (req, res) => {
 
 
 app.get('/artist/:artist/songs', function (req, res) {
-	var song_sql = "SELECT * from global_posts WHERE artist = '" + req.params.artist + "' AND song != 'NO_SONG_ALBUM_ONLY'";
+	var regexpartist = getregexartists(req.params.artist)
+	var song_sql = "SELECT * from global_posts WHERE artist REGEXP '" + regexpartist + "' AND song != 'NO_SONG_ALBUM_ONLY'";
 	var song_post_ids = "";
 	connection.query(song_sql, function (err, result, fields) 
 	{
@@ -1318,7 +1319,8 @@ app.get('/artist/:artist/songs', function (req, res) {
 });
 
 app.get('/artist/:artist/albums', function (req, res) {
-	var album_sql = "SELECT * from global_posts WHERE artist = '" + req.params.artist + "' AND song = 'NO_SONG_ALBUM_ONLY'"
+	var regexpartist = getregexartists(req.params.artist)
+	var album_sql = "SELECT * from global_posts WHERE artist REGEXP '" + regexpartist + "' AND song = 'NO_SONG_ALBUM_ONLY'"
 	var album_post_ids = "";
 	connection.query(album_sql, function (err, result, fields) 
 	{
@@ -2459,7 +2461,6 @@ app.post('/search', (req, res) => {
 				var song_search = result;
 				connection.query(artist_search_sql, function (err, result, fields){
 					var artist_search = result;
-					console.log(artist_search);
 					for (var i = 0; i < artist_search.length; ++i)
 					{
 						var split_artists = artist_search[i].artist.split('^');
@@ -2469,7 +2470,7 @@ app.post('/search', (req, res) => {
 							artist_search.splice(i, 1)
 							for(var j = 0; j < split_artists.length; ++j)
 							{
-								if (split_artists[j].indexOf(req.body.text) != -1)
+								if (split_artists[j].toLowerCase().indexOf(req.body.text.toLowerCase()) != -1)
 								artist_search.push({artist:split_artists[j]})
 							}
 						}

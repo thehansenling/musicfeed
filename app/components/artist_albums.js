@@ -14,7 +14,7 @@ export default class ArtistAlbumsPage extends React.Component
 		for (var album of this.props.data.album_data) 
 		{
 			this.albums.push(
-			<div style = {{display: 'flex',flexDirection:'column'}}>
+			<div key ={album.post_id} style = {{display: 'flex',flexDirection:'column'}}>
 				<h2>  <a href = {"/album/" + album.artist + "/" + album.album}>{album.album} </a></h2>
 			</div>);
 		}

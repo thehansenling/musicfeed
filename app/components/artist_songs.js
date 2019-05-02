@@ -14,7 +14,7 @@ export default class ArtistSongsPage extends React.Component
 		for (var song of this.props.data.song_data) 
 		{
 			this.songs.push(
-			<div style = {{display: 'flex',flexDirection:'column'}}>
+			<div key ={song.post_id} style = {{display: 'flex',flexDirection:'column'}}>
 				<h2>  <a href = {"/post/" + song.artist + "/" + song.song}>{song.song} </a></h2>
 			</div>)
 		}
