@@ -15,12 +15,58 @@ class UserPostContent extends React.Component
 
 		this.up_image = "/small_up.png"
 		this.down_image = "/small_down.png"
+		this.edit_content = <div></div>
+		this.contentRef = React.createRef()
+		if (this.props.username == this.props.data.username)
+		{
+			this.edit_content = <button onClick={this.editContent.bind(this)}> Edit Content </button>;
+
+		}
 	}
 
 	renderiframe(iframe) {
 		return {
 			__html: iframe
 		};
+	}
+
+	editContent()
+	{
+		this.edit_content = <div>
+								<textarea ref = {this.contentRef} id = "content" name="content" rows="15" cols="117" >{this.props.data.content}</textarea>
+								<button onClick = {this.submitEditComment.bind(this)} style={{position:'relative'}} type='button' class='submit_new_comment' id = {this.props.comment_id}>submit</button>
+								<button onClick = {this.closeEditComment.bind(this)} style={{position:'relative'}} type='button' class='close_new_comment' id = {this.props.comment_id}>close</button>
+							</div>
+		this.forceUpdate()
+	}
+
+	closeEditComment()
+	{
+		this.edit_content = <button onClick={this.editContent.bind(this)}> Edit Content </button>;
+		this.forceUpdate()
+	}
+
+	submitEditComment()
+	{
+		var that = this;
+		var submit_text = this.contentRef.current.value
+		this.props.data.content = submit_text;
+	    fetch("/edit_content", {
+	        method: "POST",
+	        headers: {
+	        	Accept: 'application/json',
+	        	'Authorization': 'Basic',
+	        	'Content-Type': 'application/json',
+	        },
+
+	        body: JSON.stringify({id: this.props.data.post_id, 
+	        					  text: this.contentRef.current.value})})
+	    .then(function(response) { return response.json();})
+	    .then(function (data) { 
+
+	    })
+
+	    this.closeEditComment();
 	}
 
 	likeClicked()
@@ -214,7 +260,7 @@ class UserPostContent extends React.Component
 					</div>
 					
 					{content_div}
-
+					{this.edit_content}
 				</div>
 
 				<div style = {{clear:'both', height:'35px'}}>
@@ -251,7 +297,7 @@ export default class UserPost extends React.Component
 	{
 		return (
 			<div>
-				<UserPostContent data = {this.props.data.user_post} like_state = {this.props.data.like_state} num_comments = {this.props.data.num_comments}/>
+				<UserPostContent data = {this.props.data.user_post} like_state = {this.props.data.like_state} num_comments = {this.props.data.num_comments} username = {this.props.data.username}/>
 				<CommentSection comments = {this.props.data.comments} comment_votes = {this.props.data.comment_votes} post_id = {this.props.data.user_post.id}/>
 			</div>
 		);

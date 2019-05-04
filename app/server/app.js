@@ -965,6 +965,16 @@ app.get('/user/:user/:post_id', function (req, res) {
 	});
 });
 
+app.post('/edit_content', function (req, res) {
+	req.body.text = replaceAll(req.body.text, "\\u00e9", 'é')
+	req.body.text = replaceAll(req.body.text, "'", "\\\'")
+	var sql = "UPDATE user_content SET content = '" + req.body.text + "' WHERE id = '" + req.body.id + "'"
+	connection.query(sql, function (err, result, fields) 
+	{
+		res.send({nothing:0});
+	})	
+});
+
 function GetPosts(condition, req, res, limit = 0)
 {
 	var sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN " + 
