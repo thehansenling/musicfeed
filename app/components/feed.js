@@ -239,7 +239,7 @@ export default class Feed extends React.Component{
 	render()
 	{
 		return (
-			<div>
+			<div className = "feed">
 
 				<NewPostSubmission />
 				<PostInfo ref = {this.postsRef} songs = {this.props.data.songs} likes = {this.props.data.likes} num_comments = {this.props.data.num_comments}/>

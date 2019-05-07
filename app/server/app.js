@@ -31,21 +31,21 @@ var PRIORITY_MODIFIER = 8640 /2
 
 var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - UNIX_TIMESTAMP())/45000000 "
 
-// var connection = mysql.createConnection({
-//   host     : 'us-cdbr-iron-east-01.cleardb.net',
-//   user     : 'bc7ebf9f6de242',
-//   password : 'aa9b1c1f',
-//   database : 'heroku_cdc4ca7b10e1680',
-//   multipleStatements: true
-// });
-
 var connection = mysql.createConnection({
-  host     : 'us-iron-auto-sfo-03-bh.cleardb.net',
-  user     : 'b82ff0c686544a',
-  password : '52ad3adb',
-  database : 'heroku_4df94195b1d1e6b',
+  host     : 'us-cdbr-iron-east-01.cleardb.net',
+  user     : 'bc7ebf9f6de242',
+  password : 'aa9b1c1f',
+  database : 'heroku_cdc4ca7b10e1680',
   multipleStatements: true
 });
+
+// var connection = mysql.createConnection({
+//   host     : 'us-iron-auto-sfo-03-bh.cleardb.net',
+//   user     : 'b82ff0c686544a',
+//   password : '52ad3adb',
+//   database : 'heroku_4df94195b1d1e6b',
+//   multipleStatements: true
+// });
 
 function replaceAll(string, delimiter, replace)
 {
@@ -159,6 +159,7 @@ function MergeSortPosts(list1, list2, list1_full=false, list2_full=false)
 function GetFeed(req, res, callback, offset, non_priority_offset, global_offset, non_priority_global_offset, limit)
 {
 	var NUMBER_OF_POSTS = 20;
+
 	var follows_sql = "SELECT * FROM follows where user_id = '" + req.cookies.username + "'";
 	connection.query(follows_sql, function (err, result, fields) 
 	{
@@ -390,15 +391,20 @@ function RenderFeed(req, res)
 			// 	likes: likes_list,
 			// 	num_comments: num_comments_list,
 			// });	
-			var data = {songs: songs_list,
-						likes: likes_list,
-						num_comments: num_comments_list,
-						num_posts: num_posts_list,
-					    username: req.cookies.username}
-			//var html = ReactDOMServer.renderToString(<StaticRouter location={req.url} context={context}><App data = {data}/></StaticRouter>)
-			//var html = ReactDOMServer.renderToString(<Home test= "testing"/>)
-			var html = renderPage(req.url, data);
-			res.send(html);
+			var noficiations_sql = "SELECT * FROM notifications WHERE username = '" + req.cookies.username + "' "
+			connection.query(noficiations_sql, function (err, result, fields) 
+			{
+				var data = {songs: songs_list,
+							likes: likes_list,
+							num_comments: num_comments_list,
+							num_posts: num_posts_list,
+						    username: req.cookies.username,
+							notifications: result}
+				//var html = ReactDOMServer.renderToString(<StaticRouter location={req.url} context={context}><App data = {data}/></StaticRouter>)
+				//var html = ReactDOMServer.renderToString(<Home test= "testing"/>)
+				var html = renderPage(req.url, data);
+				res.send(html);
+			})
 
 		}, 
 		0, 
@@ -1870,6 +1876,13 @@ app.post('/like', function (req, res)
 	var modify_sql = "INSERT INTO likes (post_id, user_id, like_state) VALUES('" + req.body.id + "', '" + req.cookies.username + "'," + '1' + ")";
 	var sql_check = "SELECT like_state FROM likes WHERE user_id = '" + req.cookies.username + "' AND post_id = '" + req.body.id + "'";
 	var like_state = 1;
+
+	var notification_sql = "INSERT INTO notifications (post_id, username, name, num_likes, num_comments)" +
+							"VALUES ('" + req.body.id + "', '" + req.body.user + "', '" + req.body.name + "', 1, 0) " + 
+							"ON DUPLICATE KEY UPDATE " +
+							"num_likes = num_likes + 1"
+
+
 	connection.query(sql_check, function (err, result, fields) 
 	{
 		if (result.length != 0)
@@ -1880,6 +1893,10 @@ app.post('/like', function (req, res)
 				user_sql = "UPDATE accounts SET upvotes = upvotes - 1 WHERE username = '" + req.body.user + "'";
 				sql = "UPDATE user_content SET likes = likes - 1 WHERE post_id = '" + req.body.id + "'";
 				modify_sql = "DELETE FROM likes WHERE user_id = '" + req.cookies.username + "' AND post_id = '" + req.body.id + "'";
+				notification_sql = "INSERT INTO notifications (post_id, username, name, num_likes, num_comments)" +
+											"VALUES ('" + req.body.id + "', '" + req.body.user + "', '" + req.body.name + "', 1, 0) " + 
+											"ON DUPLICATE KEY UPDATE " +
+											"num_likes = num_likes - 1"
 				like_state = -1
 			}
 			else 
@@ -1890,6 +1907,10 @@ app.post('/like', function (req, res)
 				sql = "UPDATE user_content SET likes = likes + 1 WHERE post_id = '" +  req.body.id + "';" + 
 					  "UPDATE user_content SET dislikes = dislikes - 1 WHERE post_id = '" + req.body.id + "'";
 				modify_sql = "UPDATE likes SET like_state = 1 WHERE user_id = '" + req.cookies.username + "' AND post_id = '" + req.body.id + "'";
+				notification_sql = "INSERT INTO notifications (post_id, username, name, num_likes, num_comments)" +
+											"VALUES ('" + req.body.id + "', '" + req.body.user + "', '" + req.body.name + "', 1, 0) " + 
+											"ON DUPLICATE KEY UPDATE " +
+											"num_likes = num_likes + 2"
 				like_state = 1
 			}
 		}			
@@ -1912,6 +1933,13 @@ app.post('/like', function (req, res)
 				});
 			});
 		});
+		connection.query(notification_sql, function (err, result, fields)  
+		{
+			var delete_notification_sql = "DELETE FROM notifications WHERE post_id = '" + req.body.id + "' AND num_comments = 0 AND num_likes = 0"
+			connection.query(delete_notification_sql, function (err, result, fields)  
+			{
+			})
+		})
 	});
 });
 
@@ -1922,6 +1950,10 @@ app.post('/dislike', function (req, res)
 	var modify_sql = "INSERT INTO likes (post_id, user_id, like_state) VALUES('" + req.body.id + "', '" + req.cookies.username + "'," + '0' + ")";
 	var sql_check = "SELECT like_state FROM likes WHERE user_id = '" + req.cookies.username + "' AND post_id = '" + req.body.id + "'";
 	var like_state = 0;
+	var notification_sql = "INSERT INTO notifications (post_id, username, name, num_likes, num_comments)" +
+							"VALUES ('" + req.body.id + "', '" + req.body.user + "', '" + req.body.name + "', -1, 0) " + 
+							"ON DUPLICATE KEY UPDATE " +
+							"num_likes = num_likes - 1"
 	connection.query(sql_check, function (err, result, fields) 
 	{
 		if (result.length != 0)
@@ -1933,6 +1965,10 @@ app.post('/dislike', function (req, res)
 				sql = "UPDATE user_content SET dislikes = dislikes - 1 WHERE post_id = '" + req.body.id + "'";
 				modify_sql = "DELETE FROM likes WHERE user_id = '" + req.cookies.username + "' AND post_id = '" + req.body.id + "'";
 				like_state = -1;
+				notification_sql = "INSERT INTO notifications (post_id, username, name, num_likes, num_comments)" +
+											"VALUES ('" + req.body.id + "', '" + req.body.user + "', '" + req.body.name + "', -1, 0) " + 
+											"ON DUPLICATE KEY UPDATE " +
+											"num_likes = num_likes + 1"
 			}
 			else 
 			{
@@ -1942,6 +1978,10 @@ app.post('/dislike', function (req, res)
 				sql = "UPDATE user_content SET likes = likes - 1 WHERE post_id = '" +  req.body.id + "';" + 
 					  "UPDATE user_content SET dislikes = dislikes + 1 WHERE post_id ='" + req.body.id + "'";
 				modify_sql = "UPDATE likes SET like_state = 0 WHERE user_id = '" + req.cookies.username + "' AND post_id = '" + req.body.id + "'";
+				notification_sql = "INSERT INTO notifications (post_id, username, name, num_likes, num_comments)" +
+											"VALUES ('" + req.body.id + "', '" + req.body.user + "', '" + req.body.name + "', -1, 0) " + 
+											"ON DUPLICATE KEY UPDATE " +
+											"num_likes = num_likes - 2"
 				like_state = 0;
 			}
 		}			
@@ -1962,6 +2002,13 @@ app.post('/dislike', function (req, res)
 				});
 			});
 		});
+		connection.query(notification_sql, function (err, result, fields)  
+		{
+			var delete_notification_sql = "DELETE FROM notifications WHERE post_id = '" + req.body.id + "' AND num_comments = 0 AND num_likes = 0"
+			connection.query(delete_notification_sql, function (err, result, fields)  
+			{
+			})
+		})
 	});
 });
 
@@ -2145,6 +2192,20 @@ app.post('/comment', function (req, res)
 	req.body.text = replaceAll(req.body.text, "'", "\\\'")
 	var timestamp = String(new Date().getTime());
 	var comment_id = uuidv3(String("comment/" + req.cookies.username + "/" + timestamp), uuidv3.URL);
+
+	var name_sql = "SELECT title FROM user_content WHERE id = '" + req.body.id + "'"
+	connection.query(name_sql, function (err, result, fields)  
+	{
+		var notification_sql = "INSERT INTO notifications (post_id, username, name, num_likes, num_comments)" +
+								"VALUES ('" + req.body.id + "', '" + req.cookies.username + "', '" + result[0].title + "', 0, 1) " + 
+								"ON DUPLICATE KEY UPDATE " +
+								"num_comments = num_comments + 1"
+		connection.query(notification_sql, function (err, result, fields)  
+		{
+		})
+	})
+
+
 	var sql = "INSERT INTO comments (post_id, user_id, text, timestamp, comment_id, parent_comment_id, comment_level) values('" + req.body.id + "','" + req.cookies.username + "','" + req.body.text + "', "  + timestamp + ",'" + comment_id + "','" + req.body.parent_comment_id + "'," + req.body.comment_level + ")";
 	connection.query(sql, function (err, result, fields){
 
@@ -2354,20 +2415,6 @@ app.post('/post', function (req, res)
 			{
 
 			});
-		 //    if (all_artists.length > 1)
-		 //    {
-			//     for (var i = 0; i < all_artists.length; ++i)
-			//     {
-
-			// 		sql = "INSERT into user_content (id, username, embedded_content, content, timestamp, likes, dislikes, post_id, title, artist, album, song, valid_feed_post, all_artists) VALUES('" + String(post_id) + "','" 
-			//     	+ username + "','" + String(req.body.song)+ "','" + String(req.body.content) + "','" + String(date) +"', 0 "+ ", 0,'" + String(post_id) + "',\"" + String(req.body.title) 
-			//     	+ "\", '" + String(all_artists[i]) + "', '" + String(album) + "', '" + String(song_name) + "', 0, '" + artist + "')";			    	
-			// 		connection.query(sql, function (err, result, fields) 
-			// 		{
-
-			// 		});
-			//     }
-			// }
 		}
 		var sql = "SELECT * from global_posts WHERE song = '" + song_name + "' AND artist = '" + artist + "'";
 		connection.query(sql, function (err, result, fields) 
@@ -2511,6 +2558,14 @@ app.post('/search', (req, res) => {
 	{
 		res.send({});
 	}
+})
+
+app.post('/remove_notification', (req, res) => {
+	var delete_notification_sql = "DELETE FROM notifications WHERE post_id = '" + req.body.id + "'"
+	connection.query(delete_notification_sql, function (err, result, fields)
+	{
+		res.send({})
+	})
 })
 
 setInterval(function () {

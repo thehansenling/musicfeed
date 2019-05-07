@@ -50,8 +50,8 @@ export default class App extends React.Component{
 	{
 
 		return (
-			<div id='root' style = {{width:'100%', minWidth:'1200px'}}>
-				<StandardHeader username = {this.props.data.username}/>
+			<div className = "App" id='root' style = {{width:'100%', minWidth:'1200px'}}>
+				<StandardHeader username = {this.props.data.username} notifications = {this.props.data.notifications}/>
 				<link rel="stylesheet" href="/styles.css"/>
 				<Switch>
 					<Route exact path = "/" render={() => (<Feed data={this.props.data}/>)} />

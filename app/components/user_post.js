@@ -84,7 +84,7 @@ class UserPostContent extends React.Component
 	        	'Authorization': 'Basic',
 	        	'Content-Type': 'application/json',
 	        },
-	        body: JSON.stringify({user: that.props.data.username, id: this.props.data.id,})})
+	        body: JSON.stringify({user: that.props.data.username, id: this.props.data.id, name: this.props.data.title})})
 	    .then(function(response) { return response.json();})
 	    .then(function (data) {    	
 	    	// that.likes_score = data.likes_score;
@@ -149,7 +149,7 @@ class UserPostContent extends React.Component
 	        	'Authorization': 'Basic',
 	        	'Content-Type': 'application/json',
 	        },
-	        body: JSON.stringify({user: that.props.data.username, id: this.props.data.id,})})
+	        body: JSON.stringify({user: that.props.data.username, id: this.props.data.id, name: that.props.data.title})})
 	    .then(function(response) { return response.json();})
 	    .then(function (data) {    	
 	    	// that.likes_score = data.likes_score;
