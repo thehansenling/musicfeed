@@ -24,6 +24,7 @@ import Login from './login.js'
 import Register from './register.js'
 import Followers from './followers.js'
 import Following from './following.js'
+import UserPostLikesPage from './userpostlikes'
 import StandardHeader from './standard_header.js'
 //	<Route path = "/user/:user" exact component={User} />
 // <Route path = "/user" exact render={() => (<Home data={{hmm:"what"}}/>)}  />
@@ -56,6 +57,7 @@ export default class App extends React.Component{
 				<Switch>
 					<Route exact path = "/" render={() => (<Feed data={this.props.data}/>)} />
 					<Route exact path = "/user/:user/:post_id" render={() => (<UserPost data={this.props.data}/>)}/>
+					<Route exact path = "/user/:user/:post_id/likes" render={() => (<UserPostLikesPage data={this.props.data}/>)}/>
 					<Route exact path = "/user/:user"  render={() => (<User data={this.props.data}/>)} />
 					<Route exact path = "/followers/:user"  render={() => (<Followers data={this.props.data}/>)} />
 					<Route exact path = "/following/:user"  render={() => (<Following data={this.props.data}/>)} />

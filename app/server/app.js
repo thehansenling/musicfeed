@@ -971,6 +971,31 @@ app.get('/user/:user/:post_id', function (req, res) {
 	});
 });
 
+app.get('/user/:user/:post_id/likes', function (req, res) {
+	var sql = "SELECT * FROM likes WHERE post_id = '" + req.params.post_id + "'"
+	connection.query(sql, function (err, result, fields) 
+	{
+		var likes = []
+		var dislikes = []
+		if (result != undefined)
+		for (var i = 0; i < result.length; ++i)
+		{
+			if (result[i].like_state == 1)
+			{
+				likes.push(result[i])
+			}
+			else
+			{
+				dislikes.push(result[i])
+			}
+		}
+		var data = {likes :likes,
+					dislikes: dislikes}
+		var html = renderPage(req.url, data)
+		res.send(html);
+	})		
+})
+
 app.post('/edit_content', function (req, res) {
 	req.body.text = replaceAll(req.body.text, "\\u00e9", 'é')
 	req.body.text = replaceAll(req.body.text, "'", "\\\'")

@@ -306,12 +306,12 @@ class Post extends React.Component
 					<div style = {{clear:'both', height:'35px'}}>
 						<div style = {{float:'left', width:'15px', height:'30px'}}></div>
 						<div style = {{float:'left'}}><img onClick = {this.likeClicked.bind(this)} src={this.up_image} width="30" height="30" alt=""/></div>
-						<div style = {{width:'60px', height:'30px', float:'left', verticalAlign: 'middle', textAlign: 'center', width:'60px', position: 'relative', top: '0px', fontSize: '21px'}}>{this.likes_score}</div>
+						<div style = {{width:'60px', height:'30px', float:'left', verticalAlign: 'middle', textAlign: 'center', width:'60px', position: 'relative', top: '0px', fontSize: '21px'}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id + "/likes"} >{this.likes_score} </a></div>
 						<div style = {{float:'left'}}><img onClick = {this.dislikeClicked.bind(this)} src={this.down_image} width="30" height="30" alt=""/></div>
 						<div style = {{float:'left', width:'30px', height:'30px', borderRight: '1px solid black'}}></div>
 						<div style = {{float:'left', width:'30px', height:'30px'}}></div>
 						<div style = {{float:'left'}}><img src="/small_comment.png" width="30" height="30" alt=""/></div>
-						<div style = {{width:'60px', height:'30px', float:'left', verticalAlign: 'middle', textAlign: 'center', width:'80px', position: 'relative', top: '0px', fontSize: '21px'}}>{this.props.num_comments}</div>
+						<div style = {{width:'60px', height:'30px', float:'left', verticalAlign: 'middle', textAlign: 'center', width:'80px', position: 'relative', top: '0px', fontSize: '21px'}}> {this.props.num_comments} </div>
 					</div>
 					{this.ellipsis}
 				</div>

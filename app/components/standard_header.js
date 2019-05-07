@@ -128,7 +128,7 @@ export default class StandardHeader extends React.Component {
 
 	  	this.notification_div = ""
 	  	this.dropdown_div = ""
-	  	if (this.props.notifications != undefined)
+	  	if (this.props.notifications != undefined && this.props.notifications.length > 0)
 	  	{	
 		  	for (var i = 0; i < this.props.notifications.length; ++i)
 		  	{
