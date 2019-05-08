@@ -2222,7 +2222,7 @@ app.post('/comment', function (req, res)
 	connection.query(name_sql, function (err, result, fields)  
 	{
 		var notification_sql = "INSERT INTO notifications (post_id, username, name, num_likes, num_comments)" +
-								"VALUES ('" + req.body.id + "', '" + req.cookies.username + "', '" + result[0].title + "', 0, 1) " + 
+								"VALUES ('" + req.body.id + "', '" + req.body.username + "', '" + result[0].title + "', 0, 1) " + 
 								"ON DUPLICATE KEY UPDATE " +
 								"num_comments = num_comments + 1"
 		connection.query(notification_sql, function (err, result, fields)  
@@ -2239,7 +2239,7 @@ app.post('/comment', function (req, res)
 
 		res.send({comment_id:comment_id,
 				  timestamp:timestamp,
-				  username: res.req.cookies.username});
+				  username: req.cookies.username});
 
 	});
 });

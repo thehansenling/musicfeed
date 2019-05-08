@@ -309,7 +309,8 @@ class Comment extends React.Component
 	        body: JSON.stringify({id: this.props.post_id, 
 	        					  text: this.newCommentTextRef.current.value, 
 	        					  comment_level: this.props.data.comment_level + 1, 
-	        					  parent_comment_id: this.props.data.comment_id}),})
+	        					  parent_comment_id: this.props.data.comment_id,
+	    						  username: this.props.data.user_id})})
 	    .then(function(response) { return response.json();})
 	    .then(function (data) {    	
 		    var new_comment_data = {
