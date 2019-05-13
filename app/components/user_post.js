@@ -245,7 +245,7 @@ class UserPostContent extends React.Component
 
 			<div style = {{display:'flex', flexDirection:'row'}}>
 			<div style=  {{width:'300px', paddingLeft:'10px', paddingTop:'10px'}}>
-				<div style = {{float:'left', fontFamily:'Playfair Display'}}> <a href ={"/user/" + this.props.data.username} > {this.props.data.username}</a></div>
+				<div style = {{float:'left'}}> <a href ={"/user/" + this.props.data.username} > {this.props.data.username}</a></div>
 				<div style = {{float:'right', paddingRight:'10px'}}>{(parseInt(date.getMonth()) + 1) + "/" + date.getDate() + "/" + date.getFullYear()}</div>
 				<div style = {{clear:'both'}}>{artist_names}</div>
 				<div> <a href = {content_url} >{content_name} </a></div>

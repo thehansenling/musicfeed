@@ -18,6 +18,8 @@ class NewPostSubmission extends React.Component {
 
 		this.newPost = "";
 		this.div_height = '100px'
+		this.containerRef = React.createRef()
+		this.postContentRef = React.createRef()
 	}
 
 	songInput()
@@ -27,20 +29,25 @@ class NewPostSubmission extends React.Component {
 		var content_str = this.contentRef.current.value;
 	   	if(this.songEmbedRef.current.value != "")
 	   	{
-	   		this.songEmbedRef.current.style.width = '670px'
-	   		this.contentRef.current.style.width = '670px'
-	   		this.contentRef.current.style.height = '300px'
-	   		this.titleRef.current.style.width = '670px'
-	   		this.embedded_content = this.songEmbedRef.current.value;
+	   		// this.songEmbedRef.current.style.width = '670px'
+	   		// this.contentRef.current.style.width = '670px'
+	   		// this.contentRef.current.style.height = '300px'
+	   		// this.titleRef.current.style.width = '670px'
+	   		// this.embedded_content = this.songEmbedRef.current.value;
+	   		this.postContentRef.current.style.display = ''
+	   		this.containerRef.current.style.height = '500px'
 	   	}
 	   	else 
 	   	{
-	   		this.songEmbedRef.current.style.width = '980px'
-	   		this.contentRef.current.style.width = '980px'
-	   		this.contentRef.current.style.height = '50px'
-	   		this.titleRef.current.style.width = '980px'
+	   		// this.songEmbedRef.current.style.width = '980px'
+	   		// this.contentRef.current.style.width = '980px'
+	   		// this.contentRef.current.style.height = '50px'
+	   		// this.titleRef.current.style.width = '980px'
 	   		this.embedded_content = this.songEmbedRef.current.value;
+	   		this.postContentRef.current.style.display = 'none'
+	   		this.containerRef.current.style.height = '140px'
 	   	}
+	   	
 	   	this.forceUpdate();
 	}
 
@@ -51,33 +58,30 @@ class NewPostSubmission extends React.Component {
 		var content_str = this.contentRef.current.value;
 	   	if(this.songEmbedRef.current.value != "")
 	   	{
-	   		this.songEmbedRef.current.style.width = '670px'
-	   		this.contentRef.current.style.width = '670px'
-	   		this.contentRef.current.style.height = '300px'
-	   		this.titleRef.current.style.width = '670px'
-	   		this.embedded_content = this.songEmbedRef.current.value;
+	   		// this.songEmbedRef.current.style.width = '670px'
+	   		// this.contentRef.current.style.width = '670px'
+	   		// this.contentRef.current.style.height = '300px'
+	   		// this.titleRef.current.style.width = '670px'
+	   		// this.embedded_content = this.songEmbedRef.current.value;
 	   	}
 	   	else 
 	   	{
-	   		this.songEmbedRef.current.style.width = '980px'
-	   		this.contentRef.current.style.width = '980px'
-	   		this.contentRef.current.style.height = '50px'
-	   		this.titleRef.current.style.width = '980px'
+	   		// this.songEmbedRef.current.style.width = '980px'
+	   		// this.contentRef.current.style.width = '980px'
+	   		// this.contentRef.current.style.height = '50px'
+	   		// this.titleRef.current.style.width = '980px'
 	   	}
 
-    	if (content_str != "")
-    	{
-    		this.contentRef.current.style.height = '300px'
-    	}
-    	else
-    	{
-    		this.contentRef.current.style.height = '50px'
-    	}
+    	// if (content_str != "")
+    	// {
+    	// 	this.contentRef.current.style.height = '300px'
+    	// }
+    	// else
+    	// {
+    	// 	this.contentRef.current.style.height = '50px'
+    	// }
 	   	this.forceUpdate();
-
-
 	}
-
 
 	submitPost()
 	{
@@ -115,21 +119,25 @@ class NewPostSubmission extends React.Component {
 
 	closeNewPost()
 	{
-		this.newPost = undefined;
-		this.embedded_content = ""
+   		this.postContentRef.current.style.display = 'none'
+   		this.containerRef.current.style.height = '140px'
+   		this.songEmbedRef.current.value = "" 
+		// this.newPost = undefined;
+		// this.embedded_content = ""
 		this.forceUpdate();
 	}
 
 	beginNewPost()
 	{
+		// Song/Album Spotify Embed Code: 
+		// <br/>
+		// <input ref = {this.songEmbedRef} onChange = {this.songInput.bind(this)} id="song" type="text" name="song" style={{width:'980px'}}/>
+		// <br/>
 		this.newPost = <div key = "what" id = "post" style ={{top:'0px',position:'relative', paddingBottom:'30px', width:'680px'}}  autoComplete="off">
-			Song/Album Spotify Embed Code: 
-			<br/>
-			<input ref = {this.songEmbedRef} onChange = {this.songInput.bind(this)} id="song" type="text" name="song" style={{width:'980px'}}/>
-			<br/>
-				Title:
-			<br/>
-			<input ref = {this.titleRef} id="title" type="text" name="title" style={{width:'980px'}}/>  
+			<div style = {{display:'flex', flexDirection:''}}>
+				<label>Title:</label>
+				<input ref = {this.titleRef} id="title" type="text" name="title" style={{width:'980px'}}/>  
+			</div>
 			<br/>
 				Content:
 			<br/>
@@ -139,7 +147,6 @@ class NewPostSubmission extends React.Component {
 			<button onClick = {this.closeNewPost.bind(this)}> Close </button>
 			<br/>
 			
-			
 			<meta className = "post_number" content = "0"/>
 			<meta className = "non_priority_post_number" content = "0"/>
 			<meta className = "global_post_number" content = "0"/>
@@ -147,20 +154,142 @@ class NewPostSubmission extends React.Component {
 		</div>
 		this.forceUpdate();
 	}
-
+	//<button style = {{ width:'100px', position:'relative'}} onClick = {this.beginNewPost.bind(this)} > new post </button>
 	render()
 	{
 		return (
-			<div style = {{position:'relative', margin: '0 auto', width:'980px', top:'100px'}}>
-			<button style = {{ width:'100px', position:'relative'}} onClick = {this.beginNewPost.bind(this)} > new post </button>
-			<div style = {{display:'flex', flexDirection:'row'}}>
-				{this.newPost}
-				<div id="showsong" style = {{position:'relative', top:'24px'}} dangerouslySetInnerHTML={this.renderiframe(this.embedded_content)}>
-			</div>
-			</div>
+			<div ref = {this.containerRef} style = {{position:'relative', margin: '0 auto', width: '735px', height:'140px', backgroundColor:'white', border: '1px solid #F1F1F1', borderRadius:'7px', top:'14px'}}>
+				
+				
+				<div style = {{fontWeight:'bold', fontSize:'24px', color:'rgba(47, 56, 70, 0.58)', paddingLeft:'18px', paddingTop:'5px'}}> Create Post </div>
+ 				<div style = {{display:'flex', flexDirection:'row', paddingLeft:'18px', paddingTop:'16px'}}>
+	 				<div style = {{width:'65px', height:'65px', backgroundColor:'#178275', borderRadius:'50%'}}></div>
+	 				<input ref = {this.songEmbedRef} onChange = {this.songInput.bind(this)} style = {{borderBottom:'1px solid rgba(0, 0, 0, 0.09)', borderTop:'none', borderLeft:'none', borderRight:'none', left:'16px', position:'relative', width:'618px', fontSize:'24px'}}></input>
+ 				</div>
+
+				<div ref = {this.postContentRef} id = "post" style ={{top:'0px',position:'relative', paddingBottom:'30px', width:'703px', display:'none', left:'16px'}}  autoComplete="off">
+					<div style = {{position:'relative', top:'16px'}}> Title: </div>
+					<br/>
+					<input ref = {this.titleRef} id="title" type="text" name="title" style={{width:'703px', borderTop:'none', borderLeft:'none', borderRight:'none', borderBottom:'1px solid rgba(0, 0, 0, 0.09)'}}/>  
+					<br/>
+						Content:
+					<br/>
+					<textarea onChange = {this.contentInput.bind(this)} ref = {this.contentRef} id = "content" name="content" rows="10" cols="90" style={{position:'relative',width:'703px',height:'238px', borderTop:'none', borderLeft:'none', borderRight:'none', borderBottom:'1px solid rgba(0, 0, 0, 0.09)'}}></textarea>
+					<br/>
+					<button style = {{float:'left'}} onClick = {this.submitPost.bind(this)} id = "post_button" type="button">Post</button>
+					<button onClick = {this.closeNewPost.bind(this)}> Close </button>
+					<br/>
+					
+				</div>
+
+ 				<div style = {{display:'flex', flexDirection:'row'}}>
+					{this.newPost}
+					<div id="showsong" style = {{position:'relative', top:'24px'}} dangerouslySetInnerHTML={this.renderiframe(this.embedded_content)}>
+					</div>
+				</div>
 			</div>
 		);
 	}
+}
+
+function SetSpotifySize(iframe_string, width, height)
+{
+	return iframe_string.substring(0, iframe_string.indexOf("width") + 7) + width + 
+	iframe_string.substring(iframe_string.indexOf("height") - 2, iframe_string.indexOf("height") + 7) + 
+	height + iframe_string.substring(iframe_string.indexOf("frameborder") - 2, iframe_string.length)
+	this.props.data[i].embedded_content = iframe_string
+}
+
+class Trending extends React.Component {
+	constructor(props)
+	{
+		super(props)
+		this.global_post_index = 0;
+		this.state = { global_post_index: 0 };
+		this.global_posts = []
+		this.trending_posts = []
+		for (var i = 0; i < this.props.data.length; ++i)
+		{
+			var iframe_string = this.props.data[i].embedded_content;
+
+			this.props.data[i].embedded_content = SetSpotifySize(iframe_string, 250, 330)				
+
+
+			this.global_posts.push(this.props.data[i])
+		}
+
+		this.trending_refs = []
+		this.global_posts.map((item, i) => {
+			var trending_ref = React.createRef();
+			if (i == 0)
+			{
+				this.trending_posts.push(<div key = {item.post_id} ref = {trending_ref} dangerouslySetInnerHTML={this.renderiframe(item.embedded_content)} />)
+			}
+			else
+			{
+				this.trending_posts.push(<div key = {item.post_id} ref = {trending_ref}  style = {{display:'none'}} dangerouslySetInnerHTML={this.renderiframe(item.embedded_content)} />)
+			}
+			this.trending_refs.push(trending_ref)
+		})
+	}
+
+	renderiframe(iframe) {
+		return {
+			__html: iframe
+		}
+	}
+
+	rightClick()
+	{
+		this.trending_refs[this.global_post_index].current.style.display = 'none'
+		this.global_post_index++;
+		if (this.global_post_index >= this.trending_refs.length)
+		{
+			this.global_post_index = 0;
+		}
+		this.trending_refs[this.global_post_index].current.style.display = ''
+		this.forceUpdate();
+	}
+
+	leftClick()
+	{
+		this.trending_refs[this.global_post_index].current.style.display = 'none'
+		this.global_post_index--;
+		if (this.global_post_index < 0)
+		{
+			this.global_post_index = this.trending_refs.length - 1;
+		}
+		this.trending_refs[this.global_post_index].current.style.display = ''
+		this.forceUpdate();
+	}
+
+
+
+	render()
+	{
+
+		//<img src = "/placeholder.jpg"  />
+		return (
+		<div style = {{width:'400px', height:'2000px', backgroundColor:'white', border:'1px solid #F1F1F1', borderRadius:'7px', position:'relative'}}>
+			<div style = {{margin:'0px auto', fontWeight:'bold', width:'110px', fontSize:'27px', paddingTop:'16px'}}>
+				Trending
+			</div>
+			<div style = {{margin:'0px auto', fontWeight:'bold', width:'324px', height:'10px', fontSize:'27px', paddingTop:'16px', borderBottom:'1px solid rgba(0, 0, 0, 0.09)'}}>
+
+			</div>
+			<div style = {{display:'flex', flexDirection:'row', paddingTop:'30px', width:'290px', margin:'0px auto'}}>
+				<svg onClick = {this.leftClick.bind(this)} style = {{position:'relative', top:'140px', right:'20px'}} width="20" height="50" viewBox="0 0 20 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M19 49L2 25L19 0.999998" stroke="#2F3846" strokeOpacity="0.2" strokeWidth="2"/>
+				</svg>
+				{this.trending_posts}
+				<svg onClick = {this.rightClick.bind(this)} style = {{position:'relative', top:'140px', left:'20px'}} width="20" height="50" viewBox="0 0 20 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M1 1L18 25L1 49" stroke="#2F3846" strokeOpacity="0.2" strokeWidth="2"/>
+				</svg>
+			</div>
+		</div>
+		)
+	}
+
 }
 
 export default class Feed extends React.Component{
@@ -173,6 +302,7 @@ export default class Feed extends React.Component{
 		this.global_offset = 0;
 		this.non_priority_global_offset = 0;
 		this.postsRef = React.createRef();
+
 	}
 
 	componentDidMount() 
@@ -239,10 +369,16 @@ export default class Feed extends React.Component{
 	render()
 	{
 		return (
-			<div className = "feed">
-
-				<NewPostSubmission />
-				<PostInfo ref = {this.postsRef} songs = {this.props.data.songs} likes = {this.props.data.likes} num_comments = {this.props.data.num_comments}/>
+			<div style = {{display:'flex', flexDirection:'row', width:'1190px', margin:'0px auto'}}>
+				<div className = "feed" style = {{position:'relative', top:'100px', border: '1px solid #F1F1F1', borderRadius:'7px', width:'755px', backgroundColor:'#F6F6F6'}}>
+					<NewPostSubmission style = {{position:'relative', left:'10px'}} />
+					<PostInfo style = {{position:'relative', top:'20px', left:'10px'}} ref = {this.postsRef} songs = {this.props.data.songs} likes = {this.props.data.likes} num_comments = {this.props.data.num_comments}/>
+				</div>
+				<div style = {{position:'relative', top:'100px', left:'15px', border: '1px solid #F1F1F1', borderRadius:'7px', width:'420px', height:'2028px', backgroundColor:'#F6F6F6'}}>
+					<div style = {{position:'relative', top:'14px', left:'10px'}}>
+					<Trending data = {this.props.data.global_songs} />
+					</div>
+				</div>
 			</div>
 		);
 	}

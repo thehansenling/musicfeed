@@ -24,7 +24,7 @@ import Login from './login.js'
 import Register from './register.js'
 import Followers from './followers.js'
 import Following from './following.js'
-import UserPostLikesPage from './userpostlikes'
+import UserPostLikesPage from './userpostlikes.js'
 import StandardHeader from './standard_header.js'
 //	<Route path = "/user/:user" exact component={User} />
 // <Route path = "/user" exact render={() => (<Home data={{hmm:"what"}}/>)}  />
@@ -43,7 +43,7 @@ export default class App extends React.Component{
 	{
 		if (typeof window !== 'undefined') 
 		{
-			document.body.style.backgroundColor = "#F0F0F0";
+			document.body.style.backgroundColor = "#FFFFFF";
 		}
 	}
 	//#FAFAFA

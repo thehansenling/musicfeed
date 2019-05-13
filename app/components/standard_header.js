@@ -108,7 +108,7 @@ class SearchList extends React.Component {
 	{
 		return(
 			<div>
-				<input onChange={this.handleChange.bind(this)} placeholder = "Search" type='text' name='country' className='search_bar'/>
+				<input style = {{backgroundColor:'#178275', border:'1px solid white', borderRadius:'7px'}} onChange={this.handleChange.bind(this)} placeholder = " Search" type='text' name='country' className='search_bar'/>
 				<SearchItem ref={this.search_list}/>
 			</div>
 		);
@@ -125,7 +125,7 @@ export default class StandardHeader extends React.Component {
 		this.dropdownRef = React.createRef();
 		this.notificationsRef = React.createRef();
   		this.dropdown_content = []
-
+  		this.optionsRef = React.createRef();
 	  	this.notification_div = ""
 	  	this.dropdown_div = ""
 	  	if (this.props.notifications != undefined && this.props.notifications.length > 0)
@@ -152,7 +152,7 @@ export default class StandardHeader extends React.Component {
 		  			</div>)
 		  	}
 
-		  	this.notification_div = <div className = "notifications" ref = {this.notificationsRef} onClick = {this.toggleNotifications.bind(this)} style = {{marginRight: '10px', fontWeight:'bold', fontSize:'14pt', minWidth:'30px', minHeight:'30px', textAlign:'center'}}> {this.props.notifications.length}</div>
+		  	this.notification_div = <div className = "notifications" ref = {this.notificationsRef} onClick = {this.toggleNotifications.bind(this)} style = {{marginRight: '10px', fontWeight:'bold', fontSize:'12pt', color: "#178275", width:'24px', height:'24px', textAlign:'center', backgroundColor:'white', borderRadius:'50%'}}> {this.props.notifications.length}</div>
 
 
 	  	}
@@ -256,6 +256,22 @@ export default class StandardHeader extends React.Component {
 	 	})		
 	}
 
+	toggleOptions()
+	{
+		if (this.optionsRef.current.style.display == 'none')
+		{
+			this.optionsRef.current.style.display = ''
+		}
+		else
+		{
+			this.optionsRef.current.style.display = 'none'
+		}
+	}
+	closeOptions()
+	{
+
+		this.optionsRef.current.style.display = 'none'
+	}
   render() {
 
   	
@@ -263,16 +279,16 @@ export default class StandardHeader extends React.Component {
 	this.dropdown_div = <div className = "dropdown" ref = {this.dropdownRef} style = {{ width:'400px', minHeight:'10px', position: "fixed", right:'220px', top:'50px', background:'white', display:'none', fontWeight:'normal', fontSize:'12pt', zIndex:'8'}}>{this.dropdown_content}</div>
 
 
-  	var user_login = <div style = {{marginRight: '10px'}}>
-				        <a style = {{marginRight: '10px'}} href = {"/user/" + this.props.username}> {this.props.username} </a>
+  	var user_login = <div>
+				        <a style = {{color:'white', fontWeight:'bold'}} href = {"/user/" + this.props.username}> {this.props.username} </a>
   			   		</div>
-  	var logout_register = <div style = {{marginRight: '10px'}}><a href="/" onClick = {this.logoutClicked.bind(this)}>Logout</a></div>
+  	var logout_register = <div style = {{marginRight: '10px'}}><a href="/" style = {{color:'white', fontWeight:'bold'}} onClick = {this.logoutClicked.bind(this)}>Logout</a></div>
   	if (this.props.username == undefined)
   	{
 	  	user_login = <div style = {{marginRight: '10px'}}>
-			        <a href="/register" >Register</a>			        
+			        <a style = {{color:'white', fontWeight:'bold'}} href="/register" >Register</a>			        
 					</div>
-		logout_register = <div style = {{marginRight: '10px'}}><a href="/login">Login</a></div>
+		logout_register = <div style = {{marginRight: '10px'}}><a style = {{color:'white'}} href="/login">Login</a></div>
   	}
 
 
@@ -286,32 +302,43 @@ export default class StandardHeader extends React.Component {
 		</head>
 		<header>
 			<div className = "id" headercontainer = "reacttest" style = {{top:'0px', left:'0px', position:'fixed', height:'60px', backgroundColor: '#178275', width:'100%', zIndex:'5'}}>
-				<div className = "home" style = {{position:'absolute',top:'15px', left:'10px'}}><a href="/" >Home</a></div>
+				<div className = "home" style = {{position:'absolute',top:'15px', left:'10px', fontWeight:'bold'}}><a href="/" style = {{color:'white'}}>Home</a></div>
 			    <div className = "searchbarcontainer" style = {{position:'absolute',top:'15px', left:'210px'}}>
 			        <div className="search_list" style = {{overflow: 'auto'}}>
 			        <SearchList />
 			        </div>
 			    </div>
 			    <div className = "headerlinks" style = {{display:'flex', flexDirection:'row', position:'absolute', right:'0px', marginRight: '10px', top:'15px'}}>
-					{this.notification_div}
-					{this.dropdown_div}
+
 				    <div className = "userlogin" style = {{marginRight: '10px'}}>
 				    	{user_login}
 				    </div >
-				    <div  className = "logoutregister" style = {{marginRight: '10px'}}>
-				    	{logout_register}
-				    </div >
-					
+
+					{this.notification_div}
+					{this.dropdown_div}
+
 				    <div className = "random" >
 				    	
-				    	<a style ={{marginRight: '10px'}}href="/random">Random</a>
+				    	<a style ={{marginRight: '10px', color:'white', fontWeight:'bold'}}href="/random">Random</a>
 			    	</div>
-			    	<div className = "about" >
-						<a style ={{marginRight: '10px'}}href="/about">About</a>
-					</div>
-					<div className = "contact" >
-						<a href="/contact">Contact</a>
-					</div>
+			    	<div className = "options">
+						<svg className = "options" onClick = {this.toggleOptions.bind(this)} width="26" height="16" viewBox="0 0 26 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M23.0926 1.25L13 14.3606L2.90742 1.25L23.0926 1.25Z" fill="white" stroke="white" strokeWidth="2"/>
+						</svg>
+
+				    </div>			
+			    	<div ref = {this.optionsRef} style = {{backgroundColor: '#178275', display:'none', position:'fixed', right:'0px', top:'40px'}}>
+
+				    	<div className = "about" >
+							<a className = "about" style ={{color:'white', fontWeight:'bold'}}href="/about">About</a>
+						</div>
+						<div className = "contact" >
+							<a className = "contact"  style = {{color:'white', fontWeight:'bold'}} href="/contact">Contact</a>
+						</div>
+					    <div className = "logoutregister" style = {{}}>
+					    	{logout_register}
+					    </div >
+				    </div>		
 				</div>
 			</div>
 

@@ -263,12 +263,15 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 						// console.log(non_priority_results)
 					    //merge sort the two lists
 					    // test if priority result or result doesn't exist
-					    var merged_user = MergeSortPosts(priority_results, non_priority_results, 
+					    var merged_result = MergeSortPosts(priority_results, non_priority_results, 
 					    								 priority_results.length == modified_limit, non_priority_results.length == modified_limit)
-					    var merged_priority_global = MergeSortPosts(merged_user[0], priority_global_results,
-					    											merged_user[1], priority_global_results.length == modified_limit);
-					    var merged_result = MergeSortPosts(merged_priority_global[0], non_priority_global_results,
-					    								   merged_priority_global[1], non_priority_global_results.length == modified_limit); 
+					    // var merged_priority_global = MergeSortPosts(merged_user[0], priority_global_results,
+					    // 											merged_user[1], priority_global_results.length == modified_limit);
+					    // var merged_result = MergeSortPosts(merged_priority_global[0], non_priority_global_results,
+					    // 								   merged_priority_global[1], non_priority_global_results.length == modified_limit); 
+					    var merged_global = MergeSortPosts(priority_global_results, non_priority_global_results,
+					    									priority_global_results.length == modified_limit, non_priority_global_results.length == modified_limit);
+
 					    merged_result = merged_result[0]
 					    var songs_list = [];
 						var post_ids = ""
@@ -277,10 +280,14 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 						{
 							songs_list.push(merged_result[i]);
 							post_ids = post_ids + "'" + merged_result[i].post_id + "',"
-							if (merged_result[i].username == undefined)
-							{
-								global_post_info.push([merged_result[i].artist, merged_result[i].album, merged_result[i].song, merged_result[i].post_id])
-							}
+
+						}
+						merged_global = merged_global[0]
+						var global_songs_list = []
+						for (var i = 0; i < merged_global.length; ++i)
+						{
+							global_songs_list.push(merged_global[i])
+							global_post_info.push([merged_result[i].artist, merged_result[i].album, merged_result[i].song, merged_result[i].post_id])
 						}
 						if (post_ids.length > 0) post_ids = post_ids.substring(0, post_ids.length-1);
 						var like_sql = "SELECT post_id, like_state FROM likes WHERE user_id = '" + 
@@ -347,7 +354,7 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 											}
 										}	
 									}
-									callback(songs_list, likes_list, num_comments_list, num_posts_list);
+									callback(songs_list, global_songs_list, likes_list, num_comments_list, num_posts_list);
 								});				
 
 								
@@ -363,7 +370,7 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 function SendFeed(req, res, limit)
 {
 	var data = GetFeed(req, res, 
-		function (songs_list, likes_list, num_comments_list, num_posts_list) {
+		function (songs_list, global_songs_list, likes_list, num_comments_list, num_posts_list) {
 			res.send(
 			{
 				songs: songs_list,
@@ -383,7 +390,7 @@ function SendFeed(req, res, limit)
 function RenderFeed(req, res)
 {
 	var data = GetFeed(req, res, 
-		function (songs_list, likes_list, num_comments_list, num_posts_list) {
+		function (songs_list, global_songs_list, likes_list, num_comments_list, num_posts_list) {
 
 			// res.render('pages/feed', 
 			// {
@@ -395,6 +402,7 @@ function RenderFeed(req, res)
 			connection.query(noficiations_sql, function (err, result, fields) 
 			{
 				var data = {songs: songs_list,
+							global_songs:global_songs_list,
 							likes: likes_list,
 							num_comments: num_comments_list,
 							num_posts: num_posts_list,

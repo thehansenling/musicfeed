@@ -1,6 +1,10 @@
 import React from 'react';
 import utils from './utils.js'
 
+const monthNames = ["January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
 class Post extends React.Component 
 {
 	constructor(props) 
@@ -9,10 +13,11 @@ class Post extends React.Component
 		this.likes_score = this.props.song.likes - props.song.dislikes;
 		//this.likeRef = React.createRef();
 		//this.dislikeRef = React.createRef();
-		this.up_image = "/small_up.png"
-		this.down_image = "/small_down.png"
+		this.up_color = "#2F3846"
+		this.down_color = "#2F3846"
 		this.contentRef = React.createRef();
 		this.ellipsis = <div></div>
+
 	}
 
 	renderiframe(iframe) {
@@ -80,7 +85,7 @@ class Post extends React.Component
        		this.likes_score -= 1;
     		//this.likeRef.current.style = 'black'
     		//this.dislikeRef.current.style.color = 'black'
-    		this.up_image = "/small_up.png"
+    		this.up_color = "#2F3846"
     		this.props.like_state = -1;
     	}
     	else
@@ -95,8 +100,8 @@ class Post extends React.Component
     		}
     		//this.likeRef.current.style = 'blue'
     		//this.dislikeRef.current.style.color = 'black'
-    		this.up_image = "/small_up_on.png"
-    		this.down_image = "/small_down.png"
+    		this.up_color = "#1485cc"
+    		this.down_color = "#2F3846"
     		this.props.like_state = 1;
     	}
 
@@ -158,7 +163,7 @@ class Post extends React.Component
     	{
     		//this.likeRef.current.style = 'black'
     		//this.dislikeRef.current.style.color = 'black'	 
-    		this.down_image = "/small_down.png"
+    		this.down_color = "#2F3846"
     		this.props.like_state = -1;
     		this.likes_score += 1;
     	}
@@ -174,8 +179,8 @@ class Post extends React.Component
     		}
     		//this.likeRef.current.style = 'black'
     		//this.dislikeRef.current.style.color = 'red'
-    		this.down_image = "/small_down_on.png"
-    		this.up_image = "/small_up.png"
+    		this.down_color = "#dd3d3d"
+    		this.up_color = "#2F3846"
     		this.props.like_state = 0;
 
     	}
@@ -193,8 +198,8 @@ class Post extends React.Component
 			// }
 
 
-			this.ellipsis = <div style = {{paddingLeft:'305px', fontSize:'22pt'}}>
-			<a href = {content_url}> ... </a>
+			this.ellipsis = <div style = {{}}>
+			<a style = {{color:'#178275', fontSize:'14pt', fontWeight: 'bold'}}href = {content_url}> See More </a>
 			</div>
 			this.forceUpdate();
 
@@ -204,7 +209,7 @@ class Post extends React.Component
 	render()
 	{
 		var date = new Date(this.props.song.timestamp)
-		var post_title = <h1 style= {{position:'relative', textAlign:'center'}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id} > {this.props.song.title}</a></h1>;
+		var post_title = <h1 style= {{position:'relative', fontWeight:'bold', fontSize:'24px'}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id} > {this.props.song.title}</a></h1>;
 		var poster_username = '';//this.props.song.artist;
 		var poster_username_url = '';//"/artist/" + this.props.song.artist;
 
@@ -248,12 +253,12 @@ class Post extends React.Component
 		if (this.props.like_state == 1)
 		{
 			like_style.color = 'blue';
-			this.up_image = "/small_up_on.png"
+			this.up_color = "#1485cc"
 		}
 		else if (this.props.like_state == 0)
 		{
 			dislike_style.color = 'red';
-			this.down_image = "/small_down_on.png"
+			this.down_color = "#dd3d3d"
 		}
 
 		var likes_section = <div>
@@ -261,7 +266,7 @@ class Post extends React.Component
 			<button ref = {this.likeRef} onClick = {this.likeClicked.bind(this)} type="button" className = "like" id = {post_id} style = {like_style}>Like</button>
 			<button ref = {this.dislikeRef} onClick = {this.dislikeClicked.bind(this)} type="button" className = "unlike" id = {post_id} style = {dislike_style}>Hate</button>
 			</div>
-		var comment_section = <div className= "comment_section" id = {post_id} />
+		var comment_section = <div style = {{fontSize:'24px'}} className= "comment_section" id = {post_id} />
 		var content_url = "/post/" + this.props.song.artist + "/" + this.props.song.song;
 		var content_name = this.props.song.song;
 
@@ -271,7 +276,7 @@ class Post extends React.Component
 			content_name = this.props.song.album;
 		}
 		var leftpadding = '0px'
-		var content_section = <div  style = {{paddingLeft: '10px', paddingTop:'5px', height: '390px', width:'650px', fontSize: '2em', overflow:'hidden', textOverflow:'ellipsis'}}> 
+		var content_section = <div  style = {{maxHeight:'450px', paddingTop:'5px', lineHeight:'27px', width:'380px', fontSize:'20px', overflow:'hidden', textOverflow:'ellipsis'}}> 
 					<div ref = {this.contentRef}>
 						{content_div}
 					</div>
@@ -283,40 +288,92 @@ class Post extends React.Component
 			content_section = <div ref = {this.contentRef}></div>
 			date_float = 'left'
 		}
+					// <div style = {{clear:'both'}}>{artist_names}</div>
+					// <div> <a href = {content_url} >{content_name} </a></div>
+					//#1485cc
+					//#dd3d3d
+					//#2F3846
+					//<div style = {{float:'left'}}><img onClick = {this.likeClicked.bind(this)} src={this.up_image} width="30" height="30" alt=""/></div>
+					//<div style = {{float:'left'}}><img  src={this.down_image} width="30" height="30" alt=""/></div>
 
 		return(
 
-		<div key = {this.props.song.post_id} style = {{border: '1px solid #BABABA', borderRadius: '4px', width:'980px', background:'white', minHeight:'513px'}}>
-			<div style = {{paddingLeft: leftpadding, display:'flex', flexDirection:'row'}}>
-			<div style=  {{width:'300px', paddingLeft:'10px', paddingTop:'10px'}}>
-				<div style = {{float:'left', fontFamily:'Playfair Display'}}> <a href ={poster_username_url} > {poster_username} </a></div>
-				<div style = {{float:date_float, paddingRight:'10px'}}>{(parseInt(date.getMonth()) + 1) + "/" + date.getDate() + "/" + date.getFullYear()}</div>
-				<div style = {{clear:'both'}}>{artist_names}</div>
-				<div> <a href = {content_url} >{content_name} </a></div>
-			</div>
-			<div style = {{paddingTop:'8px', width:'680px', margin: '0px auto'}}>{post_title}</div>
+		<div key = {this.props.song.post_id} style = {{border: '1px solid #F1F1F1', borderRadius: '7px', width:'735px', background:'white', minHeight:'513px', position:'relative', top:'20px'}}>
+			<div style = {{display:'flex', flexDirection:'row'}}>
+				<div style = {{width:'320px', paddingTop:'30px', paddingLeft:'10px', borderRight:'1px solid rgba(0, 0, 0, 0.09)', borderRadius:'7px'}}>
+					<div style = {{display:'flex', flexDirection:'row'}}>
+						<div style = {{width:'65px', height:'65px', backgroundColor:'#178275', borderRadius:'50%'}}>
 
-			</div>
-			<div style = {{clear:'both', paddingLeft:leftpadding}}>
-				<div style = {{float:'left', paddingLeft: '10px', paddingTop:'3px', fontFamily:'Playfair Display'}}><span dangerouslySetInnerHTML={this.renderiframe(this.props.song.embedded_content)}></span></div>
-				{content_section}
-
-				<div style = {{clear:'both', display:'flex', flexDirection:'row'}}>
-					
-					<div style = {{clear:'both', height:'35px'}}>
-						<div style = {{float:'left', width:'15px', height:'30px'}}></div>
-						<div style = {{float:'left'}}><img onClick = {this.likeClicked.bind(this)} src={this.up_image} width="30" height="30" alt=""/></div>
-						<div style = {{width:'60px', height:'30px', float:'left', verticalAlign: 'middle', textAlign: 'center', width:'60px', position: 'relative', top: '0px', fontSize: '21px'}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id + "/likes"} >{this.likes_score} </a></div>
-						<div style = {{float:'left'}}><img onClick = {this.dislikeClicked.bind(this)} src={this.down_image} width="30" height="30" alt=""/></div>
-						<div style = {{float:'left', width:'30px', height:'30px', borderRight: '1px solid black'}}></div>
-						<div style = {{float:'left', width:'30px', height:'30px'}}></div>
-						<div style = {{float:'left'}}><img src="/small_comment.png" width="30" height="30" alt=""/></div>
-						<div style = {{width:'60px', height:'30px', float:'left', verticalAlign: 'middle', textAlign: 'center', width:'80px', position: 'relative', top: '0px', fontSize: '21px'}}> {this.props.num_comments} </div>
+						</div>
+						<div style = {{paddingLeft:'20px'}}>
+							<div style = {{fontSize:'24px', fontWeight:'bold'}}> <a href ={poster_username_url} > {poster_username} </a></div>
+							<div style = {{fontSize:'20px', paddingRight:'10px'}}>{ monthNames[parseInt(date.getMonth())]+ " " + date.getDate() + ", " + date.getFullYear()}</div>
+						</div>
 					</div>
+
+
+					<div style = {{paddingTop:'30px'}}><span dangerouslySetInnerHTML={this.renderiframe(this.props.song.embedded_content)}></span>
+					</div>
+					<div style = {{width:'300px', height:'30px'}}> 
+					</div>
+					<div style = {{height:'35px', display:'flex', flexDirection:'row'}}>
+						<div style = {{width:'15px', height:'30px'}}></div>
+						<svg onClick = {this.likeClicked.bind(this)} width="14" height="24" viewBox="0 0 16 27" fill="none" xmlns="http://www.w3.org/2000/svg" color = 'blue'>
+						<path d="M8.70711 0.987356C8.31658 0.596832 7.68342 0.596832 7.29289 0.987356L0.928931 7.35132C0.538407 7.74184 0.538407 8.37501 0.928931 8.76553C1.31946 9.15606 1.95262 9.15606 2.34315 8.76553L8 3.10868L13.6569 8.76553C14.0474 9.15606 14.6805 9.15606 15.0711 8.76553C15.4616 8.37501 15.4616 7.74184 15.0711 7.35132L8.70711 0.987356ZM9 26.3126L9 1.69446L7 1.69446L7 26.3126L9 26.3126Z" fill={this.up_color}/>
+						</svg>
+						<div style = {{minWidth:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', position: 'relative', top: '0px', fontSize: '16px', fontWeight:'bold'}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id + "/likes"} >{this.likes_score} </a></div>
+
+						<svg onClick = {this.dislikeClicked.bind(this)} width="14" height="24" viewBox="0 0 16 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M7.29289 26.0197C7.68342 26.4102 8.31658 26.4102 8.70711 26.0197L15.0711 19.6557C15.4616 19.2652 15.4616 18.632 15.0711 18.2415C14.6805 17.851 14.0474 17.851 13.6569 18.2415L8 23.8984L2.34315 18.2415C1.95262 17.851 1.31946 17.851 0.928932 18.2415C0.538408 18.632 0.538408 19.2652 0.928932 19.6557L7.29289 26.0197ZM7 0.694489L7 25.3126H9L9 0.694489L7 0.694489Z" fill={this.down_color}/>
+						</svg>
+
+						<div style = {{width:'10px', height:'30px', borderRight: '1px solid rgba(0, 0, 0, 0.09)'}}></div>
+						<div style = {{width:'10px', height:'30px'}}></div>
+						<div style = {{}}><img src="/speech_bubble.png" width="30" height="26" alt=""/></div>
+
+						<div style = {{width:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', position: 'relative', top: '0px', fontSize: '16px', fontWeight:'bold'}}> {this.props.num_comments} </div>
+					</div>				
+				</div>
+
+				<div style = {{paddingTop:'30px', paddingLeft:'10px', paddingRight:'20px', width:'400px', fontSize:'20px'}}>
+					{post_title}
+					{content_section}
 					{this.ellipsis}
 				</div>
 			</div>
 		</div>
+
+		// <div key = {this.props.song.post_id} style = {{border: '1px solid #F1F1F1', borderRadius: '7px', width:'980px', background:'white', minHeight:'513px'}}>
+		// 	<div style = {{paddingLeft: leftpadding, display:'flex', flexDirection:'row'}}>
+		// 	<div style=  {{width:'300px', paddingLeft:'10px', paddingTop:'10px'}}>
+		// 		<div style = {{float:'left'}}> <a href ={poster_username_url} > {poster_username} </a></div>
+		// 		<div style = {{float:date_float, paddingRight:'10px'}}>{(parseInt(date.getMonth()) + 1) + "/" + date.getDate() + "/" + date.getFullYear()}</div>
+		// 		<div style = {{clear:'both'}}>{artist_names}</div>
+		// 		<div> <a href = {content_url} >{content_name} </a></div>
+		// 	</div>
+		// 	<div style = {{paddingTop:'8px', width:'680px', margin: '0px auto'}}>{post_title}</div>
+
+		// 	</div>
+		// 	<div style = {{clear:'both', paddingLeft:leftpadding}}>
+		// 		<div style = {{float:'left', paddingLeft: '10px', paddingTop:'3px'}}><span dangerouslySetInnerHTML={this.renderiframe(this.props.song.embedded_content)}></span></div>
+		// 		{content_section}
+
+		// 		<div style = {{clear:'both', display:'flex', flexDirection:'row'}}>
+					
+		// 			<div style = {{clear:'both', height:'35px'}}>
+		// 				<div style = {{float:'left', width:'15px', height:'30px'}}></div>
+		// 				<div style = {{float:'left'}}><img onClick = {this.likeClicked.bind(this)} src={this.up_image} width="30" height="30" alt=""/></div>
+		// 				<div style = {{width:'60px', height:'30px', float:'left', verticalAlign: 'middle', textAlign: 'center', width:'60px', position: 'relative', top: '0px', fontSize: '21px'}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id + "/likes"} >{this.likes_score} </a></div>
+		// 				<div style = {{float:'left'}}><img onClick = {this.dislikeClicked.bind(this)} src={this.down_image} width="30" height="30" alt=""/></div>
+		// 				<div style = {{float:'left', width:'30px', height:'30px', borderRight: '1px solid black'}}></div>
+		// 				<div style = {{float:'left', width:'30px', height:'30px'}}></div>
+		// 				<div style = {{float:'left'}}><img src="/small_comment.png" width="30" height="30" alt=""/></div>
+		// 				<div style = {{width:'60px', height:'30px', float:'left', verticalAlign: 'middle', textAlign: 'center', width:'80px', position: 'relative', top: '0px', fontSize: '21px'}}> {this.props.num_comments} </div>
+		// 			</div>
+		// 			{this.ellipsis}
+		// 		</div>
+		// 	</div>
+		// </div>
 
  		// <div key = {this.props.song.post_id} style={{position:'relative', height:'480px',borderBottom: '4px solid gray',padding:'5px'}}>
  		// 	<div style = {{display: 'flex',flexDirection:'row'}}>
@@ -466,7 +523,7 @@ export default class PostInfo extends React.Component
 	{
 		
 		return(
-			<div style={{margin: '0 auto', top:'100px', position:'relative',width:'980px'}}>
+			<div style={{margin: '0 auto', position:'relative',width:'735px'}}>
 				{this.posts.map((post) => {return <div> {post} <br/></div>})}
 			</div>
 		);
