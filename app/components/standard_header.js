@@ -108,7 +108,7 @@ class SearchList extends React.Component {
 	{
 		return(
 			<div>
-				<input style = {{backgroundColor:'#178275', border:'1px solid white', borderRadius:'7px'}} onChange={this.handleChange.bind(this)} placeholder = " Search" type='text' name='country' className='search_bar'/>
+				<input style = {{backgroundColor:'#178275', border:'2px solid white', height:'35px', borderRadius:'7px'}} onChange={this.handleChange.bind(this)} placeholder = "  Search" type='text' name='country' className='search_bar'/>
 				<SearchItem ref={this.search_list}/>
 			</div>
 		);
@@ -128,6 +128,11 @@ export default class StandardHeader extends React.Component {
   		this.optionsRef = React.createRef();
 	  	this.notification_div = ""
 	  	this.dropdown_div = ""
+	  	this.login_div = ""
+	  	if (this.props.username == undefined)
+	  	{
+			this.login_div = <div style = {{marginRight: '30px'}}><a style = {{color:'white', fontFamily:'RobotoRegular', fontSize:'18px'}} href="/login">Login</a></div>
+	  	}
 	  	if (this.props.notifications != undefined && this.props.notifications.length > 0)
 	  	{	
 		  	for (var i = 0; i < this.props.notifications.length; ++i)
@@ -153,8 +158,6 @@ export default class StandardHeader extends React.Component {
 		  	}
 
 		  	this.notification_div = <div className = "notifications" ref = {this.notificationsRef} onClick = {this.toggleNotifications.bind(this)} style = {{marginRight: '10px', fontWeight:'bold', fontSize:'12pt', color: "#178275", width:'24px', height:'24px', textAlign:'center', backgroundColor:'white', borderRadius:'50%'}}> {this.props.notifications.length}</div>
-
-
 	  	}
 	}
 
@@ -280,15 +283,16 @@ export default class StandardHeader extends React.Component {
 
 
   	var user_login = <div>
-				        <a style = {{color:'white', fontWeight:'bold'}} href = {"/user/" + this.props.username}> {this.props.username} </a>
+				        <a style = {{color:'white', fontFamily:'RobotoRegular', fontSize:'18px'}} href = {"/user/" + this.props.username}> {this.props.username} </a>
   			   		</div>
-  	var logout_register = <div style = {{marginRight: '10px'}}><a href="/" style = {{color:'white', fontWeight:'bold'}} onClick = {this.logoutClicked.bind(this)}>Logout</a></div>
+  	var logout_register = <div style = {{marginRight: '10px', fontFamily:'RobotoRegular', fontSize:'18px'}}><a href="/" style = {{color:'white'}} onClick = {this.logoutClicked.bind(this)}>Logout</a></div>
   	if (this.props.username == undefined)
   	{
 	  	user_login = <div style = {{marginRight: '10px'}}>
-			        <a style = {{color:'white', fontWeight:'bold'}} href="/register" >Register</a>			        
+			        <a style = {{color:'white', fontFamily:'RobotoRegular', fontSize:'18px'}} href="/register" >Register</a>			        
 					</div>
-		logout_register = <div style = {{marginRight: '10px'}}><a style = {{color:'white'}} href="/login">Login</a></div>
+		logout_register = ""
+
   	}
 
 
@@ -302,27 +306,28 @@ export default class StandardHeader extends React.Component {
 		</head>
 		<header>
 			<div className = "id" headercontainer = "reacttest" style = {{top:'0px', left:'0px', position:'fixed', height:'60px', backgroundColor: '#178275', width:'100%', zIndex:'5'}}>
-				<div className = "home" style = {{position:'absolute',top:'15px', left:'10px', fontWeight:'bold'}}><a href="/" style = {{color:'white'}}>Home</a></div>
-			    <div className = "searchbarcontainer" style = {{position:'absolute',top:'15px', left:'210px'}}>
+				<div className = "home" style = {{position:'absolute',top:'15px', left:'10px', fontFamily:'RobotoRegular', fontSize:'18px'}}><a href="/" style = {{color:'white'}}>Home</a></div>
+			    <div className = "searchbarcontainer" style = {{position:'absolute',top:'12px', left:'100px'}}>
 			        <div className="search_list" style = {{overflow: 'auto'}}>
 			        <SearchList />
 			        </div>
 			    </div>
-			    <div className = "headerlinks" style = {{display:'flex', flexDirection:'row', position:'absolute', right:'0px', marginRight: '10px', top:'15px'}}>
-
-				    <div className = "userlogin" style = {{marginRight: '10px'}}>
+			    <div className = "headerlinks" style = {{display:'flex', flexDirection:'row', position:'absolute', right:'0px', marginRight: '10px', top:'15px', fontFamily:'RobotoRegular'}}>
+			    	{this.login_div}
+				    <div className = "userlogin" style = {{position:'relative', marginRight:'10px'}}>
 				    	{user_login}
 				    </div >
 
 					{this.notification_div}
 					{this.dropdown_div}
-
+					<div style = {{width:'20px', height:'10px'}}>
+					</div>
 				    <div className = "random" >
 				    	
-				    	<a style ={{marginRight: '10px', color:'white', fontWeight:'bold'}}href="/random">Random</a>
+				    	<a style ={{marginRight: '30px', position:'relative', color:'white', fontFamily:'RobotoRegular', fontSize:'18px'}}href="/random">Random</a>
 			    	</div>
-			    	<div className = "options">
-						<svg className = "options" onClick = {this.toggleOptions.bind(this)} width="26" height="16" viewBox="0 0 26 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+			    	<div style = {{position:'relative', top:'7px'}} className = "options">
+						<svg className = "options" onClick = {this.toggleOptions.bind(this)} width="18" height="16" viewBox="0 0 26 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path d="M23.0926 1.25L13 14.3606L2.90742 1.25L23.0926 1.25Z" fill="white" stroke="white" strokeWidth="2"/>
 						</svg>
 
@@ -330,10 +335,10 @@ export default class StandardHeader extends React.Component {
 			    	<div ref = {this.optionsRef} style = {{backgroundColor: '#178275', display:'none', position:'fixed', right:'0px', top:'40px'}}>
 
 				    	<div className = "about" >
-							<a className = "about" style ={{color:'white', fontWeight:'bold'}}href="/about">About</a>
+							<a className = "about" style ={{color:'white', fontFamily:'RobotoRegular', fontSize:'18px'}}href="/about">About</a>
 						</div>
 						<div className = "contact" >
-							<a className = "contact"  style = {{color:'white', fontWeight:'bold'}} href="/contact">Contact</a>
+							<a className = "contact"  style = {{color:'white', fontFamily:'RobotoRegular', fontSize:'18px'}} href="/contact">Contact</a>
 						</div>
 					    <div className = "logoutregister" style = {{}}>
 					    	{logout_register}

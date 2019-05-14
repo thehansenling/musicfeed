@@ -307,7 +307,7 @@ class Post extends React.Component
 						</div>
 						<div style = {{paddingLeft:'20px'}}>
 							<div style = {{fontSize:'24px', fontWeight:'bold'}}> <a href ={poster_username_url} > {poster_username} </a></div>
-							<div style = {{fontSize:'20px', paddingRight:'10px'}}>{ monthNames[parseInt(date.getMonth())]+ " " + date.getDate() + ", " + date.getFullYear()}</div>
+							<div style = {{fontSize:'17px', paddingRight:'10px'}}>{ monthNames[parseInt(date.getMonth())]+ " " + date.getDate() + ", " + date.getFullYear()}</div>
 						</div>
 					</div>
 
