@@ -300,7 +300,7 @@ class Post extends React.Component
 
 		<div key = {this.props.song.post_id} style = {{border: '1px solid #F1F1F1', borderRadius: '7px', width:'735px', background:'white', minHeight:'513px', position:'relative', top:'20px'}}>
 			<div style = {{display:'flex', flexDirection:'row'}}>
-				<div style = {{width:'320px', paddingTop:'30px', paddingLeft:'10px', borderRight:'1px solid rgba(0, 0, 0, 0.09)', borderRadius:'7px'}}>
+				<div style = {{width:'320px', paddingTop:'30px', paddingLeft:'10px', borderRight:'1px solid rgba(0, 0, 0, 0.09)', borderRadius:'7px', borderTopRightRadius: '0px', borderBottomRightRadius: '0px'}}>
 					<div style = {{display:'flex', flexDirection:'row'}}>
 						<div style = {{width:'65px', height:'65px', backgroundColor:this.props.user_profile, borderRadius:'50%'}}>
 

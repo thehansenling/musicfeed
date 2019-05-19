@@ -306,13 +306,13 @@ export default class StandardHeader extends React.Component {
 		</head>
 		<header>
 			<div className = "id" headercontainer = "reacttest" style = {{top:'0px', left:'0px', position:'fixed', height:'60px', backgroundColor: '#178275', width:'100%', zIndex:'5'}}>
-				<div className = "home" style = {{position:'absolute',top:'15px', left:'10px', fontFamily:'RobotoRegular', fontSize:'18px'}}><a href="/" style = {{color:'white'}}>Home</a></div>
+				<div className = "home" style = {{position:'absolute',top:'15px', left:'25px', fontFamily:'RobotoRegular', fontSize:'18px'}}><a href="/" style = {{color:'white'}}>Home</a></div>
 			    <div className = "searchbarcontainer" style = {{position:'absolute',top:'12px', left:'100px'}}>
 			        <div className="search_list" style = {{overflow: 'auto'}}>
 			        <SearchList />
 			        </div>
 			    </div>
-			    <div className = "headerlinks" style = {{display:'flex', flexDirection:'row', position:'absolute', right:'0px', marginRight: '10px', top:'15px', fontFamily:'RobotoRegular'}}>
+			    <div className = "headerlinks" style = {{display:'flex', flexDirection:'row', position:'absolute', right:'20px', marginRight: '10px', top:'15px', fontFamily:'RobotoRegular'}}>
 			    	{this.login_div}
 				    <div className = "userlogin" style = {{position:'relative', marginRight:'10px'}}>
 				    	{user_login}

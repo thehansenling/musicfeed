@@ -110,6 +110,11 @@ a {
 	color:#2F3846;
 }
 
+a:hover {
+    color: #178275;
+}
+
+
 ::placeholder
 {
   color:white;

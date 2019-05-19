@@ -161,7 +161,7 @@ class NewPostSubmission extends React.Component {
 			<div ref = {this.containerRef} style = {{position:'relative', margin: '0 auto', width: '735px', height:'140px', backgroundColor:'white', border: '1px solid #F1F1F1', borderRadius:'7px', top:'14px'}}>
 				
 				
-				<div style = {{fontWeight:'bold', fontSize:'24px', color:'rgba(47, 56, 70, 0.58)', paddingLeft:'18px', paddingTop:'5px'}}> Create Post </div>
+				<div style = {{fontFamily:'RobotoRegular', fontSize:'20px', color:'rgba(47, 56, 70, 0.58)', paddingLeft:'18px', paddingTop:'15px'}}> Create Post </div>
  				<div style = {{display:'flex', flexDirection:'row', paddingLeft:'18px', paddingTop:'16px'}}>
 	 				<div style = {{width:'65px', height:'65px', backgroundColor:'#178275', borderRadius:'50%'}}></div>
 	 				<input ref = {this.songEmbedRef} onChange = {this.songInput.bind(this)} style = {{borderBottom:'1px solid rgba(0, 0, 0, 0.09)', borderTop:'none', borderLeft:'none', borderRight:'none', left:'16px', position:'relative', width:'618px', fontSize:'24px'}}></input>
