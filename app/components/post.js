@@ -302,7 +302,7 @@ class Post extends React.Component
 			<div style = {{display:'flex', flexDirection:'row'}}>
 				<div style = {{width:'320px', paddingTop:'30px', paddingLeft:'10px', borderRight:'1px solid rgba(0, 0, 0, 0.09)', borderRadius:'7px'}}>
 					<div style = {{display:'flex', flexDirection:'row'}}>
-						<div style = {{width:'65px', height:'65px', backgroundColor:'#178275', borderRadius:'50%'}}>
+						<div style = {{width:'65px', height:'65px', backgroundColor:this.props.user_profile, borderRadius:'50%'}}>
 
 						</div>
 						<div style = {{paddingLeft:'20px'}}>
@@ -447,7 +447,8 @@ export default class PostInfo extends React.Component
 				break;		
 			}
 		}
-		this.posts.push(<Post key={song.post_id} song={song} like_state = {like_state} num_comments = {current_num_comments}/>);
+		console.log(this.props)
+		this.posts.push(<Post key={song.post_id} song={song} like_state = {like_state} num_comments = {current_num_comments} user_profile = {this.props.user_profiles[song.username]}/>);
 	}
 
 	addSongs()
@@ -458,7 +459,7 @@ export default class PostInfo extends React.Component
 		}
 	}
 
-	addPosts(songs, likes, all_num_comments, all_num_posts)
+	addPosts(songs, likes, all_num_comments, all_num_posts, all_user_profiles)
 	{
 		for (var song of songs)
 		{
@@ -508,7 +509,7 @@ export default class PostInfo extends React.Component
 					}
 				}			
 			}
-			this.posts.push(<Post key={song.post_id} song={song} like_state = {like_state} num_comments = {current_num_comments}/>);
+			this.posts.push(<Post key={song.post_id} song={song} like_state = {like_state} num_comments = {current_num_comments} user_profile = {all_user_profiles[song.username]}/>);
 		}
 		this.forceUpdate()
 	}

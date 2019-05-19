@@ -359,7 +359,7 @@ export default class Feed extends React.Component{
 		    .then(function(response) { return response.json();})
 		    .then(function (data) { 
 		    	that.updateOffsets(data.songs)
-		    	that.postsRef.current.addPosts(data.songs, data.likes, data.num_comments, data.num_posts)
+		    	that.postsRef.current.addPosts(data.songs, data.likes, data.num_comments, data.num_posts, data.user_profiles)
 		    	that.loading_posts_semaphor = false;
 		 	})
 		}
@@ -372,7 +372,7 @@ export default class Feed extends React.Component{
 			<div style = {{display:'flex', flexDirection:'row', width:'1190px', margin:'0px auto'}}>
 				<div className = "feed" style = {{position:'relative', top:'100px', border: '1px solid #F1F1F1', borderRadius:'7px', width:'755px', backgroundColor:'#F6F6F6'}}>
 					<NewPostSubmission style = {{position:'relative', left:'10px'}} />
-					<PostInfo style = {{position:'relative', top:'20px', left:'10px'}} ref = {this.postsRef} songs = {this.props.data.songs} likes = {this.props.data.likes} num_comments = {this.props.data.num_comments}/>
+					<PostInfo style = {{position:'relative', top:'20px', left:'10px'}} ref = {this.postsRef} songs = {this.props.data.songs} likes = {this.props.data.likes} num_comments = {this.props.data.num_comments} user_profiles = {this.props.data.user_profiles}/>
 				</div>
 				<div style = {{position:'relative', top:'100px', left:'15px', border: '1px solid #F1F1F1', borderRadius:'7px', width:'420px', height:'2028px', backgroundColor:'#F6F6F6'}}>
 					<div style = {{position:'relative', top:'14px', left:'10px'}}>

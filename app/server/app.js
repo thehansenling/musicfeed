@@ -276,12 +276,23 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 					    var songs_list = [];
 						var post_ids = ""
 						var global_post_info = []
+						var usernames = new Set()
 					    for (var i =0; i < merged_result.length; ++i)
 						{
 							songs_list.push(merged_result[i]);
 							post_ids = post_ids + "'" + merged_result[i].post_id + "',"
-
+							usernames.add(merged_result[i].username)
 						}
+						var usernames_string = ""
+						for (var name of usernames.values())
+						{
+							usernames_string += "'" + name + "',"
+						}
+						if (usernames_string.length > 0)
+						{
+							usernames_string = usernames_string.substring(0, usernames_string.length-1)
+						}
+
 						merged_global = merged_global[0]
 						var global_songs_list = []
 						for (var i = 0; i < merged_global.length; ++i)
@@ -354,7 +365,20 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 											}
 										}	
 									}
-									callback(songs_list, global_songs_list, likes_list, num_comments_list, num_posts_list);
+									usernames_string = "(" + usernames_string + ")"
+									var userprofiles_sql = "SELECT username, profile_picture FROM accounts WHERE username in " + usernames_string
+									connection.query(userprofiles_sql, function (err, result, fields) 
+									{			
+										var user_profiles = {}		
+										if (result != undefined)
+										{
+											for (var profile of result)
+											{
+												user_profiles[profile.username] = profile.profile_picture
+											}
+										}					
+										callback(songs_list, global_songs_list, likes_list, num_comments_list, num_posts_list, user_profiles);
+									})	
 								});				
 
 								
@@ -370,7 +394,7 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 function SendFeed(req, res, limit)
 {
 	var data = GetFeed(req, res, 
-		function (songs_list, global_songs_list, likes_list, num_comments_list, num_posts_list) {
+		function (songs_list, global_songs_list, likes_list, num_comments_list, num_posts_list, user_profiles) {
 			res.send(
 			{
 				songs: songs_list,
@@ -378,6 +402,7 @@ function SendFeed(req, res, limit)
 				num_comments: num_comments_list,
 				num_posts: num_posts_list,
 				post_limit: limit,
+				user_profiles: user_profiles,
 			});	
 		}, 
 		parseInt(req.body.offset), 
@@ -390,7 +415,7 @@ function SendFeed(req, res, limit)
 function RenderFeed(req, res)
 {
 	var data = GetFeed(req, res, 
-		function (songs_list, global_songs_list, likes_list, num_comments_list, num_posts_list) {
+		function (songs_list, global_songs_list, likes_list, num_comments_list, num_posts_list, user_profiles) {
 
 			// res.render('pages/feed', 
 			// {
@@ -406,6 +431,7 @@ function RenderFeed(req, res)
 							likes: likes_list,
 							num_comments: num_comments_list,
 							num_posts: num_posts_list,
+							user_profiles: user_profiles,
 						    username: req.cookies.username,
 							notifications: result}
 				//var html = ReactDOMServer.renderToString(<StaticRouter location={req.url} context={context}><App data = {data}/></StaticRouter>)
@@ -1154,6 +1180,8 @@ app.get('/user/:user/', (req, res) => {
 						var user_sql = "SELECT * FROM accounts WHERE username = '" + req.params.user +"'";
 						connection.query(user_sql, function (err, result, fields) 
 						{
+							var user_profiles = {}
+							user_profiles[req.params.user] = result[0].profile_picture
 							var data = {
 								songs: songs_list,
 								likes: likes_list,
@@ -1162,6 +1190,7 @@ app.get('/user/:user/', (req, res) => {
 								followees: followees,
 								user: result[0],
 								username: req.cookies.username,
+								user_profiles:user_profiles
 							}
 							var html = renderPage(req.url, data)
 							res.send(html);
@@ -1172,6 +1201,30 @@ app.get('/user/:user/', (req, res) => {
 		});
 	});
 });
+
+app.post('/set_color', function(req, res)
+{
+	var user_search_sql = "UPDATE accounts SET profile_picture = '" + req.body.color + "' WHERE username = '" + req.body.username + "'";
+	connection.query(user_search_sql, function (err, result, fields){
+		res.send({nothing:0});
+	});
+})
+
+app.post('/favorite_artist', function(req, res)
+{
+	var user_song_sql = "UPDATE accounts SET artist" + req.body.number + " = '" + req.body.artist + "' WHERE username = '" + req.body.username + "'";
+	connection.query(user_song_sql, function (err, result, fields){
+		res.send({nothing:0});
+	});
+})
+
+app.post('/favorite_song', function(req, res)
+{
+	var user_song_sql = "UPDATE accounts SET song" + req.body.number + " = '" + req.body.song + "' WHERE username = '" + req.body.username + "'";
+	connection.query(user_song_sql, function (err, result, fields){
+		res.send({nothing:0});
+	});
+})
 
 app.post('/submit_description', function(req, res)
 {
