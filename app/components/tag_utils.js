@@ -410,13 +410,15 @@ module.exports =
 
 	formatContent : function (content, raw_tags)
 	{
+		console.log(raw_tags)
 		var content_div = []
 
-		var tags = JSON.parse(raw_tags)
+		var tags
 		var tag_indices = []
 
-		if (raw_tags != null)
+		if (raw_tags != undefined && raw_tags != null)
 		{
+			tags = JSON.parse(raw_tags)
 			tag_indices = Object.keys(tags)
 			var remaining_indices = []
 			for (var index of tag_indices)
