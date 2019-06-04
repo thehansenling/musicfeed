@@ -2,8 +2,7 @@ import React from 'react';
 import StandardHeader from './standard_header.js'
 import PostInfo from './post.js'
 import utils from './utils.js'
-
-
+import tag_utils from './tag_utils.js'
 
 class NewPostSubmission extends React.Component {
 	constructor(props)
@@ -20,6 +19,18 @@ class NewPostSubmission extends React.Component {
 		this.div_height = '100px'
 		this.containerRef = React.createRef()
 		this.postContentRef = React.createRef()
+		this.tagFlag = false
+		this.currentTag = ""
+		this.tagList = []
+		this.artists = []
+		this.songs_and_albums = []
+		this.users = []
+		this.artistSearch = false
+		this.currentArtist = ""
+		this.potential_tags = []
+		this.artistFlag = false
+		this.lastContentSize = 0
+		this.tagged = false
 	}
 
 	songInput()
@@ -56,6 +67,10 @@ class NewPostSubmission extends React.Component {
 		var input = event.target.value;
     	//var song_str = $("#song").val();
 		var content_str = this.contentRef.current.value;
+		//update and prune tags list 
+		tag_utils.getTags(this)
+
+
 	   	if(this.songEmbedRef.current.value != "")
 	   	{
 	   		// this.songEmbedRef.current.style.width = '670px'
@@ -72,15 +87,13 @@ class NewPostSubmission extends React.Component {
 	   		// this.titleRef.current.style.width = '980px'
 	   	}
 
-    	// if (content_str != "")
-    	// {
-    	// 	this.contentRef.current.style.height = '300px'
-    	// }
-    	// else
-    	// {
-    	// 	this.contentRef.current.style.height = '50px'
-    	// }
+    	this.lastContentSize = this.contentRef.current.value.length
 	   	this.forceUpdate();
+	}
+
+	selectTag(e)
+	{
+		tag_utils.tagClicked(this, e)
 	}
 
 	submitPost()
@@ -100,7 +113,9 @@ class NewPostSubmission extends React.Component {
 			},
 			body: JSON.stringify({song: this.songEmbedRef.current.value, 
 								  content: this.contentRef.current.value, 
-								  title: this.titleRef.current.value})})
+								  title: this.titleRef.current.value,
+								  potentialTags: this.potential_tags}
+								  )})
 			.then(function(response) { return response.json();})
 			.then(function (data) { 
 
@@ -157,10 +172,13 @@ class NewPostSubmission extends React.Component {
 	//<button style = {{ width:'100px', position:'relative'}} onClick = {this.beginNewPost.bind(this)} > new post </button>
 	render()
 	{
+		var tag_display = 'none'
+		if (this.tagFlag)
+		{
+			tag_display = ''
+		}
 		return (
 			<div ref = {this.containerRef} style = {{position:'relative', margin: '0 auto', width: '735px', height:'140px', backgroundColor:'white', border: '1px solid #F1F1F1', borderRadius:'7px', top:'14px'}}>
-				
-				
 				<div style = {{fontFamily:'RobotoRegular', fontSize:'20px', color:'rgba(47, 56, 70, 0.58)', paddingLeft:'18px', paddingTop:'15px'}}> Create Post </div>
  				<div style = {{display:'flex', flexDirection:'row', paddingLeft:'18px', paddingTop:'16px'}}>
 	 				<div style = {{width:'65px', height:'65px', backgroundColor:'#178275', borderRadius:'50%'}}></div>
@@ -186,6 +204,10 @@ class NewPostSubmission extends React.Component {
 					{this.newPost}
 					<div id="showsong" style = {{position:'relative', top:'24px'}} dangerouslySetInnerHTML={this.renderiframe(this.embedded_content)}>
 					</div>
+				</div>
+
+				<div style = {{position:'fixed', width: '200px', height:'300px', right:'10%', top:'200px', backgroundColor:'white', display:tag_display, zIndex:15, overflow:'scroll'}} >
+					{this.tagList}
 				</div>
 			</div>
 		);

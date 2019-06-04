@@ -2,6 +2,7 @@ import React from 'react';
 import StandardHeader from './standard_header.js'
 import CommentSection from './comments.js'
 import utils from './utils.js'
+import tag_utils from './tag_utils.js'
 
 class UserPostContent extends React.Component 
 {
@@ -17,11 +18,33 @@ class UserPostContent extends React.Component
 		this.down_image = "/small_down.png"
 		this.edit_content = <div></div>
 		this.contentRef = React.createRef()
+		this.potential_tags = []
 		if (this.props.username == this.props.data.username)
 		{
 			this.edit_content = <button onClick={this.editContent.bind(this)}> Edit Content </button>;
+			var tags_temp = JSON.parse(this.props.data.tags)
+			var tag_keys = Object.keys(tags_temp)
+			for (var i = 0; i < tag_keys.length; ++i)
+			{
+				if (tags_temp[tag_keys[i]].length >= 5 )
+				{
+					this.potential_tags.push(tags_temp[tag_keys[i]])
+				}
 
+			}
 		}
+
+		this.tagFlag = false
+		this.currentTag = ""
+		this.tagList = []
+		this.artists = []
+		this.users = []
+		this.artistSearch = false
+		this.currentArtist = ""
+		
+		this.artistFlag = false
+		this.lastContentSize = 0
+		this.tagged = false
 	}
 
 	renderiframe(iframe) {
@@ -33,16 +56,33 @@ class UserPostContent extends React.Component
 	editContent()
 	{
 		this.edit_content = <div>
-								<textarea ref = {this.contentRef} id = "content" name="content" rows="15" cols="117" >{this.props.data.content}</textarea>
+								<textarea onChange = {this.contentInput.bind(this)} ref = {this.contentRef} id = "content" name="content" rows="15" cols="117" >{this.props.data.content}</textarea>
 								<button onClick = {this.submitEditComment.bind(this)} style={{position:'relative'}} type='button' class='submit_new_comment' id = {this.props.comment_id}>submit</button>
 								<button onClick = {this.closeEditComment.bind(this)} style={{position:'relative'}} type='button' class='close_new_comment' id = {this.props.comment_id}>close</button>
 							</div>
 		this.forceUpdate()
 	}
 
+	contentInput()
+	{
+		var input = event.target.value;
+    	//var song_str = $("#song").val();
+		var content_str = this.contentRef.current.value;
+		//update and prune tags list 
+		tag_utils.getTags(this)
+    	this.lastContentSize = this.contentRef.current.value.length
+	   	this.forceUpdate();
+	}
+
+	selectTag(e)
+	{
+		tag_utils.tagClicked(this, e)
+	}
+
 	closeEditComment()
 	{
 		this.edit_content = <button onClick={this.editContent.bind(this)}> Edit Content </button>;
+		this.tagFlag = false
 		this.forceUpdate()
 	}
 
@@ -60,12 +100,13 @@ class UserPostContent extends React.Component
 	        },
 
 	        body: JSON.stringify({id: this.props.data.post_id, 
-	        					  text: this.contentRef.current.value})})
+	        					  text: this.contentRef.current.value,
+	        					  potentialTags: this.potential_tags})})
 	    .then(function(response) { return response.json();})
 	    .then(function (data) { 
 
 	    })
-
+	    this.tagFlag = false
 	    this.closeEditComment();
 	}
 
@@ -216,10 +257,67 @@ class UserPostContent extends React.Component
 		}
 
 		var content_div = []
-		this.props.data.content.split('\n').map((item, i) => {
-			content_div.push(<p key={i}>{item}</p>);
-		})
 
+		// var tags = JSON.parse(this.props.data.tags)
+		// var tag_indices = []
+
+		// if (this.props.data.tags != null)
+		// {
+		// 	tag_indices = Object.keys(tags)
+		// 	var remaining_indices = []
+		// 	for (var index of tag_indices)
+		// 	{
+		// 		if (tags[index].length < 5)
+		// 		{
+		// 			continue
+		// 		}
+		// 		remaining_indices.push(index)
+		// 	}
+		// 	tag_indices = remaining_indices
+		// 	tag_indices.sort(
+		// 			function(a, b){
+		// 		    	if (parseInt(a) > parseInt(b))
+		// 		        {
+		// 		        	return 1;
+		// 		        }
+		// 		        return -1;
+		// 			})
+				    		
+		// } 
+		// var total_index = 0;
+		// this.props.data.content.split('\n').map((item, i) => {
+		// 	var current_text = ""
+		// 	var tag_index = 0;
+		// 	var all_content = []
+		// 	var index = 0;
+		// 	while (tag_indices[0] < total_index + item.length)
+		// 	{
+		// 		var before_text = item.substring(index, tag_indices[0] - total_index)
+		// 		var current_index = tag_indices[0] - total_index;
+		// 		var tag = ""
+		// 		while (current_index < item.length)
+		// 		{
+		// 			if (item[current_index] == ' ' || 
+		// 				item[current_index] == '\t' ||
+		// 				item[current_index] == '\n')
+		// 			{
+		// 				break
+		// 			}
+
+		// 			tag += item[current_index]
+		// 			++current_index
+		// 		}
+		// 		current_text = ""
+		// 		index = current_index
+		// 		all_content.push(before_text)
+		// 		all_content.push(<a key = {current_index} href = {tags[tag_indices[0]][4]}>{tag}</a>)
+		// 		tag_indices.splice(0,1);
+		// 	}
+		// 	total_index += item.length 
+		// 	all_content.push(item.substring(index, item.length))
+		// 	content_div.push(<p style = {{minHeight:'26.67px'}} key={i}>{all_content}</p>);
+		// })
+		content_div = tag_utils.formatContent(this.props.data.content, this.props.data.tags)
 		var post_id = this.props.data.id;
 		var date = new Date(this.props.data.timestamp)
 		//<div style = {{position:'relative', textAlign:'center', paddingTop:'8px', fontSize:'3em'}}>{this.props.data.title}</div>
@@ -238,6 +336,12 @@ class UserPostContent extends React.Component
 			artist_names.push(',')
 		})
 		artist_names = artist_names.slice(0, artist_names.length-1)
+
+		var tag_display = 'none'
+		if (this.tagFlag)
+		{
+			tag_display = ''
+		}
 
 		return (
 			<div style = {{background: 'white', position:'relative', top:'85px', paddingLeft:'10px', height: 'auto', minHeight: '550px', maxWidth:'980px', paddingBottom:'50px', paddingRight:'10px', left:'5%', borderBottom: 'solid black 3px', borderRadius: '4px'}}>
@@ -274,6 +378,9 @@ class UserPostContent extends React.Component
 					<div style = {{width:'60px', height:'30px', float:'left', verticalAlign: 'middle', textAlign: 'center', width:'80px', position: 'relative', top: '0px', fontSize: '21px'}}>{this.props.num_comments}</div>
 				</div>
 
+				<div style = {{position:'fixed', width: '200px', height:'300px', right:'10%', top:'200px', backgroundColor:'white', display:tag_display, zIndex:15, overflow:'scroll'}} >
+					{this.tagList}
+				</div>
 
 				<meta className = "comment_offset" content = "0" />
 			</div>

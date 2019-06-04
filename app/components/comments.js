@@ -1,5 +1,6 @@
 import React from 'react';
 import utils from './utils.js'
+import tag_utils from './tag_utils.js'
 
 function generateComments(comments, comment_votes, id, starting_comment_level, is_global = false)
 {
@@ -155,10 +156,23 @@ class Comment extends React.Component
 			this.vote_state = this.props.vote_state.vote_state
 		}
 		this.new_comment = undefined;
-		this.newCommentTextRef = React.createRef();
+		this.contentRef = React.createRef();
 
 		this.up_image = "/small_up.png"
 		this.down_image = "/small_down.png"
+
+		this.tagFlag = false
+		this.currentTag = ""
+		this.tagList = []
+		this.artists = []
+		this.users = []
+		this.artistSearch = false
+		this.currentArtist = ""
+		this.potential_tags = []
+
+		this.artistFlag = false
+		this.lastContentSize = 0
+		this.tagged = false
 	}
 
 	addChild(comment)
@@ -280,7 +294,7 @@ class Comment extends React.Component
 				return;
 			}
 			this.new_comment = <div>
-					<textarea ref = {this.newCommentTextRef} class = 'comment_text' id = {this.props.data.comment_id} name='content' rows='10' cols='90' style={{width:'100%',height:'50px',zIndex:'100'}}></textarea>
+					<textarea onChange = {this.contentInput.bind(this)} ref = {this.contentRef} class = 'comment_text' id = {this.props.data.comment_id} name='content' rows='10' cols='90' style={{width:'100%',height:'50px',zIndex:'100'}}></textarea>
 					<br/>
 					<button onClick = {this.submitNewComment.bind(this)} style={{position:'relative'}} type='button' class='submit_new_comment' id = {this.props.data.comment_id}>submit</button>
 					<button onClick = {this.closeNewComment.bind(this)} style={{position:'relative'}} type='button' class='close_new_comment' id = {this.props.data.comment_id}>close</button>
@@ -291,12 +305,13 @@ class Comment extends React.Component
 	closeNewComment()
 	{
 		this.new_comment = undefined
+		this.tagFlag = false
 		this.forceUpdate();		
 	}
 
 	submitNewComment()
 	{
-		var submit_text = this.newCommentTextRef.current.value;
+		var submit_text = this.contentRef.current.value;
 		var that = this
 	    fetch("/comment", {
 	        method: "POST",
@@ -307,9 +322,10 @@ class Comment extends React.Component
 	        },
 
 	        body: JSON.stringify({id: this.props.post_id, 
-	        					  text: this.newCommentTextRef.current.value, 
+	        					  text: this.contentRef.current.value, 
 	        					  comment_level: this.props.data.comment_level + 1, 
 	        					  parent_comment_id: this.props.data.comment_id,
+	        					  potentialTags: this.potential_tags,
 	    						  username: this.props.data.user_id})})
 	    .then(function(response) { return response.json();})
 	    .then(function (data) {    	
@@ -328,6 +344,7 @@ class Comment extends React.Component
 		    that.child_comments.splice(0, 0,<Comment key = {data.comment_id} original_replies = {0} data = {new_comment_data} child_comments = {[]} vote_state = {-1} post_id = {data.comment_id} is_global = {that.props.global_post != undefined}/>)
 		    that.forceUpdate()
 	    })	    
+	    this.tagFlag = false
 	    this.closeNewComment();
 
 	}
@@ -357,9 +374,23 @@ class Comment extends React.Component
 	    	//that.new_child_comments = child_comments
 	    	that.forceUpdate()
 	 	})
-
-
     }
+
+	contentInput()
+	{
+		var input = event.target.value;
+		//update and prune tags list 
+		tag_utils.getTags(this)
+
+    	this.lastContentSize = this.contentRef.current.value.length
+	   	this.forceUpdate();
+	}
+
+	selectTag(e)
+	{
+		tag_utils.tagClicked(this, e)
+	}
+
     addCommentChild(comment)
     {
     	this.child_comments.push(comment);
@@ -390,10 +421,68 @@ class Comment extends React.Component
 		}
 		var date_text = date.getMonth() + "/" + date.getDate() + "/" + date.getFullYear() + " at " + date.getHours() + ":" + minutes;
 
+		// var tags = JSON.parse(this.props.data.tags)
+		// var tag_indices = []
+
+		// if (this.props.data.tags != null)
+		// {
+		// 	tag_indices = Object.keys(tags)
+		// 	var remaining_indices = []
+		// 	for (var index of tag_indices)
+		// 	{
+		// 		if (tags[index].length < 5)
+		// 		{
+		// 			continue
+		// 		}
+		// 		remaining_indices.push(index)
+		// 	}
+		// 	tag_indices = remaining_indices
+		// 	tag_indices.sort(
+		// 			function(a, b){
+		// 		    	if (parseInt(a) > parseInt(b))
+		// 		        {
+		// 		        	return 1;
+		// 		        }
+		// 		        return -1;
+		// 			})
+				    		
+		// } 
+		// var total_index = 0;
+		// var comment_div = []
+		// this.props.data.text.split('\n').map((item, i) => {
+		// 	var current_text = ""
+		// 	var tag_index = 0;
+		// 	var all_content = []
+		// 	var index = 0;
+		// 	while (tag_indices[0] < total_index + item.length)
+		// 	{
+		// 		var before_text = item.substring(index, tag_indices[0] - total_index)
+		// 		var current_index = tag_indices[0] - total_index;
+		// 		var tag = ""
+		// 		while (current_index < item.length)
+		// 		{
+		// 			if (item[current_index] == ' ' || 
+		// 				item[current_index] == '\t' ||
+		// 				item[current_index] == '\n')
+		// 			{
+		// 				break
+		// 			}
+
+		// 			tag += item[current_index]
+		// 			++current_index
+		// 		}
+		// 		current_text = ""
+		// 		index = current_index
+		// 		all_content.push(before_text)
+		// 		all_content.push(<a href = {tags[tag_indices[0]][4]}>{tag}</a>)
+		// 		tag_indices.splice(0,1);
+		// 	}
+		// 	total_index += item.length 
+		// 	all_content.push(item.substring(index, item.length))
+		// 	comment_div.push(<p style = {{minHeight:'26.67px'}} key={i}>{all_content}</p>);
+		// })
 		var comment_div = []
-		this.props.data.text.split('\n').map((item, i) => {
-			comment_div.push(<p key={i}>{item}</p>);
-		})
+		comment_div = tag_utils.formatContent(this.props.data.text, this.props.data.tags)
 
 		var upvote_color = 'black'
 		var downvote_color = 'black'
@@ -407,6 +496,13 @@ class Comment extends React.Component
 		{
 			downvote_color = 'red'
 			this.down_image = "/small_down_on.png"
+		}
+
+
+		var tag_display = 'none'
+		if (this.tagFlag)
+		{
+			tag_display = ''
 		}
 				      	// <button ref = {this.upvoteRef} onClick = {this.upvoteClicked.bind(this)} style={{top:'0px',position:'absolute',height:'30px', color:upvote_color}} type='button' className = 'upvote' id = {comment_id}>^</button>
 				      	// <button ref = {this.downvoteRef}  onClick = {this.downvoteClicked.bind(this)} style={{bottom:'0px',position:'absolute',height:'30px', color:downvote_color}} type='button' className = 'downvote' id = {comment_id}>v</button>
@@ -437,6 +533,9 @@ class Comment extends React.Component
 	    		{this.child_comments.map((child) => {return child})}
 	    		{this.replies_button}
 	    		{this.test_text}
+				<div style = {{position:'fixed', width: '200px', height:'300px', right:'10%', top:'200px', backgroundColor:'white', display:tag_display, zIndex:15, overflow:'scroll'}} >
+					{this.tagList}
+				</div>
 	    	</div>
 		);
 	}
@@ -452,8 +551,21 @@ export default class CommentSection extends React.Component
 		this.loading_comments_semaphor = false;
 
 		this.new_comment = undefined;
-		this.newCommentTextRef = React.createRef();
+		this.contentRef = React.createRef();
 		this.user_posts = props.posts;
+
+		this.tagFlag = false
+		this.currentTag = ""
+		this.tagList = []
+		this.artists = []
+		this.users = []
+		this.artistSearch = false
+		this.currentArtist = ""
+		
+		this.artistFlag = false
+		this.lastContentSize = 0
+		this.tagged = false
+		this.potential_tags = []
 	}
 
 	makePosts(user_posts, comments)
@@ -488,10 +600,67 @@ export default class CommentSection extends React.Component
 				}
 
 				var content_div = []
-				post.content.split('\n').map((item, i) => {
-					content_div.push(<p key={i}>{item}</p>);
-				})
+				// var total_index = 0;
+				// var tags = JSON.parse(this.props.data.tags)
+				// var tag_indices = []
 
+				// if (post.tags != null)
+				// {
+				// 	tag_indices = Object.keys(tags)
+				// 	var remaining_indices = []
+				// 	for (var index of tag_indices)
+				// 	{
+				// 		if (tags[index].length < 5)
+				// 		{
+				// 			continue
+				// 		}
+				// 		remaining_indices.push(index)
+				// 	}
+				// 	tag_indices = remaining_indices
+				// 	tag_indices.sort(
+				// 			function(a, b){
+				// 		    	if (parseInt(a) > parseInt(b))
+				// 		        {
+				// 		        	return 1;
+				// 		        }
+				// 		        return -1;
+				// 			})
+						    		
+				// } 
+
+				// post.content.split('\n').map((item, i) => {
+				// 	var current_text = ""
+				// 	var tag_index = 0;
+				// 	var all_content = []
+				// 	var index = 0;
+				// 	while (tag_indices[0] < total_index + item.length)
+				// 	{
+				// 		var before_text = item.substring(index, tag_indices[0] - total_index)
+				// 		var current_index = tag_indices[0] - total_index;
+				// 		var tag = ""
+				// 		while (current_index < item.length)
+				// 		{
+				// 			if (item[current_index] == ' ' || 
+				// 				item[current_index] == '\t' ||
+				// 				item[current_index] == '\n')
+				// 			{
+				// 				break
+				// 			}
+
+				// 			tag += item[current_index]
+				// 			++current_index
+				// 		}
+				// 		current_text = ""
+				// 		index = current_index
+				// 		all_content.push(before_text)
+				// 		all_content.push(<a href = {tags[tag_indices[0]][4]}>{tag}</a>)
+				// 		tag_indices.splice(0,1);
+				// 	}
+				// 	total_index += item.length 
+				// 	all_content.push(item.substring(index, item.length))
+				// 	content_div.push(<p style = {{minHeight:'26.67px'}} key={i}>{all_content}</p>);
+				// })
+				content_div = tag_utils.formatContent(this.props.data.text, this.props.data.tags)
 				post_and_comments.push( 
 				<div>
 			      	<div style={{position:'relative', left:'0%', top:'20px', background:'white', paddingLeft:'5px', paddingBottom:'5px', borderBottom:'solid black 3px', maxWidth:'1000px'}}>
@@ -634,7 +803,7 @@ export default class CommentSection extends React.Component
 			return;
 		}
 		this.new_comment = <div>
-				<textarea ref = {this.newCommentTextRef} class = 'comment_text' id = {this.props.comment_id} name='content' rows='10' cols='90' style={{width:'80%',height:'50px',zIndex:'100'}}></textarea>
+				<textarea onChange = {this.contentInput.bind(this)} ref = {this.contentRef} class = 'comment_text' id = {this.props.comment_id} name='content' rows='10' cols='90' style={{width:'80%',height:'50px',zIndex:'100'}}></textarea>
 				<br/>
 				<button onClick = {this.submitNewComment.bind(this)} style={{position:'relative'}} type='button' class='submit_new_comment' id = {this.props.comment_id}>submit</button>
 				<button onClick = {this.closeNewComment.bind(this)} style={{position:'relative'}} type='button' class='close_new_comment' id = {this.props.comment_id}>close</button>
@@ -645,13 +814,14 @@ export default class CommentSection extends React.Component
 	closeNewComment()
 	{
 		this.new_comment = undefined
+		this.tagFlag = false
 		this.forceUpdate();		
 	}
 
 	submitNewComment()
 	{
 		var that = this;
-		var submit_text = this.newCommentTextRef.current.value
+		var submit_text = this.contentRef.current.value
 	    fetch("/comment", {
 	        method: "POST",
 	        headers: {
@@ -661,7 +831,8 @@ export default class CommentSection extends React.Component
 	        },
 
 	        body: JSON.stringify({id: this.props.post_id, 
-	        					  text: this.newCommentTextRef.current.value, 
+	        					  text: this.contentRef.current.value, 
+	        					  potentialTags: this.potential_tags,
 	        					  comment_level: 0, 
 	        					  parent_comment_id: -1,})})
 	    .then(function(response) { return response.json();})
@@ -681,13 +852,34 @@ export default class CommentSection extends React.Component
 		    // that.comments.splice(0, 0,<Comment key = {data.comment_id} original_replies = {0} data = {new_comment_data} child_comments = {[]} vote_state = {-1} post_id = {data.comment_id} is_global = {that.props.global_post != undefined}/>)
 		    // that.forceUpdate()
 	    })
-
+	    this.tagFlag = false
 	    this.closeNewComment();
+	}
+
+	contentInput()
+	{
+		var input = event.target.value;
+		//update and prune tags list 
+		tag_utils.getTags(this)
+
+    	this.lastContentSize = this.contentRef.current.value.length
+	   	this.forceUpdate();
+	}
+
+	selectTag(e)
+	{
+		tag_utils.tagClicked(this, e)
 	}
 
 
 	render()
 	{
+
+		var tag_display = 'none'
+		if (this.tagFlag)
+		{
+			tag_display = ''
+		}
 		var new_comment_button = <button onClick = {this.openNewComment.bind(this)} type='button' className = 'begin_comment'>Comment</button>
 		if (this.props.global_post != undefined)
 		{
@@ -700,6 +892,9 @@ export default class CommentSection extends React.Component
 				<br/>
 				<br/>
 				{this.comments.map((comment) => {return comment})}
+				<div style = {{position:'fixed', width: '200px', height:'300px', right:'10%', top:'200px', backgroundColor:'white', display:tag_display, zIndex:15, overflow:'scroll'}} >
+					{this.tagList}
+				</div>
 			</div>
 		);
 	}

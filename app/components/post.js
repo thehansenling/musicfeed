@@ -1,5 +1,6 @@
 import React from 'react';
 import utils from './utils.js'
+import tag_utils from './tag_utils.js'
 
 const monthNames = ["January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December"
@@ -234,6 +235,7 @@ class Post extends React.Component
 
 		var post_id = this.props.song.post_id;
 
+		//not 'global' post
 		if (this.props.song.username != undefined)
 		{
 			post_id = this.props.song.id;
@@ -242,10 +244,71 @@ class Post extends React.Component
 			at_text = " at "
 			poster_username = this.props.song.username;
 			poster_username_url = "/user/" + this.props.song.username;
+			// var tags = JSON.parse(this.props.song.tags)
+			// var tag_indices = []
+			// if (this.props.song.tags != null)
+			// {
+			// 	tag_indices = Object.keys(tags)
+			// 	var remaining_indices = []
+			// 	for (var index of tag_indices)
+			// 	{
+			// 		if (tags[index].length < 5)
+			// 		{
+			// 			continue
+			// 		}
+			// 		remaining_indices.push(index)
+			// 	}
+			// 	tag_indices = remaining_indices
+			// 	tag_indices.sort(
+			// 			function(a, b){
+			// 		    	if (parseInt(a) > parseInt(b))
+			// 		        {
+			// 		        	return 1;
+			// 		        }
+			// 		        return -1;
+			// 			})
+					    		
+			// } 
+			// var total_index = 0;
+			// this.props.song.content.split('\n').map((item, i) => {
+			// 	var current_text = ""
+			// 	var tag_index = 0;
+			// 	var all_content = []
+			// 	var index = 0;
+			// 	console.log("NEW")
+			// 	console.log(total_index + item.length)
+			// 	while (tag_indices[0] < total_index + item.length)
+			// 	{
+			// 		console.log(tag_indices[0])
+			// 		console.log()
+			// 		var before_text = item.substring(index, tag_indices[0] - total_index)
+			// 		var current_index = tag_indices[0] - total_index;
+			// 		var tag = ""
+			// 		while (current_index < item.length)
+			// 		{
+			// 			console.log(current_index)
+			// 			if (item[current_index] == ' ' || 
+			// 				item[current_index] == '\t' ||
+			// 				item[current_index] == '\n')
+			// 			{
+			// 				break
+			// 			}
 
-			this.props.song.content.split('\n').map((item, i) => {
-				content_div.push(<p key={i}>{item}</p>);
-			})
+			// 			tag += item[current_index]
+			// 			++current_index
+			// 		}
+			// 		current_text = ""
+			// 		index = current_index
+			// 		all_content.push(before_text)
+			// 		all_content.push(<a key = {current_index} href = {tags[tag_indices[0]][4]}>{tag}</a>)
+			// 		tag_indices.splice(0,1);
+			// 	}
+			// 	total_index += item.length + 1
+			// 	all_content.push(item.substring(index, item.length))
+			// 	console.log(all_content)
+			// 	content_div.push(<p style = {{minHeight:'26.67px'}} key={i}>{all_content}</p>);
+			// })
+			content_div = tag_utils.formatContent(this.props.song.content, this.props.song.tags)
 		}
 
 		var like_style = {color:'black'}
@@ -447,7 +510,6 @@ export default class PostInfo extends React.Component
 				break;		
 			}
 		}
-		console.log(this.props)
 		this.posts.push(<Post key={song.post_id} song={song} like_state = {like_state} num_comments = {current_num_comments} user_profile = {this.props.user_profiles[song.username]}/>);
 	}
 

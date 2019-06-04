@@ -31,21 +31,21 @@ var PRIORITY_MODIFIER = 8640 /2
 
 var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - UNIX_TIMESTAMP())/45000000 "
 
-// var connection = mysql.createConnection({
-//   host     : 'us-cdbr-iron-east-01.cleardb.net',
-//   user     : 'bc7ebf9f6de242',
-//   password : 'aa9b1c1f',
-//   database : 'heroku_cdc4ca7b10e1680',
-//   multipleStatements: true
-// });
-
 var connection = mysql.createConnection({
-  host     : 'us-iron-auto-sfo-03-bh.cleardb.net',
-  user     : 'b82ff0c686544a',
-  password : '52ad3adb',
-  database : 'heroku_4df94195b1d1e6b',
+  host     : 'us-cdbr-iron-east-01.cleardb.net',
+  user     : 'bc7ebf9f6de242',
+  password : 'aa9b1c1f',
+  database : 'heroku_cdc4ca7b10e1680',
   multipleStatements: true
 });
+
+// var connection = mysql.createConnection({
+//   host     : 'us-iron-auto-sfo-03-bh.cleardb.net',
+//   user     : 'b82ff0c686544a',
+//   password : '52ad3adb',
+//   database : 'heroku_4df94195b1d1e6b',
+//   multipleStatements: true
+// });
 
 function replaceAll(string, delimiter, replace)
 {
@@ -897,6 +897,78 @@ app.get('/', (req, res) => {
 
 })
 
+app.post('/post_tag_user', (req, res) => {
+
+	req.body.tag = replaceAll(req.body.tag, "'", "\\'")
+	req.body.tag = replaceAll(req.body.tag, "_", "\\\_")
+	var user_search_sql = "SELECT * from accounts where username LIKE '" + req.body.tag + "%' LIMIT 50";
+
+	connection.query(user_search_sql, function (err, result, fields) 
+	{
+		res.send({
+		    users: result
+		});		
+	});
+})
+
+app.post('/post_tag_artist', (req, res) => {
+
+	req.body.tag = replaceAll(req.body.tag, "'", "\\'")
+	req.body.tag = replaceAll(req.body.tag, "_", "\\\_")
+	var alternate_artist_name = replaceAll(req.body.tag, "\\\_", " ")
+	var tag_sql = "SELECT DISTINCT artist FROM global_posts WHERE artist LIKE '"+ req.body.tag + "%' OR artist LIKE '" + alternate_artist_name + "%' LIMIT 50";
+	connection.query(tag_sql, function (err, result, fields) 
+	{
+		var artist_search = result;
+		for (var i = 0; i < artist_search.length; ++i)
+		{
+			var split_artists = artist_search[i].artist.split('^');
+			if (split_artists.length > 1)
+			{
+				var parsed_artists;
+				artist_search.splice(i, 1)
+				for(var j = 0; j < split_artists.length; ++j)
+				{
+					var alternate_split_artist_name = replaceAll(split_artists[j].toLowerCase(), "_", " ")
+					if (split_artists[j].toLowerCase().indexOf(req.body.tag.toLowerCase()) != -1 ||
+						split_artists[j].toLowerCase().indexOf(alternate_artist_name.toLowerCase()) != -1 )
+					{
+						artist_search.push({artist:split_artists[j]})
+					}
+				}
+			}
+		}
+
+		res.send({
+		    artists: artist_search,
+		});		
+	})	
+})
+
+app.post('/post_tag_artist_search', (req, res) => {
+	req.body.tag = replaceAll(req.body.tag, "'", "\\'")
+	req.body.tag = replaceAll(req.body.tag, "_", "\\\_")
+
+	req.body.artist = replaceAll(req.body.artist, "'", "\\'")
+	req.body.artist = replaceAll(req.body.artist, "_", "\\\_")
+
+	var alternate_tag_name = replaceAll(req.body.tag, "\\\_", " ")
+	var alternate_artist_name = replaceAll(req.body.artist, "\\\_", " ")
+	var song_search_sql = "SELECT * from global_posts where (song LIKE '" + req.body.tag + "%' OR song LIKE '" + alternate_tag_name + "%') AND (artist = '" + req.body.artist + "' OR artist = '" + alternate_artist_name + "') LIMIT 50";
+	var album_search_sql = "SELECT * from global_posts where (album LIKE '" + req.body.tag + "%' OR album LIKE '" + alternate_tag_name + "%') AND song = 'NO_SONG_ALBUM_ONLY' AND (artist = '" + req.body.artist + "' OR artist = '" + alternate_artist_name + "') LIMIT 50";
+	connection.query(song_search_sql, function (err, result, fields) 
+	{
+		var song_search = result;
+		connection.query(album_search_sql, function (err, result, fields) 
+		{
+			res.send({
+			    songs: song_search,
+			    albums: result
+			});		
+		});
+	})	
+})
+
 app.get('/contact', (req, res) => {
 	var html = renderPage(req.url, {username: req.cookies.username});
 	res.send(html);
@@ -1033,7 +1105,8 @@ app.get('/user/:user/:post_id/likes', function (req, res) {
 app.post('/edit_content', function (req, res) {
 	req.body.text = replaceAll(req.body.text, "\\u00e9", 'é')
 	req.body.text = replaceAll(req.body.text, "'", "\\\'")
-	var sql = "UPDATE user_content SET content = '" + req.body.text + "' WHERE id = '" + req.body.id + "'"
+	var sql = "UPDATE user_content SET content = '" + req.body.text + "', tags = '"
+	findTags(req.body.potentialTags, {}, sql,  "' WHERE id = '" + req.body.id + "'")
 	connection.query(sql, function (err, result, fields) 
 	{
 		res.send({nothing:0});
@@ -2292,10 +2365,10 @@ app.post('/comment', function (req, res)
 	})
 
 
-	var sql = "INSERT INTO comments (post_id, user_id, text, timestamp, comment_id, parent_comment_id, comment_level) values('" + req.body.id + "','" + req.cookies.username + "','" + req.body.text + "', "  + timestamp + ",'" + comment_id + "','" + req.body.parent_comment_id + "'," + req.body.comment_level + ")";
+	var sql = "INSERT INTO comments (post_id, user_id, text, timestamp, comment_id, parent_comment_id, comment_level, tags) values('" + req.body.id + "','" + req.cookies.username + "','" + req.body.text + "', "  + timestamp + ",'" + comment_id + "','" + req.body.parent_comment_id + "'," + req.body.comment_level + ", '" ;
 	connection.query(sql, function (err, result, fields){
 
-
+		findTags(req.body.potentialTags, {}, sql, "')")
 		update_replies(req.body.parent_comment_id);
 
 		res.send({comment_id:comment_id,
@@ -2371,6 +2444,100 @@ app.post('/load_feed', function (req, res)
 	SendFeed(req, res, POST_LIMIT);
 });
 
+function findTags(tags, tag_urls, callback_sql, end_sql = "")
+{
+	if (tags.length == 0)
+	{
+		var sql = callback_sql + JSON.stringify(tag_urls) + end_sql
+		connection.query(sql, function (err, result, fields) 
+		{
+		    
+		});		
+		return;
+	}
+	var tag_url = "";
+	var tag = tags[0]
+	if (tag.length == 3)
+	{
+		if (tag[0].song != undefined)
+		{
+			if (tag[0].song == "NO_SONG_ALBUM_ONLY")
+			{
+				tag_url = "album/" + tag[0].artist + "/" + tag[0].album
+				tag.push(2)
+			}
+			else
+			{
+				tag_url = "post/" + tag[0].artist + "/" + tag[0].song
+				tag.push(2)
+			}
+		}
+		else if (tag[0].username != undefined)
+		{
+			tag_url = "user/" + tag[0].username
+			tag.push(0)
+		}
+		else if (tag[0].artist != undefined)
+		{
+			tag_url = "artist/" + tag[0].artist
+			tag.push(1)
+		}
+		tag.push(tag_url)
+		tag_urls[tag[1]] = tag
+		tags.splice(0, 1);
+		findTags(tags, tag_urls, callback_sql, end_sql)
+		return tag_urls
+
+	}
+	else
+	{
+		var sql = ""
+		if (tag[3] == 1)
+		{
+			//artist
+			sql = "SELECT DISTINCT artist FROM global_posts WHERE artist = '" + tag[0] + "'"
+			tag_url = "artist/" + tag[0]
+		}
+		else if (tag[3] == 2)
+		{
+			//song
+			var artist = tag[0].split('-')[0]
+			var song = tag[0].substring(artist.length+1, tag[0].length)
+			sql = "SELECT artist FROM global_posts WHERE artist = '" + artist + "' AND song = '" + song + "'"
+			tag_url = "post/" + artist + "/" + song
+		}
+		else if (tag[3] == 3)
+		{
+			//album
+			var artist = tag[0].split('-')[0]
+			var album = tag[0].substring(artist.length+1, tag[0].length)
+			sql = "SELECT album FROM global_posts WHERE artist = '" + artist + "' AND album = '" + album + "'"
+			tag_url = "album/" + artist + "/" + album
+		}
+		else 
+		{
+			//ending with tag == 0 for users, sue me
+			sql = "SELECT username FROM accounts WHERE username = '" + tag[0] + "'"
+			tag_url = "user/" + tag[0]
+		}
+		connection.query(sql, function (err, result, fields) 
+		{
+			if (result != undefined && result.length > 0)
+			{
+				tag.push(tag_url)
+				//tag[3] = tag_url
+				tag_urls[tag[1]] = tag
+			}
+			else
+			{
+				tag_urls[tag[1]] = tag
+			}
+			tags.splice(0, 1);
+			findTags(tags, tag_urls, callback_sql, end_sql)	
+		})
+	}
+}
+
 app.post('/post', function (req, res)
 {
 	var temp_username = "hansen";
@@ -2380,6 +2547,7 @@ app.post('/post', function (req, res)
 	
 	url = url.substring(url.indexOf("https://") + 0);
 	url = url.substring(0, url.indexOf("width") - 2);
+
 
 	var username = req.cookies.username;
 	var post_id = uuidv3(String(temp_username + "/" + req.body.title), uuidv3.URL);
@@ -2396,8 +2564,6 @@ app.post('/post', function (req, res)
 	  id: spotify_username,
 	  secret: spotify_password
 	});
-
-
 
 	spotify
 	  .request(url)
@@ -2441,14 +2607,15 @@ app.post('/post', function (req, res)
 			artist = replaceAll(artist, "'", "\\\'")
 			song_name = replaceAll(song_name, "'", "\\\'")
 			album = replaceAll(album, "'", "\\\'")
-
-			var sql = "INSERT into user_content (id, username, embedded_content, content, timestamp, likes, dislikes, post_id, title, artist, album, song, data) VALUES('" + String(post_id) + "','" 
+			var sql = "INSERT into user_content (id, username, embedded_content, content, timestamp, likes, dislikes, post_id, title, artist, album, song, data, tags) VALUES('" + String(post_id) + "','" 
 			    	+ username + "','" + String(req.body.song)+ "','" + String(req.body.content) + "','" + String(date) +"', 0 "+ ", 0,'" + String(post_id) + "',\"" + String(req.body.title) 
-			    	+ "\", '" + String(artist) + "', '" + String(album) + "', '" + String(song_name) +  "'," + "'{}'" + ")";
-			connection.query(sql, function (err, result, fields) 
-			{
+			    	+ "\", '" + String(artist) + "', '" + String(album) + "', '" + String(song_name) +  "'," + "'{}'" + ", '";
+			// connection.query(sql, function (err, result, fields) 
+			// {
 			    
-			});
+			// });
+			var tags = {}
+			findTags(req.body.potentialTags, tags, "')")
 		 //    if (all_artists.length > 1)
 		 //    {
 			//     for (var i = 0; i < all_artists.length; ++i)
@@ -2493,14 +2660,15 @@ app.post('/post', function (req, res)
 			artist = replaceAll(artist, "'", "\\\'")
 			song_name = replaceAll(song_name, "'", "\\\'")
 			album = replaceAll(album, "'", "\\\'")
-
-			var sql = "INSERT into user_content (id, username, embedded_content, content, timestamp, likes, dislikes, post_id, title, artist, album, song) VALUES('" + String(post_id) + "','" 
+			var sql = "INSERT into user_content (id, username, embedded_content, content, timestamp, likes, dislikes, post_id, title, artist, album, song, tags) VALUES('" + String(post_id) + "','" 
 			    	+ username + "','" + String(req.body.song)+ "','" + String(req.body.content) + "','" + String(date) +"', 0 "+ ", 0,'" + String(post_id) + "',\"" + String(req.body.title) 
-			    	+ "\", '" + String(artist) + "', '" + String(album) + "', '" + String(song_name) + "')";
-			connection.query(sql, function (err, result, fields) 
-			{
+			    	+ "\", '" + String(artist) + "', '" + String(album) + "', '" + String(song_name) + "','";
+			// connection.query(sql, function (err, result, fields) 
+			// {
 
-			});
+			// });
+			var tags = {}
+			findTags(req.body.potentialTags, tags, sql, "')")
 		}
 		var sql = "SELECT * from global_posts WHERE song = '" + song_name + "' AND artist = '" + artist + "'";
 		connection.query(sql, function (err, result, fields) 
