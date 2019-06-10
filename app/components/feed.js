@@ -324,7 +324,6 @@ export default class Feed extends React.Component{
 		this.global_offset = 0;
 		this.non_priority_global_offset = 0;
 		this.postsRef = React.createRef();
-
 	}
 
 	componentDidMount() 

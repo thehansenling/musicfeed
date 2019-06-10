@@ -2,7 +2,7 @@ import React from 'react';
 import utils from './utils.js'
 import tag_utils from './tag_utils.js'
 
-function generateComments(comments, comment_votes, id, starting_comment_level, is_global = false)
+function generateComments(comments, comment_votes, id, starting_comment_level, post_data, is_global = false)
 {
 	var levels = [];
 	var level_zero_comments = 0;
@@ -48,7 +48,7 @@ function generateComments(comments, comment_votes, id, starting_comment_level, i
 					comment_vote = vote;
 				}
 			}
-			current_comments.push(<Comment key = {comment.comment_id} original_replies = {original_replies} data = {comment} child_comments = {comment_map[comment.comment_id]} vote_state = {comment_vote} post_id = {comment.post_id} is_global = {is_global}/>)
+			current_comments.push(<Comment key = {comment.comment_id} original_replies = {original_replies} data = {comment} child_comments = {comment_map[comment.comment_id]} vote_state = {comment_vote} post_id = {comment.post_id} is_global = {is_global} post_data = {post_data}/>)
 			//current_comments.push(<div>PLEASE</div>)
 		}
 		if (level == starting_comment_level)
@@ -169,7 +169,7 @@ class Comment extends React.Component
 		this.artistSearch = false
 		this.currentArtist = ""
 		this.potential_tags = []
-
+		this.songs_and_albums = []
 		this.artistFlag = false
 		this.lastContentSize = 0
 		this.tagged = false
@@ -177,7 +177,7 @@ class Comment extends React.Component
 
 	addChild(comment)
 	{
-		this.child_comments.push(<Comment key={comment.data.comment_id} data = {comment.data}/>)
+		this.child_comments.push(<Comment key={comment.data.comment_id} data = {comment.data} post_data = {this.props.post_data}/>)
 	}
 
 	upvoteClicked()
@@ -325,6 +325,9 @@ class Comment extends React.Component
 	        					  text: this.contentRef.current.value, 
 	        					  comment_level: this.props.data.comment_level + 1, 
 	        					  parent_comment_id: this.props.data.comment_id,
+	        					  post_username: this.props.post_data.username,
+	        					  post_id: this.props.post_data.post_id,
+	        					  post_title:this.props.post_data.title,
 	        					  potentialTags: this.potential_tags,
 	    						  username: this.props.data.user_id})})
 	    .then(function(response) { return response.json();})
@@ -341,7 +344,7 @@ class Comment extends React.Component
 		    	parent_comment_id: that.props.data.comment_id,
 		    	comment_level: that.props.data.comment_level + 1,
 		    }
-		    that.child_comments.splice(0, 0,<Comment key = {data.comment_id} original_replies = {0} data = {new_comment_data} child_comments = {[]} vote_state = {-1} post_id = {data.comment_id} is_global = {that.props.global_post != undefined}/>)
+		    that.child_comments.splice(0, 0,<Comment key = {data.comment_id} original_replies = {0} data = {new_comment_data} child_comments = {[]} vote_state = {-1} post_id = {data.comment_id} is_global = {that.props.global_post != undefined} post_data = {that.props.post_data}/>)
 		    that.forceUpdate()
 	    })	    
 	    this.tagFlag = false
@@ -365,7 +368,7 @@ class Comment extends React.Component
 	    .then(function(response) { return response.json();})
 	    .then(function (data) {    	
 
-	    	var child_comments = generateComments(data.comments, data.comment_votes, that.props.post_id, that.props.data.comment_level + 1, that.props.global_post != undefined)[0]
+	    	var child_comments = generateComments(data.comments, data.comment_votes, that.props.post_id, that.props.data.comment_level + 1, this.props.post_data, that.props.global_post != undefined)[0]
 	    	//don't know why this doesn't work
 	    	for (var comment of child_comments)
 	    	{
@@ -561,7 +564,7 @@ export default class CommentSection extends React.Component
 		this.users = []
 		this.artistSearch = false
 		this.currentArtist = ""
-		
+		this.songs_and_albums = []
 		this.artistFlag = false
 		this.lastContentSize = 0
 		this.tagged = false
@@ -660,7 +663,7 @@ export default class CommentSection extends React.Component
 				// 	all_content.push(item.substring(index, item.length))
 				// 	content_div.push(<p style = {{minHeight:'26.67px'}} key={i}>{all_content}</p>);
 				// })
-				content_div = tag_utils.formatContent(this.props.data.text, this.props.data.tags)
+				content_div = tag_utils.formatContent(this.props.global_post.content, this.props.global_post.tags)
 				post_and_comments.push( 
 				<div>
 			      	<div style={{position:'relative', left:'0%', top:'20px', background:'white', paddingLeft:'5px', paddingBottom:'5px', borderBottom:'solid black 3px', maxWidth:'1000px'}}>
@@ -691,7 +694,7 @@ export default class CommentSection extends React.Component
 
 	getComments(comments, comment_votes, id)
 	{
-		var comment_result = generateComments(comments, comment_votes, id, 0, this.props.global_post != undefined);		
+		var comment_result = generateComments(comments, comment_votes, id, 0, this.props.post_data, this.props.global_post != undefined);		
 		this.comments = comment_result[0];
 		this.offset += comment_result[1]
 	}
@@ -733,7 +736,7 @@ export default class CommentSection extends React.Component
 		        body: JSON.stringify({id: that.props.post_id, offset:that.offset})})
 		    .then(function(response) { return response.json();})
 		    .then(function (data) { 
-		    	var comment_result = generateComments(data.comments, data.comment_votes, that.props.post_id, 0, that.props.global_post != undefined)
+		    	var comment_result = generateComments(data.comments, data.comment_votes, that.props.post_id, 0, that.props.post_data, that.props.global_post != undefined)
 		    	var child_comments = comment_result[0];
 		    	that.offset += comment_result[1]
 		    	for (var comment of child_comments)
@@ -765,7 +768,7 @@ export default class CommentSection extends React.Component
 						        	album:that.props.global_post.album})})
 		    .then(function(response) { return response.json();})
 		    .then(function (data) { 
-		    	var comment_result = generateComments(data.comments, data.comment_votes, that.props.post_id, 0, that.props.global_post != undefined)
+		    	var comment_result = generateComments(data.comments, data.comment_votes, that.props.post_id, 0, that.props.post_data, that.props.global_post != undefined)
 		    	var child_comments = comment_result[0];
 		    	that.offset += comment_result[1]
 		    	
@@ -833,6 +836,9 @@ export default class CommentSection extends React.Component
 	        body: JSON.stringify({id: this.props.post_id, 
 	        					  text: this.contentRef.current.value, 
 	        					  potentialTags: this.potential_tags,
+	        					  post_username: this.props.post_data.username,
+	        					  post_id: this.props.post_data.post_id,
+	        					  post_title:this.props.post_data.title,
 	        					  comment_level: 0, 
 	        					  parent_comment_id: -1,})})
 	    .then(function(response) { return response.json();})

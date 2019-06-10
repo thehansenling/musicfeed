@@ -31,6 +31,7 @@ var PRIORITY_MODIFIER = 8640 /2
 
 var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - UNIX_TIMESTAMP())/45000000 "
 
+//test database
 // var connection = mysql.createConnection({
 //   host     : 'us-cdbr-iron-east-01.cleardb.net',
 //   user     : 'bc7ebf9f6de242',
@@ -39,6 +40,7 @@ var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(
 //   multipleStatements: true
 // });
 
+//prod database
 var connection = mysql.createConnection({
   host     : 'us-iron-auto-sfo-03-bh.cleardb.net',
   user     : 'b82ff0c686544a',
@@ -894,15 +896,13 @@ var context = {};
 
 app.get('/', (req, res) => {
 	RenderFeed(req, res);
-
 })
 
 app.post('/post_tag_user', (req, res) => {
 
 	req.body.tag = replaceAll(req.body.tag, "'", "\\'")
 	req.body.tag = replaceAll(req.body.tag, "_", "\\\_")
-	var user_search_sql = "SELECT * from accounts where username LIKE '" + req.body.tag + "%' LIMIT 50";
-
+	var user_search_sql = "SELECT username from accounts where username LIKE '" + req.body.tag + "%' LIMIT 50";
 	connection.query(user_search_sql, function (err, result, fields) 
 	{
 		res.send({
@@ -954,8 +954,8 @@ app.post('/post_tag_artist_search', (req, res) => {
 
 	var alternate_tag_name = replaceAll(req.body.tag, "\\\_", " ")
 	var alternate_artist_name = replaceAll(req.body.artist, "\\\_", " ")
-	var song_search_sql = "SELECT * from global_posts where (song LIKE '" + req.body.tag + "%' OR song LIKE '" + alternate_tag_name + "%') AND (artist = '" + req.body.artist + "' OR artist = '" + alternate_artist_name + "') LIMIT 50";
-	var album_search_sql = "SELECT * from global_posts where (album LIKE '" + req.body.tag + "%' OR album LIKE '" + alternate_tag_name + "%') AND song = 'NO_SONG_ALBUM_ONLY' AND (artist = '" + req.body.artist + "' OR artist = '" + alternate_artist_name + "') LIMIT 50";
+	var song_search_sql = "SELECT artist, song, album from global_posts where (song LIKE '" + req.body.tag + "%' OR song LIKE '" + alternate_tag_name + "%') AND (artist = '" + req.body.artist + "' OR artist = '" + alternate_artist_name + "') LIMIT 50";
+	var album_search_sql = "SELECT artist, song, album from global_posts where (album LIKE '" + req.body.tag + "%' OR album LIKE '" + alternate_tag_name + "%') AND song = 'NO_SONG_ALBUM_ONLY' AND (artist = '" + req.body.artist + "' OR artist = '" + alternate_artist_name + "') LIMIT 50";
 	connection.query(song_search_sql, function (err, result, fields) 
 	{
 		var song_search = result;
@@ -1106,7 +1106,8 @@ app.post('/edit_content', function (req, res) {
 	req.body.text = replaceAll(req.body.text, "\\u00e9", 'é')
 	req.body.text = replaceAll(req.body.text, "'", "\\\'")
 	var sql = "UPDATE user_content SET content = '" + req.body.text + "', tags = '"
-	findTags(req.body.potentialTags, {}, sql,  "' WHERE id = '" + req.body.id + "'")
+	findTags(req.body.potentialTags, {}, req.body.id, sql, "' WHERE id = '" + req.body.id + "'", 
+		"INSERT INTO notifications (username, post_id, name, num_likes, num_comments, tag, tagger) VALUES ('', '" + req.body.id + "','" + req.body.title + "', 0, 0, 1, '" + req.body.poster +"')")
 	connection.query(sql, function (err, result, fields) 
 	{
 		res.send({nothing:0});
@@ -1427,7 +1428,6 @@ app.get('/artist/:artist/', (req, res) => {
 	});
 
 })
-
 
 
 app.get('/artist/:artist/songs', function (req, res) {
@@ -2035,12 +2035,11 @@ app.post('/like', function (req, res)
 	var modify_sql = "INSERT INTO likes (post_id, user_id, like_state) VALUES('" + req.body.id + "', '" + req.cookies.username + "'," + '1' + ")";
 	var sql_check = "SELECT like_state FROM likes WHERE user_id = '" + req.cookies.username + "' AND post_id = '" + req.body.id + "'";
 	var like_state = 1;
+	
+	var insert_notification_sql = "INSERT INTO notifications (post_id, username, name, num_likes, num_comments)" +
+							"VALUES ('" + req.body.id + "', '" + req.body.user + "', '" + req.body.name + "', 1, 0)"
 
-	var notification_sql = "INSERT INTO notifications (post_id, username, name, num_likes, num_comments)" +
-							"VALUES ('" + req.body.id + "', '" + req.body.user + "', '" + req.body.name + "', 1, 0) " + 
-							"ON DUPLICATE KEY UPDATE " +
-							"num_likes = num_likes + 1"
-
+	var modify_notification_sql = "UPDATE notifications SET num_likes = num_likes + 1 WHERE post_id = '" + req.body.id + "' AND tag = 0" 
 
 	connection.query(sql_check, function (err, result, fields) 
 	{
@@ -2052,10 +2051,9 @@ app.post('/like', function (req, res)
 				user_sql = "UPDATE accounts SET upvotes = upvotes - 1 WHERE username = '" + req.body.user + "'";
 				sql = "UPDATE user_content SET likes = likes - 1 WHERE post_id = '" + req.body.id + "'";
 				modify_sql = "DELETE FROM likes WHERE user_id = '" + req.cookies.username + "' AND post_id = '" + req.body.id + "'";
-				notification_sql = "INSERT INTO notifications (post_id, username, name, num_likes, num_comments)" +
-											"VALUES ('" + req.body.id + "', '" + req.body.user + "', '" + req.body.name + "', 1, 0) " + 
-											"ON DUPLICATE KEY UPDATE " +
-											"num_likes = num_likes - 1"
+				insert_notification_sql = "INSERT INTO notifications (post_id, username, name, num_likes, num_comments)" +
+											"VALUES ('" + req.body.id + "', '" + req.body.user + "', '" + req.body.name + "', 1, 0) "
+				modify_notification_sql = "UPDATE notifications SET num_likes = num_likes - 1 WHERE post_id = '" + req.body.id + "' AND tag = 0" 
 				like_state = -1
 			}
 			else 
@@ -2066,10 +2064,9 @@ app.post('/like', function (req, res)
 				sql = "UPDATE user_content SET likes = likes + 1 WHERE post_id = '" +  req.body.id + "';" + 
 					  "UPDATE user_content SET dislikes = dislikes - 1 WHERE post_id = '" + req.body.id + "'";
 				modify_sql = "UPDATE likes SET like_state = 1 WHERE user_id = '" + req.cookies.username + "' AND post_id = '" + req.body.id + "'";
-				notification_sql = "INSERT INTO notifications (post_id, username, name, num_likes, num_comments)" +
-											"VALUES ('" + req.body.id + "', '" + req.body.user + "', '" + req.body.name + "', 1, 0) " + 
-											"ON DUPLICATE KEY UPDATE " +
-											"num_likes = num_likes + 2"
+				insert_notification_sql = "INSERT INTO notifications (post_id, username, name, num_likes, num_comments)" +
+											"VALUES ('" + req.body.id + "', '" + req.body.user + "', '" + req.body.name + "', 1, 0) "
+				modify_notification_sql = "UPDATE notifications SET num_likes = num_likes + 2 WHERE post_id = '" + req.body.id + "' AND tag = 0" 
 				like_state = 1
 			}
 		}			
@@ -2092,13 +2089,22 @@ app.post('/like', function (req, res)
 				});
 			});
 		});
-		connection.query(notification_sql, function (err, result, fields)  
+		var notification_check_sql = "SELECT username FROM notifications WHERE post_id = '" + req.body.id + "' AND tag = 0"
+		var notification_sql = insert_notification_sql
+		connection.query(notification_check_sql, function (err, result, fields)  
 		{
-			var delete_notification_sql = "DELETE FROM notifications WHERE post_id = '" + req.body.id + "' AND num_comments = 0 AND num_likes = 0"
-			connection.query(delete_notification_sql, function (err, result, fields)  
+			if (result != undefined && result.length > 0)
 			{
+				notification_sql = modify_notification_sql
+			}
+			connection.query(notification_sql, function (err, result, fields)  
+			{
+				var delete_notification_sql = "DELETE FROM notifications WHERE post_id = '" + req.body.id + "' AND num_comments = 0 AND num_likes = 0"
+				connection.query(delete_notification_sql, function (err, result, fields)  
+				{
+				})
 			})
-		})
+		});
 	});
 });
 
@@ -2109,10 +2115,11 @@ app.post('/dislike', function (req, res)
 	var modify_sql = "INSERT INTO likes (post_id, user_id, like_state) VALUES('" + req.body.id + "', '" + req.cookies.username + "'," + '0' + ")";
 	var sql_check = "SELECT like_state FROM likes WHERE user_id = '" + req.cookies.username + "' AND post_id = '" + req.body.id + "'";
 	var like_state = 0;
-	var notification_sql = "INSERT INTO notifications (post_id, username, name, num_likes, num_comments)" +
-							"VALUES ('" + req.body.id + "', '" + req.body.user + "', '" + req.body.name + "', -1, 0) " + 
-							"ON DUPLICATE KEY UPDATE " +
-							"num_likes = num_likes - 1"
+	var insert_notification_sql = "INSERT INTO notifications (post_id, username, name, num_likes, num_comments)" +
+							"VALUES ('" + req.body.id + "', '" + req.body.user + "', '" + req.body.name + "', -1, 0) " 
+
+	var modify_notification_sql = "UPDATE notifications SET num_likes = num_likes - 1 WHERE post_id = '" + req.body.id + "' AND tag = 0" 
+
 	connection.query(sql_check, function (err, result, fields) 
 	{
 		if (result.length != 0)
@@ -2124,10 +2131,9 @@ app.post('/dislike', function (req, res)
 				sql = "UPDATE user_content SET dislikes = dislikes - 1 WHERE post_id = '" + req.body.id + "'";
 				modify_sql = "DELETE FROM likes WHERE user_id = '" + req.cookies.username + "' AND post_id = '" + req.body.id + "'";
 				like_state = -1;
-				notification_sql = "INSERT INTO notifications (post_id, username, name, num_likes, num_comments)" +
-											"VALUES ('" + req.body.id + "', '" + req.body.user + "', '" + req.body.name + "', -1, 0) " + 
-											"ON DUPLICATE KEY UPDATE " +
-											"num_likes = num_likes + 1"
+				insert_notification_sql = "INSERT INTO notifications (post_id, username, name, num_likes, num_comments)" +
+											"VALUES ('" + req.body.id + "', '" + req.body.user + "', '" + req.body.name + "', -1, 0) "
+				modify_notification_sql = "UPDATE notifications SET num_likes = num_likes + 1 WHERE post_id = '" + req.body.id + "' AND tag = 0" 
 			}
 			else 
 			{
@@ -2137,10 +2143,9 @@ app.post('/dislike', function (req, res)
 				sql = "UPDATE user_content SET likes = likes - 1 WHERE post_id = '" +  req.body.id + "';" + 
 					  "UPDATE user_content SET dislikes = dislikes + 1 WHERE post_id ='" + req.body.id + "'";
 				modify_sql = "UPDATE likes SET like_state = 0 WHERE user_id = '" + req.cookies.username + "' AND post_id = '" + req.body.id + "'";
-				notification_sql = "INSERT INTO notifications (post_id, username, name, num_likes, num_comments)" +
-											"VALUES ('" + req.body.id + "', '" + req.body.user + "', '" + req.body.name + "', -1, 0) " + 
-											"ON DUPLICATE KEY UPDATE " +
-											"num_likes = num_likes - 2"
+				insert_notification_sql = "INSERT INTO notifications (post_id, username, name, num_likes, num_comments)" +
+											"VALUES ('" + req.body.id + "', '" + req.body.user + "', '" + req.body.name + "', -1, 0) "
+				modify_notification_sql = "UPDATE notifications SET num_likes = num_likes - 2 WHERE post_id = '" + req.body.id + "' AND tag = 0" 
 				like_state = 0;
 			}
 		}			
@@ -2161,13 +2166,22 @@ app.post('/dislike', function (req, res)
 				});
 			});
 		});
-		connection.query(notification_sql, function (err, result, fields)  
+		var notification_check_sql = "SELECT username FROM notifications WHERE post_id = '" + req.body.id + "' AND tag = 0"
+		var notification_sql = insert_notification_sql
+		connection.query(notification_check_sql, function (err, result, fields)  
 		{
-			var delete_notification_sql = "DELETE FROM notifications WHERE post_id = '" + req.body.id + "' AND num_comments = 0 AND num_likes = 0"
-			connection.query(delete_notification_sql, function (err, result, fields)  
+			if (result != undefined && result.length > 0)
 			{
+				notification_sql = modify_notification_sql
+			}
+			connection.query(notification_sql, function (err, result, fields)  
+			{
+				var delete_notification_sql = "DELETE FROM notifications WHERE post_id = '" + req.body.id + "' AND num_comments = 0 AND num_likes = 0"
+				connection.query(delete_notification_sql, function (err, result, fields)  
+				{
+				})
 			})
-		})
+		});
 	});
 });
 
@@ -2352,30 +2366,32 @@ app.post('/comment', function (req, res)
 	var timestamp = String(new Date().getTime());
 	var comment_id = uuidv3(String("comment/" + req.cookies.username + "/" + timestamp), uuidv3.URL);
 
-	var name_sql = "SELECT title FROM user_content WHERE id = '" + req.body.id + "'"
-	connection.query(name_sql, function (err, result, fields)  
+
+	var sql = "INSERT INTO comments (post_id, user_id, text, timestamp, comment_id, parent_comment_id, comment_level, tags) values('" + req.body.id + "','" + req.cookies.username + "','" + req.body.text + "', "  + timestamp + ",'" + comment_id + "','" + req.body.parent_comment_id + "'," + req.body.comment_level + ", '" ;
+	findTags(req.body.potentialTags, {}, req.body.id, sql, "')", 
+	"INSERT INTO notifications (username, post_id, name, num_likes, num_comments, tag, tagger) VALUES ('', '" + req.body.post_id + "','" + req.body.post_username + "', 0, 0, 2, '" + req.cookies.username +"')",
+	false)
+	update_replies(req.body.parent_comment_id);
+
+	res.send({comment_id:comment_id,
+			  timestamp:timestamp,
+			  username: req.cookies.username});
+
+	var modify_notification_sql = "UPDATE notifications SET num_comment = num_comments + 1 WHERE post_id = '" + req.body.post_id + "' AND tag = 0"  
+	var insert_notification_sql = "INSERT INTO notifications (post_id, username, name, num_likes, num_comments)" +
+							"VALUES ('" + req.body.post_id + "', '" + req.body.post_username + "', '" + req.body.post_title + "', 0, 1) "
+	var check_notification_sql = "SELECT username FROM notifications WHERE post_id = '" + req.body.post_id + "' AND tag = 0"
+	var notification_sql = insert_notification_sql
+	connection.query(check_notification_sql, function (err, result, fields)  
 	{
-		var notification_sql = "INSERT INTO notifications (post_id, username, name, num_likes, num_comments)" +
-								"VALUES ('" + req.body.id + "', '" + req.body.username + "', '" + result[0].title + "', 0, 1) " + 
-								"ON DUPLICATE KEY UPDATE " +
-								"num_comments = num_comments + 1"
+		if (result != undefined && result.length > 0)
+		{
+			notification_sql = modify_notification_sql
+		}
 		connection.query(notification_sql, function (err, result, fields)  
 		{
 		})
 	})
-
-
-	var sql = "INSERT INTO comments (post_id, user_id, text, timestamp, comment_id, parent_comment_id, comment_level, tags) values('" + req.body.id + "','" + req.cookies.username + "','" + req.body.text + "', "  + timestamp + ",'" + comment_id + "','" + req.body.parent_comment_id + "'," + req.body.comment_level + ", '" ;
-	connection.query(sql, function (err, result, fields){
-
-		findTags(req.body.potentialTags, {}, sql, "')")
-		update_replies(req.body.parent_comment_id);
-
-		res.send({comment_id:comment_id,
-				  timestamp:timestamp,
-				  username: req.cookies.username});
-
-	});
 });
 
 app.post('/show_replies', function (req, res)
@@ -2444,97 +2460,236 @@ app.post('/load_feed', function (req, res)
 	SendFeed(req, res, POST_LIMIT);
 });
 
-function findTags(tags, tag_urls, callback_sql, end_sql = "")
+function notifyUsers(users, sql)
+{
+	var sql_start = sql.substring(0, sql.indexOf("VALUES ('") + 9)
+	var sql_end = sql.substring(sql.indexOf("VALUES ('") + 9, sql.length)
+	for (var user of users)
+	{
+		var notification_sql = sql_start + user + sql_end
+		connection.query(notification_sql, function (err, result, fields) 
+		{
+
+		})								
+	}
+}
+
+function findTags(tags, tag_urls, id, callback_sql, end_callback_sql = "", tag_sql = "", check_duplicate_tags = true)
 {
 	if (tags.length == 0)
 	{
-		var sql = callback_sql + JSON.stringify(tag_urls) + end_sql
+		if (tag_sql != "")
+		{
+			var get_tags_sql = "SELECT tags FROM user_content WHERE id = '" + id + "'"
+			connection.query(get_tags_sql, function (err, result, fields) 
+			{
+				var username_set = new Set()
+				if (result != undefined && result.length > 0 && result[0].tags != null)
+				{
+					var current_tags = JSON.parse(result[0].tags)
+					for (var key of Object.keys(current_tags))
+					{
+						if (current_tags[key].length == 5 && current_tags[key][3] == 0)
+						{
+							username_set.add(current_tags[key][4])
+						}
+					}
+				}
+				
+				var user_notifications = new Set()
+				for (var key of Object.keys(tag_urls))
+				{
+					if (tag_urls[key].length == 5 && tag_urls[key][3] == 0 && (!username_set.has(tag_urls[key][4]) || !check_duplicate_tags))
+					{
+						user_notifications.add(tag_urls[key][4].substring(6, tag_urls[key][4].length))
+					}
+				}
+				notifyUsers(user_notifications, tag_sql)
+			})			
+		}
+		var sql = callback_sql + JSON.stringify(tag_urls) + end_callback_sql
 		connection.query(sql, function (err, result, fields) 
 		{
 		    
 		});		
+	
+
 		return;
 	}
 	var tag_url = "";
 	var tag = tags[0]
-	if (tag.length == 3)
+	// if (tag.length == 3)
+	// {
+	// 	//we have the data for the tag, need to add stuff
+	// 	if (tag[0].song != undefined)
+	// 	{
+	// 		if (tag[0].song == "NO_SONG_ALBUM_ONLY")
+	// 		{
+	// 			tag_url = "album/" + tag[0].artist + "/" + tag[0].album
+	// 			tag.push(3)
+	// 		}
+	// 		else
+	// 		{
+	// 			tag_url = "post/" + tag[0].artist + "/" + tag[0].song
+	// 			tag.push(2)
+	// 		}
+	// 	}
+	// 	else if (tag[0].username != undefined)
+	// 	{
+	// 		tag_url = "user/" + tag[0].username
+	// 		tag.push(0)
+	// 	}
+	// 	else if (tag[0].artist != undefined)
+	// 	{
+	// 		tag_url = "artist/" + tag[0].artist
+	// 		tag.push(1)
+	// 	}
+	// 	tag.push(tag_url)
+	// 	tag_urls[tag[1]] = tag
+	// 	tags.splice(0, 1);
+	// 	findTags(tags, tag_urls, id, callback_sql, end_callback_sql, tag_sql)
+	// 	return tag_urls
+
+	// }
+	if (tag.length == 4)
 	{
-		if (tag[0].song != undefined)
+		//we have the data for the tag, need to add stuff
+		if (tag[0].username == undefined && tag[0].artist == undefined)
 		{
-			if (tag[0].song == "NO_SONG_ALBUM_ONLY")
+			var sql = ""
+			if (tag[3] == 1)
 			{
-				tag_url = "album/" + tag[0].artist + "/" + tag[0].album
-				tag.push(2)
+				//artist
+				var alternate_artist = replaceAll(tag[0], "_", " ")
+				sql = "SELECT DISTINCT artist FROM global_posts WHERE artist = '" + tag[0] + "' OR artist = '" + alternate_artist + "'"
+				tag_url = "/artist/" + tag[0]
 			}
-			else
+			else if (tag[3] > 1)
 			{
-				tag_url = "post/" + tag[0].artist + "/" + tag[0].song
-				tag.push(2)
+				//song
+				var artist = tag[0].split('-')[0]
+				var alternate_artist = replaceAll(artist, "_", " ")
+				var song = tag[0].substring(artist.length+1, tag[0].length)
+				var alternate_song = replaceAll(song, "_", " ")
+				sql = "SELECT artist, album, song FROM global_posts WHERE (artist = '" + artist + "' OR artist = '" + alternate_artist + "') AND (song = '" + song + "' OR song = '" + alternate_song + "' OR ((album = '" + song + "' OR album = '" + alternate_song + "') AND song = 'NO_SONG_ALBUM_ONLY'))"
+				tag_url = "/post/" + artist + "/" + song
 			}
+			// else if (tag[3] == 3)
+			// {
+			// 	//album
+			// 	var artist = tag[0].split('-')[0]
+			// 	var alternate_artist = replaceAll(artist, "_", " ")
+			// 	var album = tag[0].substring(artist.length+1, tag[0].length)
+			// 	var alternate_album = replaceAll(album, "_", " ")
+			// 	sql = "SELECT album FROM global_posts WHERE (artist = '" + artist + "' OR artist = '" + alternate_artist + "') AND (album = '" + album + "' OR album = '" + alternate_album + "') "
+			// 	tag_url = "album/" + artist + "/" + album
+			// }
+			else 
+			{
+				//ending with tag == 0 for users, sue me
+				sql = "SELECT username FROM accounts WHERE username = '" + tag[0] + "'"
+				tag_url = "/user/" + tag[0]
+			}
+			connection.query(sql, function (err, result, fields) 
+			{
+				if (result != undefined && result.length > 0)
+				{
+					if (result[0].song == "NO_SONG_ALBUM_ONLY")
+					{
+						tag_url = "/album/" + result[0].artist + "/" + result[0].album
+					}
+					else
+					{
+						tag_url = "/post/" + result[0].artist + "/" + result[0].song
+					}
+					tag.push(tag_url)
+					//tag[3] = tag_url
+					tag_urls[tag[1]] = tag
+				}
+				else
+				{
+					tag_urls[tag[1]] = tag
+				}
+				tags.splice(0, 1);
+				findTags(tags, tag_urls, id, callback_sql, end_callback_sql, tag_sql, check_duplicate_tags)	
+			})			
 		}
-		else if (tag[0].username != undefined)
+		else
 		{
-			tag_url = "user/" + tag[0].username
-			tag.push(0)
+			if (tag[3] == 3)
+			{
+				tag_url = "/album/" + tag[0].artist + "/" + tag[0].album
+			}
+			else if (tag[3] == 2)
+			{
+				tag_url = "/post/" + tag[0].artist + "/" + tag[0].song
+			}
+			else if (tag[3] == 1)
+			{
+				tag_url = "/artist/" + tag[0].artist
+			}
+			else if (tag[3] == 0)
+			{
+				tag_url = "/user/" + tag[0].username
+			}
+			tag.push(tag_url)
+			tag_urls[tag[1]] = tag
+			tags.splice(0, 1);
+			findTags(tags, tag_urls, id, callback_sql, end_callback_sql, tag_sql, check_duplicate_tags)
+			return tag_urls						
 		}
-		else if (tag[0].artist != undefined)
-		{
-			tag_url = "artist/" + tag[0].artist
-			tag.push(1)
-		}
-		tag.push(tag_url)
-		tag_urls[tag[1]] = tag
-		tags.splice(0, 1);
-		findTags(tags, tag_urls, callback_sql, end_sql)
-		return tag_urls
+
 
 	}
 	else
 	{
-		var sql = ""
-		if (tag[3] == 1)
-		{
-			//artist
-			sql = "SELECT DISTINCT artist FROM global_posts WHERE artist = '" + tag[0] + "'"
-			tag_url = "artist/" + tag[0]
-		}
-		else if (tag[3] == 2)
-		{
-			//song
-			var artist = tag[0].split('-')[0]
-			var song = tag[0].substring(artist.length+1, tag[0].length)
-			sql = "SELECT artist FROM global_posts WHERE artist = '" + artist + "' AND song = '" + song + "'"
-			tag_url = "post/" + artist + "/" + song
-		}
-		else if (tag[3] == 3)
-		{
-			//album
-			var artist = tag[0].split('-')[0]
-			var album = tag[0].substring(artist.length+1, tag[0].length)
-			sql = "SELECT album FROM global_posts WHERE artist = '" + artist + "' AND album = '" + album + "'"
-			tag_url = "album/" + artist + "/" + album
-		}
-		else 
-		{
-			//ending with tag == 0 for users, sue me
-			sql = "SELECT username FROM accounts WHERE username = '" + tag[0] + "'"
-			tag_url = "user/" + tag[0]
-		}
-		connection.query(sql, function (err, result, fields) 
-		{
-			if (result != undefined && result.length > 0)
-			{
-				tag.push(tag_url)
-				//tag[3] = tag_url
-				tag_urls[tag[1]] = tag
-			}
-			else
-			{
-				tag_urls[tag[1]] = tag
-			}
-			tags.splice(0, 1);
-			findTags(tags, tag_urls, callback_sql, end_sql)	
-		})
+		tag_urls[tag[1]] = tag
+		tags.splice(0, 1);
+		findTags(tags, tag_urls, id, callback_sql, end_callback_sql, tag_sql, check_duplicate_tags)	
+		// var sql = ""
+		// if (tag[3] == 1)
+		// {
+		// 	//artist
+		// 	sql = "SELECT DISTINCT artist FROM global_posts WHERE artist = '" + tag[0] + "'"
+		// 	tag_url = "artist/" + tag[0]
+		// }
+		// else if (tag[3] == 2)
+		// {
+		// 	//song
+		// 	var artist = tag[0].split('-')[0]
+		// 	var song = tag[0].substring(artist.length+1, tag[0].length)
+		// 	sql = "SELECT artist FROM global_posts WHERE artist = '" + artist + "' AND song = '" + song + "'"
+		// 	tag_url = "post/" + artist + "/" + song
+		// }
+		// else if (tag[3] == 3)
+		// {
+		// 	//album
+		// 	var artist = tag[0].split('-')[0]
+		// 	var album = tag[0].substring(artist.length+1, tag[0].length)
+		// 	sql = "SELECT album FROM global_posts WHERE artist = '" + artist + "' AND album = '" + album + "'"
+		// 	tag_url = "album/" + artist + "/" + album
+		// }
+		// else 
+		// {
+		// 	//ending with tag == 0 for users, sue me
+		// 	sql = "SELECT username FROM accounts WHERE username = '" + tag[0] + "'"
+		// 	tag_url = "user/" + tag[0]
+		// }
+		// connection.query(sql, function (err, result, fields) 
+		// {
+		// 	if (result != undefined && result.length > 0)
+		// 	{
+		// 		tag.push(tag_url)
+		// 		//tag[3] = tag_url
+		// 		tag_urls[tag[1]] = tag
+		// 	}
+		// 	else
+		// 	{
+		// 		tag_urls[tag[1]] = tag
+		// 	}
+		// 	tags.splice(0, 1);
+		// 	findTags(tags, tag_urls, id, callback_sql, end_callback_sql, tag_sql)	
+		// })
 	}
 }
 
@@ -2615,7 +2770,7 @@ app.post('/post', function (req, res)
 			    
 			// });
 			var tags = {}
-			findTags(req.body.potentialTags, tags, "')")
+			findTags(req.body.potentialTags, post_id, req.body.id, sql, "')", "INSERT INTO notifications (username, post_id, name, num_likes, num_comments, tag, tagger) VALUES ('', '" + post_id + "','" + req.body.title + "', 0, 0, 1, '" + req.body.poster +"')")
 		 //    if (all_artists.length > 1)
 		 //    {
 			//     for (var i = 0; i < all_artists.length; ++i)
@@ -2668,7 +2823,7 @@ app.post('/post', function (req, res)
 
 			// });
 			var tags = {}
-			findTags(req.body.potentialTags, tags, sql, "')")
+			findTags(req.body.potentialTags, tags, post_id, sql, "')", "INSERT INTO notifications (username, post_id, name, num_likes, num_comments, tag, tagger) VALUES ('', '" + post_id + "','" + req.body.title + "', 0, 0, 1, '" + username +"')")
 		}
 		var sql = "SELECT * from global_posts WHERE song = '" + song_name + "' AND artist = '" + artist + "'";
 		connection.query(sql, function (err, result, fields) 

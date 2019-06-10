@@ -139,6 +139,7 @@ export default class StandardHeader extends React.Component {
 		  	{
 		  		var comment_text = this.props.notifications[i].num_comments + ", comments"
 		  		var likes_text = this.props.notifications[i].num_likes + " likes"
+
 		  		if (this.props.notifications[i].num_comments == 0)
 		  		{
 		  			comment_text = ""
@@ -151,8 +152,23 @@ export default class StandardHeader extends React.Component {
 		  				comment_text = comment_text.substring(0, comment_text.indexOf(",")) + comment_text.substring(comment_text.indexOf(",") + 1, comment_text.length)
 		  			}
 		  		}
+		  		var notification_text = "Your post " + this.props.notifications[i].name + " got " + likes_text + comment_text 
+		  		var notification_url = "/user/" + this.props.notifications[i].username + "/" + this.props.notifications[i].post_id
+		  		if (this.props.notifications[i].tag > 0)
+		  		{
+		  			notification_text = this.props.notifications[i].tagger + " tagged you in a post"
+		  			if (this.props.notifications[i].tag == 1)
+		  			{
+		  				notification_url = "/user/" + this.props.notifications[i].tagger + "/" + this.props.notifications[i].post_id
+		  			}
+		  			else
+		  			{
+		  				notification_url = "/user/" + this.props.notifications[i].name + "/" + this.props.notifications[i].post_id
+		  			}
+		  			
+		  		}
 		  		this.dropdown_content.push(<div key = {this.props.notifications[i].post_id} id = {this.props.notifications[i].post_id} className = "dropdownelement" style = {{background:'white', border: '1px solid black'}}> 
-		  			<a className = "dropdownelement" href = {"/user/" + this.props.notifications[i].username + "/" + this.props.notifications[i].post_id} >Your post {this.props.notifications[i].name} got {likes_text} {comment_text} </a>
+		  			<a className = "dropdownelement" href = {notification_url} >{notification_text} </a>
 		  			 <button key = {this.props.notifications[i].post_id} style = {{right:'0px', position:'absolute', height:'25px'}} className = "dropdownelement" onClick = {this.removeNotification.bind(this, this.props.notifications[i].post_id)}> X </button>
 		  			</div>)
 		  	}

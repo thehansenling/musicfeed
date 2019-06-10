@@ -18,7 +18,6 @@ class Post extends React.Component
 		this.down_color = "#2F3846"
 		this.contentRef = React.createRef();
 		this.ellipsis = <div></div>
-
 	}
 
 	renderiframe(iframe) {
@@ -366,7 +365,6 @@ class Post extends React.Component
 				<div style = {{width:'320px', paddingTop:'30px', paddingLeft:'10px', borderRight:'1px solid rgba(0, 0, 0, 0.09)', borderRadius:'7px', borderTopRightRadius: '0px', borderBottomRightRadius: '0px'}}>
 					<div style = {{display:'flex', flexDirection:'row'}}>
 						<div style = {{width:'65px', height:'65px', backgroundColor:this.props.user_profile, borderRadius:'50%'}}>
-
 						</div>
 						<div style = {{paddingLeft:'20px'}}>
 							<div style = {{fontSize:'24px', fontWeight:'bold'}}> <a href ={poster_username_url} > {poster_username} </a></div>

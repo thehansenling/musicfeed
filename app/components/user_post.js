@@ -33,7 +33,8 @@ class UserPostContent extends React.Component
 
 			}
 		}
-
+		console.log("POTENTIAL TAGS")
+		console.log(this.potential_tags)
 		this.tagFlag = false
 		this.currentTag = ""
 		this.tagList = []
@@ -41,6 +42,7 @@ class UserPostContent extends React.Component
 		this.users = []
 		this.artistSearch = false
 		this.currentArtist = ""
+		this.songs_and_albums = []
 		
 		this.artistFlag = false
 		this.lastContentSize = 0
@@ -60,7 +62,9 @@ class UserPostContent extends React.Component
 								<button onClick = {this.submitEditComment.bind(this)} style={{position:'relative'}} type='button' class='submit_new_comment' id = {this.props.comment_id}>submit</button>
 								<button onClick = {this.closeEditComment.bind(this)} style={{position:'relative'}} type='button' class='close_new_comment' id = {this.props.comment_id}>close</button>
 							</div>
+		this.lastContentSize = this.props.data.content.length
 		this.forceUpdate()
+		
 	}
 
 	contentInput()
@@ -100,6 +104,8 @@ class UserPostContent extends React.Component
 	        },
 
 	        body: JSON.stringify({id: this.props.data.post_id, 
+	        					  poster: this.props.data.username,
+	        					  title: this.props.data.title,
 	        					  text: this.contentRef.current.value,
 	        					  potentialTags: this.potential_tags})})
 	    .then(function(response) { return response.json();})
@@ -405,7 +411,7 @@ export default class UserPost extends React.Component
 		return (
 			<div>
 				<UserPostContent data = {this.props.data.user_post} like_state = {this.props.data.like_state} num_comments = {this.props.data.num_comments} username = {this.props.data.username}/>
-				<CommentSection comments = {this.props.data.comments} comment_votes = {this.props.data.comment_votes} post_id = {this.props.data.user_post.id}/>
+				<CommentSection comments = {this.props.data.comments} comment_votes = {this.props.data.comment_votes} post_id = {this.props.data.user_post.id} post_data = {this.props.data.user_post}/>
 			</div>
 		);
 	}

@@ -102,29 +102,31 @@ module.exports =
 		//Add tag
 		if (obj.artistSearch)
 		{
+			var current_song = obj.currentTag.substring(obj.currentTag.indexOf('-') + 1, obj.currentTag.length)
 			//check if song/album fully typed
 			if (obj.songs_and_albums.length > 0 && obj.songs_and_albums[0].song != "NO_SONG_ALBUM_ONLY")
 			{
 				var alternative_song = utils.replaceAll(obj.songs_and_albums[0].song, " ", "_")
-				if (obj.songs_and_albums.length > 0 && (obj.songs_and_albums[0].song.toLowerCase() == obj.currentTag.toLowerCase() || 
-					alternative_song.toLowerCase() == obj.currentTag.toLowerCase()))
+				if (obj.songs_and_albums.length > 0 && (obj.songs_and_albums[0].song.toLowerCase() == current_song.toLowerCase() || 
+					alternative_song.toLowerCase() == current_song.toLowerCase()))
 				{
 					//this.potential_tags.push([this.songs_and_albums[0], current_index, this.contentRef.current.value.selectionEnd - 1] )
-					obj.potential_tags = utils.insertTag(obj.potential_tags, [obj.songs_and_albums[0], current_index, obj.contentRef.current.value.selectionEnd - 1])
+					obj.potential_tags = utils.insertTag(obj.potential_tags, [obj.songs_and_albums[0], current_index, obj.contentRef.current.value.selectionEnd - 1, 2])
 					obj.tagged = false
 				}				
 			}
 			else
 			{
-				var alternative_album = obj.currentTag
+				var current_album = obj.currentTag.substring(obj.currentTag.indexOf('-') + 1, obj.currentTag.length)
+				var alternative_album = obj.current_album
 				if (obj.songs_and_albums.length > 0)
 				{
-					alternative_album = utils.replaceAll(obj.songs_and_albums[0].album, " ", "_")
+					alternative_album = utils.replaceAll(current_album, " ", "_")
 				}
-				if (obj.songs_and_albums.length > 0 && (obj.songs_and_albums[0].album.toLowerCase() == obj.currentTag.toLowerCase() ||
-					alternative_album.toLowerCase() == obj.currentTag.toLowerCase()))
+				if (obj.songs_and_albums.length > 0 && (obj.songs_and_albums[0].album.toLowerCase() == current_album.toLowerCase() ||
+					alternative_album.toLowerCase() == current_album.toLowerCase()))
 				{
-					obj.potential_tags = utils.insertTag(obj.potential_tags, [obj.songs_and_albums[0], current_index, obj.contentRef.current.value.selectionEnd - 1])
+					obj.potential_tags = utils.insertTag(obj.potential_tags, [obj.songs_and_albums[0], current_index, obj.contentRef.current.value.selectionEnd - 1, 3])
 					obj.tagged = false
 				}
 			}
@@ -142,7 +144,7 @@ module.exports =
 				if (obj.artists.length > 0 && (obj.artists[0].artist.toLowerCase() == obj.currentTag.toLowerCase() || 
 					alternative_artist.toLowerCase() == obj.currentTag.toLowerCase()))
 				{
-					obj.potential_tags = utils.insertTag(obj.potential_tags, [obj.artists[0], current_index, current_index + obj.currentTag.length])
+					obj.potential_tags = utils.insertTag(obj.potential_tags, [obj.artists[0], current_index, current_index + obj.currentTag.length, 1])
 					obj.tagged = false
 				}
 			}
@@ -150,7 +152,7 @@ module.exports =
 			{
 				if (obj.users.length > 0 && obj.users[0].username.toLowerCase() == obj.currentTag.toLowerCase())
 				{
-					obj.potential_tags = utils.insertTag(obj.potential_tags, [obj.users[0], current_index, current_index + obj.currentTag.length])
+					obj.potential_tags = utils.insertTag(obj.potential_tags, [obj.users[0], current_index, current_index + obj.currentTag.length, 0])
 					//this.potential_tags.push([this.users[0], current_index, current_index + this.currentTag.length])
 					obj.tagged = false
 				}		
@@ -382,21 +384,25 @@ module.exports =
 			}
 			var artist_replaced = utils.replaceAll(e.target.textContent.substring(1, e.target.textContent.length-1), ' ', '_')
 			obj.contentRef.current.value = obj.contentRef.current.value.substring(0, current_index+1) + "-" + artist_replaced + obj.contentRef.current.value.substring(tag_end+1, obj.contentRef.current.value.length)
-			obj.potential_tag = utils.replaceTag(obj.potential_tags, [obj.songs_and_albums[parseInt(e.target.id)], artist_start, current_index + artist_replaced.length + 1]);
-
+			var tag_type = 2
+			if (obj.songs_and_albums[parseInt(e.target.id)].song == "NO_SONG_ALBUM_ONLY")
+			{
+				tag_type = 3
+			}
+			obj.potential_tag = utils.replaceTag(obj.potential_tags, [obj.songs_and_albums[parseInt(e.target.id)], artist_start, current_index + artist_replaced.length + 1, tag_type]);
 		}
 		else if (obj.artistFlag)
 		{
 			var artist_replaced = utils.replaceAll(e.target.textContent.substring(1, e.target.textContent.length-1), ' ', '_')
 			obj.contentRef.current.value = obj.contentRef.current.value.substring(0, current_index+1) + "#" + artist_replaced + obj.contentRef.current.value.substring(tag_end+1, obj.contentRef.current.value.length)
-			obj.potential_tags = utils.replaceTag(obj.potential_tags, [obj.artists[parseInt(e.target.id)], current_index + 1, current_index + artist_replaced.length + 1]);
+			obj.potential_tags = utils.replaceTag(obj.potential_tags, [obj.artists[parseInt(e.target.id)], current_index + 1, current_index + artist_replaced.length + 1, 1]);
 
 		}
 		else
 		{
 			var artist_replaced = utils.replaceAll(e.target.textContent.substring(1, e.target.textContent.length-1), ' ', '_')
 			obj.contentRef.current.value = obj.contentRef.current.value.substring(0, current_index+1) + "@" + artist_replaced + obj.contentRef.current.value.substring(tag_end+1, obj.contentRef.current.value.length)
-			obj.potential_tags = utils.replaceTag(obj.potential_tags, [obj.users[parseInt(e.target.id)], current_index + 1, current_index + artist_replaced.length + 1]);
+			obj.potential_tags = utils.replaceTag(obj.potential_tags, [obj.users[parseInt(e.target.id)], current_index + 1, current_index + artist_replaced.length + 1, 0]);
 
 		}
 		obj.contentRef.current.selectionStart = current_index + e.target.textContent.length
@@ -410,12 +416,9 @@ module.exports =
 
 	formatContent : function (content, raw_tags)
 	{
-		console.log(raw_tags)
 		var content_div = []
-
 		var tags
 		var tag_indices = []
-
 		if (raw_tags != undefined && raw_tags != null)
 		{
 			tags = JSON.parse(raw_tags)
@@ -469,7 +472,7 @@ module.exports =
 				all_content.push(<a key = {current_index} href = {tags[tag_indices[0]][4]}>{tag}</a>)
 				tag_indices.splice(0,1);
 			}
-			total_index += item.length 
+			total_index += item.length + 1
 			all_content.push(item.substring(index, item.length))
 			content_div.push(<p style = {{minHeight:'26.67px'}} key={i}>{all_content}</p>);
 		})
