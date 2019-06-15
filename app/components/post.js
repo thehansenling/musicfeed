@@ -18,6 +18,12 @@ class Post extends React.Component
 		this.down_color = "#2F3846"
 		this.contentRef = React.createRef();
 		this.ellipsis = <div></div>
+		this.bump_button = <button style = {{color:'black'}} onClick = {this.bumpClicked.bind(this)}> Bump </button>
+		if (this.props.bump)
+		{
+			this.bump_button = <button style = {{color:'black', backgroundColor: 'gray'}} onClick = {this.bumpClicked.bind(this)} disabled> Bumped </button>
+		}
+
 	}
 
 	renderiframe(iframe) {
@@ -206,6 +212,38 @@ class Post extends React.Component
 		}
 	}
 
+	bumpClicked()
+	{
+		if (!utils.checkLoggedIn())
+		{
+			alert("MUST BE LOGGED IN")
+			return;
+		}
+		var that = this
+	    fetch("/bump", {
+	        method: "POST",
+	        headers: {
+	        	Accept: 'application/json',
+	        	'Authorization': 'Basic',
+	        	'Content-Type': 'application/json',
+	        },
+	        body: JSON.stringify({post_id: this.props.song.post_id})})
+	    .then(function(response) { return response.json();})
+	    .then(function (data) { 
+	    	if (data.success)
+	    	{
+	    		//change bump to bumped
+	    		that.bump_button = <button style = {{color:'black', backgroundColor: 'gray'}} onClick = {that.bumpClicked.bind(this)} disabled> Bumped </button>
+	    		that.forceUpdate()
+	    	}
+	    	else
+	    	{
+	    		//alert no bumps
+	    		alert("YOU HAVE NO BUMPS AVAILABLE")
+	    	}
+	    })		
+	}
+
 	render()
 	{
 		var date = new Date(this.props.song.timestamp)
@@ -243,70 +281,7 @@ class Post extends React.Component
 			at_text = " at "
 			poster_username = this.props.song.username;
 			poster_username_url = "/user/" + this.props.song.username;
-			// var tags = JSON.parse(this.props.song.tags)
-			// var tag_indices = []
-			// if (this.props.song.tags != null)
-			// {
-			// 	tag_indices = Object.keys(tags)
-			// 	var remaining_indices = []
-			// 	for (var index of tag_indices)
-			// 	{
-			// 		if (tags[index].length < 5)
-			// 		{
-			// 			continue
-			// 		}
-			// 		remaining_indices.push(index)
-			// 	}
-			// 	tag_indices = remaining_indices
-			// 	tag_indices.sort(
-			// 			function(a, b){
-			// 		    	if (parseInt(a) > parseInt(b))
-			// 		        {
-			// 		        	return 1;
-			// 		        }
-			// 		        return -1;
-			// 			})
-					    		
-			// } 
-			// var total_index = 0;
-			// this.props.song.content.split('\n').map((item, i) => {
-			// 	var current_text = ""
-			// 	var tag_index = 0;
-			// 	var all_content = []
-			// 	var index = 0;
-			// 	console.log("NEW")
-			// 	console.log(total_index + item.length)
-			// 	while (tag_indices[0] < total_index + item.length)
-			// 	{
-			// 		console.log(tag_indices[0])
-			// 		console.log()
-			// 		var before_text = item.substring(index, tag_indices[0] - total_index)
-			// 		var current_index = tag_indices[0] - total_index;
-			// 		var tag = ""
-			// 		while (current_index < item.length)
-			// 		{
-			// 			console.log(current_index)
-			// 			if (item[current_index] == ' ' || 
-			// 				item[current_index] == '\t' ||
-			// 				item[current_index] == '\n')
-			// 			{
-			// 				break
-			// 			}
 
-			// 			tag += item[current_index]
-			// 			++current_index
-			// 		}
-			// 		current_text = ""
-			// 		index = current_index
-			// 		all_content.push(before_text)
-			// 		all_content.push(<a key = {current_index} href = {tags[tag_indices[0]][4]}>{tag}</a>)
-			// 		tag_indices.splice(0,1);
-			// 	}
-			// 	total_index += item.length + 1
-			// 	all_content.push(item.substring(index, item.length))
-			// 	console.log(all_content)
-			// 	content_div.push(<p style = {{minHeight:'26.67px'}} key={i}>{all_content}</p>);
-			// })
 			content_div = tag_utils.formatContent(this.props.song.content, this.props.song.tags)
 		}
 
@@ -350,13 +325,6 @@ class Post extends React.Component
 			content_section = <div ref = {this.contentRef}></div>
 			date_float = 'left'
 		}
-					// <div style = {{clear:'both'}}>{artist_names}</div>
-					// <div> <a href = {content_url} >{content_name} </a></div>
-					//#1485cc
-					//#dd3d3d
-					//#2F3846
-					//<div style = {{float:'left'}}><img onClick = {this.likeClicked.bind(this)} src={this.up_image} width="30" height="30" alt=""/></div>
-					//<div style = {{float:'left'}}><img  src={this.down_image} width="30" height="30" alt=""/></div>
 
 		return(
 
@@ -393,6 +361,9 @@ class Post extends React.Component
 						<div style = {{}}><img src="/speech_bubble.png" width="30" height="26" alt=""/></div>
 
 						<div style = {{width:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', position: 'relative', top: '0px', fontSize: '16px', fontWeight:'bold'}}> {this.props.num_comments} </div>
+						<div  style = {{width:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', position: 'relative', top: '0px', fontSize: '16px', fontWeight:'bold'}}>
+							{this.bump_button}
+						</div>
 					</div>				
 				</div>
 
@@ -474,12 +445,14 @@ export default class PostInfo extends React.Component
 	{
 		super(props);
 		this.posts = [];
+		console.log(props)
 	}
 
 	makePost(song)
 	{
 		var like_state = -1;
 		var current_num_comments = 0;
+		console.log(song)
 		for (var like of this.props.likes)
 		{
 			var id = like.post_id
@@ -508,7 +481,15 @@ export default class PostInfo extends React.Component
 				break;		
 			}
 		}
-		this.posts.push(<Post key={song.post_id} song={song} like_state = {like_state} num_comments = {current_num_comments} user_profile = {this.props.user_profiles[song.username]}/>);
+		var post_bumped = false
+		for (var bump of this.props.bumps)
+		{
+			if (song.post_id == bump.post_id)
+			{
+				post_bumped = true
+			}
+		}
+		this.posts.push(<Post key={song.post_id} song={song} like_state = {like_state} num_comments = {current_num_comments} user_profile = {this.props.user_profiles[song.username]} bump = {post_bumped}/>);
 	}
 
 	addSongs()
@@ -569,7 +550,15 @@ export default class PostInfo extends React.Component
 					}
 				}			
 			}
-			this.posts.push(<Post key={song.post_id} song={song} like_state = {like_state} num_comments = {current_num_comments} user_profile = {all_user_profiles[song.username]}/>);
+			var post_bumped = false
+			for (var bump of this.props.bumps)
+			{
+				if (song.post_id == bump.post_id)
+				{
+					post_bumped = true
+				}
+			}
+			this.posts.push(<Post key={song.post_id} song={song} like_state = {like_state} num_comments = {current_num_comments} user_profile = {all_user_profiles[song.username]} bump = {post_bumped}/>);
 		}
 		this.forceUpdate()
 	}

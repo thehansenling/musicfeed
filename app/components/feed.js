@@ -31,6 +31,8 @@ class NewPostSubmission extends React.Component {
 		this.artistFlag = false
 		this.lastContentSize = 0
 		this.tagged = false
+		this.show_song_display = 'none'
+		this.submissionLikeState = -1
 	}
 
 	songInput()
@@ -44,9 +46,10 @@ class NewPostSubmission extends React.Component {
 	   		// this.contentRef.current.style.width = '670px'
 	   		// this.contentRef.current.style.height = '300px'
 	   		// this.titleRef.current.style.width = '670px'
-	   		// this.embedded_content = this.songEmbedRef.current.value;
+	   		this.embedded_content = this.songEmbedRef.current.value;
 	   		this.postContentRef.current.style.display = ''
 	   		this.containerRef.current.style.height = '500px'
+	   		this.show_song_display = ''
 	   	}
 	   	else 
 	   	{
@@ -57,6 +60,7 @@ class NewPostSubmission extends React.Component {
 	   		this.embedded_content = this.songEmbedRef.current.value;
 	   		this.postContentRef.current.style.display = 'none'
 	   		this.containerRef.current.style.height = '140px'
+	   		this.show_song_display = 'none'
 	   	}
 	   	
 	   	this.forceUpdate();
@@ -114,6 +118,7 @@ class NewPostSubmission extends React.Component {
 			body: JSON.stringify({song: this.songEmbedRef.current.value, 
 								  content: this.contentRef.current.value, 
 								  title: this.titleRef.current.value,
+								  submissionLikeState: this.submissionLikeState,
 								  potentialTags: this.potential_tags}
 								  )})
 			.then(function(response) { return response.json();})
@@ -169,6 +174,34 @@ class NewPostSubmission extends React.Component {
 		</div>
 		this.forceUpdate();
 	}
+
+	submissionLiked()
+	{
+		if (this.submissionLikeState == 1)
+		{
+			this.submissionLikeState = -1
+
+		}
+		else
+		{
+			this.submissionLikeState = 1
+		}
+		this.forceUpdate()
+	}
+
+	submissionDisliked()
+	{
+		if (this.submissionLikeState == 0)
+		{
+			this.submissionLikeState = -1
+		}
+		else
+		{
+			this.submissionLikeState = 0
+		}
+		this.forceUpdate()
+	}
+
 	//<button style = {{ width:'100px', position:'relative'}} onClick = {this.beginNewPost.bind(this)} > new post </button>
 	render()
 	{
@@ -177,6 +210,20 @@ class NewPostSubmission extends React.Component {
 		{
 			tag_display = ''
 		}
+
+		var submissionLikeColor = 'black'
+		var submissionDislikeColor = 'black'
+		if (this.submissionLikeState == 1)
+		{
+			submissionLikeColor = 'blue'
+			submissionDislikeColor = 'black'
+		}
+		else if (this.submissionLikeState == 0)
+		{
+			submissionLikeColor = 'black'
+			submissionDislikeColor = 'red'
+		}
+
 		return (
 			<div ref = {this.containerRef} style = {{position:'relative', margin: '0 auto', width: '735px', height:'140px', backgroundColor:'white', border: '1px solid #F1F1F1', borderRadius:'7px', top:'14px'}}>
 				<div style = {{fontFamily:'RobotoRegular', fontSize:'20px', color:'rgba(47, 56, 70, 0.58)', paddingLeft:'18px', paddingTop:'15px'}}> Create Post </div>
@@ -200,9 +247,17 @@ class NewPostSubmission extends React.Component {
 					
 				</div>
 
- 				<div style = {{display:'flex', flexDirection:'row'}}>
+ 				<div style = {{display:this.show_song_display, position:'absolute', top:'0px', width:'416px', height: '500px', right:'-445px', backgroundColor: 'white', zIndex:'8'}}>
 					{this.newPost}
-					<div id="showsong" style = {{position:'relative', top:'24px'}} dangerouslySetInnerHTML={this.renderiframe(this.embedded_content)}>
+					<div id="showsong"  dangerouslySetInnerHTML={this.renderiframe(this.embedded_content)}>
+					</div>
+					<div style = {{display:'flex', flexDirection:'row'}}>
+						<button style = {{color:submissionLikeColor}} onClick = {this.submissionLiked.bind(this)}>
+							Like
+						</button>
+						<button style = {{color:submissionDislikeColor}} onClick = {this.submissionDisliked.bind(this)}>
+							Dislike
+						</button>
 					</div>
 				</div>
 
@@ -230,13 +285,11 @@ class Trending extends React.Component {
 		this.state = { global_post_index: 0 };
 		this.global_posts = []
 		this.trending_posts = []
+
 		for (var i = 0; i < this.props.data.length; ++i)
 		{
 			var iframe_string = this.props.data[i].embedded_content;
-
 			this.props.data[i].embedded_content = SetSpotifySize(iframe_string, 250, 330)				
-
-
 			this.global_posts.push(this.props.data[i])
 		}
 
@@ -393,7 +446,7 @@ export default class Feed extends React.Component{
 			<div style = {{display:'flex', flexDirection:'row', width:'1190px', margin:'0px auto'}}>
 				<div className = "feed" style = {{position:'relative', top:'100px', border: '1px solid #F1F1F1', borderRadius:'7px', width:'755px', backgroundColor:'#F6F6F6'}}>
 					<NewPostSubmission style = {{position:'relative', left:'10px'}} />
-					<PostInfo style = {{position:'relative', top:'20px', left:'10px'}} ref = {this.postsRef} songs = {this.props.data.songs} likes = {this.props.data.likes} num_comments = {this.props.data.num_comments} user_profiles = {this.props.data.user_profiles}/>
+					<PostInfo style = {{position:'relative', top:'20px', left:'10px'}} ref = {this.postsRef} songs = {this.props.data.songs} likes = {this.props.data.likes} num_comments = {this.props.data.num_comments} user_profiles = {this.props.data.user_profiles} bumps = {this.props.data.bumps}/>
 				</div>
 				<div style = {{position:'relative', top:'100px', left:'15px', border: '1px solid #F1F1F1', borderRadius:'7px', width:'420px', height:'2028px', backgroundColor:'#F6F6F6'}}>
 					<div style = {{position:'relative', top:'14px', left:'10px'}}>

@@ -33,8 +33,6 @@ class UserPostContent extends React.Component
 
 			}
 		}
-		console.log("POTENTIAL TAGS")
-		console.log(this.potential_tags)
 		this.tagFlag = false
 		this.currentTag = ""
 		this.tagList = []

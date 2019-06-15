@@ -29,7 +29,7 @@ var RELEVANT_TIMESTAMP_MAX_AMOUNT = 100;
 var SCORE_MODIFIER = 2;
 var PRIORITY_MODIFIER = 8640 /2
 
-var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - UNIX_TIMESTAMP())/45000000 "
+var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (relevant_timestamp - UNIX_TIMESTAMP())/45000000 "
 
 //test database
 // var connection = mysql.createConnection({
@@ -206,11 +206,11 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 
 		//var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - CURRENT_TIMESTAMP)/45000 "
 
-		var priority_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM user_content WHERE username in " + followed_users + " OR artist REGEXP '" + regular_artists + "' ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + offset;
+		var priority_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (relevant_timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM user_content WHERE username in " + followed_users + " OR artist REGEXP '" + regular_artists + "' ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + offset;
 		connection.query(priority_sql, function (err, result, fields) 
 			{
 			var priority_results = result;
-			var sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + "  END as score FROM user_content WHERE username NOT in " + followed_users + " AND artist NOT REGEXP '" + regular_artists + "' ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + non_priority_offset;
+			var sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (relevant_timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + "  END as score FROM user_content WHERE username NOT in " + followed_users + " AND artist NOT REGEXP '" + regular_artists + "' ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + non_priority_offset;
 			connection.query(sql, function (err, result, fields)  
 			{
 			    if (err) throw err; 
@@ -379,7 +379,14 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 												user_profiles[profile.username] = profile.profile_picture
 											}
 										}					
-										callback(songs_list, global_songs_list, likes_list, num_comments_list, num_posts_list, user_profiles);
+										var bumps_sql = "SELECT post_id FROM bumps WHERE username = '" + req.cookies.username + "'" + "AND post_id in (" + post_ids + ")";
+										{
+											connection.query(bumps_sql, function (err, result, fields) 
+											{		
+												callback(songs_list, global_songs_list, likes_list, num_comments_list, num_posts_list, user_profiles, result);
+											})
+										}
+										
 									})	
 								});				
 
@@ -396,7 +403,7 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 function SendFeed(req, res, limit)
 {
 	var data = GetFeed(req, res, 
-		function (songs_list, global_songs_list, likes_list, num_comments_list, num_posts_list, user_profiles) {
+		function (songs_list, global_songs_list, likes_list, num_comments_list, num_posts_list, user_profiles, bumps) {
 			res.send(
 			{
 				songs: songs_list,
@@ -405,6 +412,7 @@ function SendFeed(req, res, limit)
 				num_posts: num_posts_list,
 				post_limit: limit,
 				user_profiles: user_profiles,
+				bumps:bumps
 			});	
 		}, 
 		parseInt(req.body.offset), 
@@ -417,7 +425,7 @@ function SendFeed(req, res, limit)
 function RenderFeed(req, res)
 {
 	var data = GetFeed(req, res, 
-		function (songs_list, global_songs_list, likes_list, num_comments_list, num_posts_list, user_profiles) {
+		function (songs_list, global_songs_list, likes_list, num_comments_list, num_posts_list, user_profiles, bumps) {
 
 			// res.render('pages/feed', 
 			// {
@@ -435,6 +443,7 @@ function RenderFeed(req, res)
 							num_posts: num_posts_list,
 							user_profiles: user_profiles,
 						    username: req.cookies.username,
+						    bumps: bumps,
 							notifications: result}
 				//var html = ReactDOMServer.renderToString(<StaticRouter location={req.url} context={context}><App data = {data}/></StaticRouter>)
 				//var html = ReactDOMServer.renderToString(<Home test= "testing"/>)
@@ -1117,7 +1126,7 @@ app.post('/edit_content', function (req, res) {
 function GetPosts(condition, req, res, limit = 0)
 {
 	var sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN " + 
-								  "(timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM user_content " + condition + 
+								  "(relevant_timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM user_content " + condition + 
 								  " ORDER BY score DESC LIMIT " + limit + " OFFSET " + req.body.offset;
 	connection.query(sql, function (err, result, fields) 
 	{					
@@ -1199,7 +1208,7 @@ app.get('/user/:user/', (req, res) => {
 	//var sql = "SELECT * FROM user_content where username = '" + req.params.user + "'ORDER BY timestamp ";
 	//var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - CURRENT_TIMESTAMP)/45000 "
 	var sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN " + 
-								  "(timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM user_content " + 
+								  "(relevant_timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM user_content " + 
 								  "WHERE username = '" + req.params.user + "' " + 
 								  "ORDER BY score DESC LIMIT " + 5 + " OFFSET " + 0
 	connection.query(sql, function (err, result, fields) 
@@ -1254,20 +1263,31 @@ app.get('/user/:user/', (req, res) => {
 						var user_sql = "SELECT * FROM accounts WHERE username = '" + req.params.user +"'";
 						connection.query(user_sql, function (err, result, fields) 
 						{
+							var user_info = result[0]
 							var user_profiles = {}
 							user_profiles[req.params.user] = result[0].profile_picture
-							var data = {
-								songs: songs_list,
-								likes: likes_list,
-								num_comments: num_comments_list,
-								follows: follows_data,
-								followees: followees,
-								user: result[0],
-								username: req.cookies.username,
-								user_profiles:user_profiles
-							}
-							var html = renderPage(req.url, data)
-							res.send(html);
+							var bumps_sql = "SELECT post_id FROM bumps WHERE username = '" + req.cookies.username + "'" + "AND post_id in (" + post_ids + ")";
+							
+							connection.query(bumps_sql, function (err, result, fields) 
+							{		
+
+								var bumps = result
+								console.log(bumps_sql)
+								console.log(bumps)
+								var data = {
+									songs: songs_list,
+									likes: likes_list,
+									num_comments: num_comments_list,
+									follows: follows_data,
+									followees: followees,
+									user: user_info,
+									username: req.cookies.username,
+									user_profiles:user_profiles,
+									bumps: bumps
+								}
+								var html = renderPage(req.url, data)
+								res.send(html);
+							})
 						});
 					});
 				});
@@ -1577,7 +1597,7 @@ app.get('/post/:artist/:song', function (req, res) {
 
 		//var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - CURRENT_TIMESTAMP)/45000 "
 		var user_posts_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN " + 
-							  "(timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql+ " END as score FROM user_content " + 
+							  "(relevant_timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql+ " END as score FROM user_content " + 
 							  "WHERE artist = '" + req.params.artist + "' AND song = '" + req.params.song + "' " + 
 							  "ORDER BY score DESC LIMIT " + 5 + " OFFSET " + 0;
 		connection.query(user_posts_sql, function (err, result, fields) 
@@ -1673,7 +1693,7 @@ app.post('/load_global_posts', function(req, res)
 {
 	//var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - CURRENT_TIMESTAMP)/45000 "
 	var user_posts_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN " + 
-						  "(timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM user_content " + 
+						  "(relevant_timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM user_content " + 
 						  "WHERE artist = '" + req.body.artist + "' AND album = '" + req.body.album + "' AND song = '" + req.body.song + "' " + 
 						  "ORDER BY score DESC LIMIT " + 5 + " OFFSET " + req.body.offset;
 	connection.query(user_posts_sql, function (err, result, fields) 
@@ -1755,7 +1775,7 @@ app.get('/album/:artist/:album', function (req, res) {
 
 	//var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - CURRENT_TIMESTAMP)/45000 "
 	var user_posts_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN " + 
-						  "(timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM user_content " + 
+						  "(relevant_timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM user_content " + 
 						  "WHERE artist = '" + req.params.artist + "' AND album = '" + req.params.album + "' AND song = 'NO_SONG_ALBUM_ONLY' " + 
 						  "ORDER BY score DESC LIMIT " + 5 + " OFFSET " + 0;
 	connection.query(user_posts_sql, function (err, result, fields) 
@@ -2295,6 +2315,43 @@ app.post('/global_dislike', function (req, res)
 	});
 });
 
+app.post('/bump', function (req, res)
+{
+	var user_bumps_sql = "SELECT bumps from accounts WHERE username = '" + req.cookies.username + "'"
+	connection.query(user_bumps_sql, function (err, result, fields) 
+	{
+		if (result.length > 0)
+		{
+			if (result[0].bumps > 0)
+			{
+				res.send({success:true})
+				var timestamp = String(new Date().getTime());
+				var user_bump_sql = "UPDATE accounts SET bumps = bumps - 1 WHERE username = '" + req.cookies.username + "'"
+				connection.query(user_bump_sql, function (err, result, fields) 
+				{
+				})
+				var insert_bump_sql = "INSERT INTO bumps (username, timestamp, post_id) VALUES('" + req.cookies.username + "', " + timestamp + ", '" + req.body.post_id + "')"
+				//modify relevant timestamp
+				connection.query(insert_bump_sql, function (err, result, fields) 
+				{
+				})
+
+				var timestamp_sql = "UPDATE user_content SET relevant_timestamp = (relevant_timestamp + UNIX_TIMESTAMP() * 1000) / 2, bumps = bumps + 1 WHERE post_id = '" + req.body.post_id + "'"
+				connection.query(timestamp_sql, function (err, result, fields) 
+				{
+
+				})
+
+			}
+			else
+			{
+				res.send({success:false})
+			}
+		}
+	})
+
+})
+
 app.post('/upvote', function (req, res)
 {
 	var sql = "UPDATE comments SET upvotes = upvotes + 1 WHERE comment_id = '" +  req.body.id +"'"
@@ -2762,9 +2819,9 @@ app.post('/post', function (req, res)
 			artist = replaceAll(artist, "'", "\\\'")
 			song_name = replaceAll(song_name, "'", "\\\'")
 			album = replaceAll(album, "'", "\\\'")
-			var sql = "INSERT into user_content (id, username, embedded_content, content, timestamp, likes, dislikes, post_id, title, artist, album, song, data, tags) VALUES('" + String(post_id) + "','" 
+			var sql = "INSERT into user_content (id, username, embedded_content, content, timestamp, likes, dislikes, post_id, title, artist, album, song, data, submission_like_state, tags) VALUES('" + String(post_id) + "','" 
 			    	+ username + "','" + String(req.body.song)+ "','" + String(req.body.content) + "','" + String(date) +"', 0 "+ ", 0,'" + String(post_id) + "',\"" + String(req.body.title) 
-			    	+ "\", '" + String(artist) + "', '" + String(album) + "', '" + String(song_name) +  "'," + "'{}'" + ", '";
+			    	+ "\", '" + String(artist) + "', '" + String(album) + "', '" + String(song_name) +  "'," + "'{}'" + ", " + req.body.submissionLikeState + ", '";
 			// connection.query(sql, function (err, result, fields) 
 			// {
 			    
@@ -2815,9 +2872,9 @@ app.post('/post', function (req, res)
 			artist = replaceAll(artist, "'", "\\\'")
 			song_name = replaceAll(song_name, "'", "\\\'")
 			album = replaceAll(album, "'", "\\\'")
-			var sql = "INSERT into user_content (id, username, embedded_content, content, timestamp, likes, dislikes, post_id, title, artist, album, song, tags) VALUES('" + String(post_id) + "','" 
+			var sql = "INSERT into user_content (id, username, embedded_content, content, timestamp, likes, dislikes, post_id, title, artist, album, song, submission_like_state, tags) VALUES('" + String(post_id) + "','" 
 			    	+ username + "','" + String(req.body.song)+ "','" + String(req.body.content) + "','" + String(date) +"', 0 "+ ", 0,'" + String(post_id) + "',\"" + String(req.body.title) 
-			    	+ "\", '" + String(artist) + "', '" + String(album) + "', '" + String(song_name) + "','";
+			    	+ "\", '" + String(artist) + "', '" + String(album) + "', '" + String(song_name) + "', " + req.body.submissionLikeState + ",'";
 			// connection.query(sql, function (err, result, fields) 
 			// {
 
@@ -2977,7 +3034,21 @@ app.post('/remove_notification', (req, res) => {
 	})
 })
 
+var add_bump = true
 setInterval(function () {
+	var today = new Date();
+	if (today.getDay() == 0 && add_bump)
+	{
+		add_bump = false
+		var add_bump_sql = "UPDATE accounts SET bumps = bumps + 1"
+		connection.query(add_bump_sql, function (err, result, fields)
+		{
+		})
+	}
+	if (today.getDay() == 1 && !add_bump)
+	{
+		add_bump = true
+	}
     connection.query('SELECT 1');
 }, 5000);
 

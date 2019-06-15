@@ -14,7 +14,7 @@ class UserInfo extends React.Component {
 			this.description_ui = <button onClick={this.editDescription.bind(this)}> Edit Description </button>;
 		}
 		this.description_text = React.createRef();
-
+		this.bumps_ui = <div> Bumps: {this.props.user.bumps} </div>
 
 
 	}
@@ -63,6 +63,7 @@ class UserInfo extends React.Component {
 				<div style = {{fontSize:'18pt'}}>{this.description}</div>
 				{this.description_ui}
 				<div style = {{fontSize:'18pt'}}>Score: {this.props.user.upvotes - this.props.user.downvotes}</div>
+				{this.bumps_ui} 
 			</div>
 		);
 	}
@@ -421,7 +422,7 @@ export default class UserPage extends React.Component{
 		<br/>
 		
 		<div style = {{position:'relative', top:display_top}} >
-			<PostInfo ref = {this.postsRef} songs = {this.props.data.songs} likes = {this.props.data.likes} num_comments = {this.props.data.num_comments} user_profiles = {this.props.data.user_profiles} />
+			<PostInfo ref = {this.postsRef} songs = {this.props.data.songs} likes = {this.props.data.likes} num_comments = {this.props.data.num_comments} user_profiles = {this.props.data.user_profiles} bumps = {this.props.data.bumps} />
 		</div>
 		<div className = "user_body" style={{left:'5%', top:'100px', position:'relative', width:'100%'}}>
 
