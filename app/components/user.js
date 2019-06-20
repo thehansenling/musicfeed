@@ -394,7 +394,7 @@ export default class UserPage extends React.Component{
 		    .then(function(response) { return response.json();})
 		    .then(function (data) { 
 		    	that.offset += data.songs.length;
-		    	that.postsRef.current.addPosts(data.songs, data.likes, data.num_comments)
+		    	that.postsRef.current.addPosts(data.songs, data.likes, data.num_comments, data.num_posts, data.user_profiles)
 		    	that.loading_posts_semaphor = false;
 		 	})
 		}

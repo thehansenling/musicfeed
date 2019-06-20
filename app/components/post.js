@@ -445,14 +445,12 @@ export default class PostInfo extends React.Component
 	{
 		super(props);
 		this.posts = [];
-		console.log(props)
 	}
 
 	makePost(song)
 	{
 		var like_state = -1;
 		var current_num_comments = 0;
-		console.log(song)
 		for (var like of this.props.likes)
 		{
 			var id = like.post_id
@@ -558,7 +556,8 @@ export default class PostInfo extends React.Component
 					post_bumped = true
 				}
 			}
-			this.posts.push(<Post key={song.post_id} song={song} like_state = {like_state} num_comments = {current_num_comments} user_profile = {all_user_profiles[song.username]} bump = {post_bumped}/>);
+			var user_profile = all_user_profiles[song.username]
+			this.posts.push(<Post key={song.post_id} song={song} like_state = {like_state} num_comments = {current_num_comments} user_profile = {user_profile} bump = {post_bumped}/>);
 		}
 		this.forceUpdate()
 	}

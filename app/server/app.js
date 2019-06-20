@@ -6,6 +6,8 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var uuidv3 = require('uuid/v3');
 var Spotify = require('node-spotify-api');
+var bcrypt = require('bcrypt')
+var saltRounds = 10;
 
 import React from 'react';
 const app = express();
@@ -27,26 +29,37 @@ var POST_LIMIT = 5;
 var COMMENT_LIMIT = 5;
 var RELEVANT_TIMESTAMP_MAX_AMOUNT = 100;
 var SCORE_MODIFIER = 2;
-var PRIORITY_MODIFIER = 8640 /2
+var PRIORITY_MODIFIER = 8640 / 4500
 
-var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (relevant_timestamp - UNIX_TIMESTAMP())/45000000 "
+var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (relevant_timestamp - UNIX_TIMESTAMP() * 1000)/45000000 "
 
 //test database
+var connection = mysql.createConnection({
+  host     : 'us-cdbr-iron-east-01.cleardb.net',
+  user     : 'bc7ebf9f6de242',
+  password : 'aa9b1c1f',
+  database : 'heroku_cdc4ca7b10e1680',
+  multipleStatements: true
+});
+
+// //prod database
 // var connection = mysql.createConnection({
-//   host     : 'us-cdbr-iron-east-01.cleardb.net',
-//   user     : 'bc7ebf9f6de242',
-//   password : 'aa9b1c1f',
-//   database : 'heroku_cdc4ca7b10e1680',
+//   host     : 'us-iron-auto-sfo-03-bh.cleardb.net',
+//   user     : 'b82ff0c686544a',
+//   password : '52ad3adb',
+//   database : 'heroku_4df94195b1d1e6b',
 //   multipleStatements: true
 // });
 
-//prod database
-var connection = mysql.createConnection({
-  host     : 'us-iron-auto-sfo-03-bh.cleardb.net',
-  user     : 'b82ff0c686544a',
-  password : '52ad3adb',
-  database : 'heroku_4df94195b1d1e6b',
-  multipleStatements: true
+app.post('/updateTrending', function (req, res)
+{
+	var modified_limit = String(parseInt(5) + 1);
+	var sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (relevant_timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM global_posts WHERE valid_feed_post != 0 ORDER BY score DESC LIMIT " + modified_limit + " OFFSET 8";
+	connection.query(sql, function (err, result, fields)
+	{
+
+		res.send({posts: result})
+	});
 });
 
 function replaceAll(string, delimiter, replace)
@@ -206,20 +219,20 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 
 		//var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - CURRENT_TIMESTAMP)/45000 "
 
-		var priority_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (relevant_timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM user_content WHERE username in " + followed_users + " OR artist REGEXP '" + regular_artists + "' ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + offset;
+		var priority_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (relevant_timestamp - UNIX_TIMESTAMP() * 1000)/45000000 ELSE " + score_sql + " END as score FROM user_content WHERE username in " + followed_users + " OR artist REGEXP '" + regular_artists + "' ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + offset;
 		connection.query(priority_sql, function (err, result, fields) 
 			{
 			var priority_results = result;
-			var sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (relevant_timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + "  END as score FROM user_content WHERE username NOT in " + followed_users + " AND artist NOT REGEXP '" + regular_artists + "' ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + non_priority_offset;
+			var sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (relevant_timestamp - UNIX_TIMESTAMP() * 1000)/45000000 ELSE " + score_sql + "  END as score FROM user_content WHERE username NOT in " + followed_users + " AND artist NOT REGEXP '" + regular_artists + "' ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + non_priority_offset;
 			connection.query(sql, function (err, result, fields)  
 			{
 			    if (err) throw err; 
 			    var non_priority_results = result;
-				var priority_global_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (relevant_timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM global_posts WHERE artist REGEXP '" + regular_artists + "' AND valid_feed_post != 0 ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + global_offset;
+				var priority_global_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (relevant_timestamp - UNIX_TIMESTAMP() * 1000)/45000000 ELSE " + score_sql + " END as score FROM global_posts WHERE artist REGEXP '" + regular_artists + "' AND valid_feed_post != 0 ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + global_offset;
 				connection.query(priority_global_sql, function (err, result, fields) 
 				{
 					var priority_global_results = result;
-					var non_priority_global_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (relevant_timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM global_posts WHERE artist NOT REGEXP '" + regular_artists + "' AND valid_feed_post != 0 ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + non_priority_global_offset;
+					var non_priority_global_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (relevant_timestamp - UNIX_TIMESTAMP() * 1000)/45000000 ELSE " + score_sql + " END as score FROM global_posts WHERE artist NOT REGEXP '" + regular_artists + "' AND valid_feed_post != 0 ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + non_priority_global_offset;
 					connection.query(non_priority_global_sql, function (err, result, fields) 
 					{					
 						var non_priority_global_results = result
@@ -275,6 +288,7 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 					    									priority_global_results.length == modified_limit, non_priority_global_results.length == modified_limit);
 
 					    merged_result = merged_result[0]
+					    console.log(merged_result)
 					    var songs_list = [];
 						var post_ids = ""
 						var global_post_info = []
@@ -296,11 +310,13 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 						}
 
 						merged_global = merged_global[0]
+						console.log(merged_result.length)
+						console.log(merged_global.length)
 						var global_songs_list = []
 						for (var i = 0; i < merged_global.length; ++i)
 						{
 							global_songs_list.push(merged_global[i])
-							global_post_info.push([merged_result[i].artist, merged_result[i].album, merged_result[i].song, merged_result[i].post_id])
+							global_post_info.push([merged_global[i].artist, merged_global[i].album, merged_global[i].song, merged_global[i].post_id])
 						}
 						if (post_ids.length > 0) post_ids = post_ids.substring(0, post_ids.length-1);
 						var like_sql = "SELECT post_id, like_state FROM likes WHERE user_id = '" + 
@@ -1126,7 +1142,7 @@ app.post('/edit_content', function (req, res) {
 function GetPosts(condition, req, res, limit = 0)
 {
 	var sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN " + 
-								  "(relevant_timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM user_content " + condition + 
+								  "(relevant_timestamp - UNIX_TIMESTAMP() * 1000)/45000000 ELSE " + score_sql + " END as score FROM user_content " + condition + 
 								  " ORDER BY score DESC LIMIT " + limit + " OFFSET " + req.body.offset;
 	connection.query(sql, function (err, result, fields) 
 	{					
@@ -1181,17 +1197,40 @@ function GetPosts(condition, req, res, limit = 0)
 				var user_sql = "SELECT * FROM accounts WHERE username = '" + req.params.user +"'";
 				connection.query(user_sql, function (err, result, fields) 
 				{
-					//callback(songs_list, likes_list, num_comments_list);
-					var data = {
-						songs: songs_list,
-						likes: likes_list,
-						num_comments: num_comments_list,
-						username: req.body.username,
-						user: result[0],
-					}
-					//var html = renderPage(req.url, data)
-					//res.send(html);
-					res.send(data);
+					var user_info = result[0]
+					var userprofiles_sql = "SELECT username, profile_picture FROM accounts WHERE username = '" + req.params.user + "'"
+					connection.query(userprofiles_sql, function (err, result, fields) 
+					{			
+						var user_profiles = {}		
+						if (result != undefined)
+						{
+							for (var profile of result)
+							{
+								user_profiles[profile.username] = profile.profile_picture
+							}
+						}					
+
+						var bumps_sql = "SELECT post_id FROM bumps WHERE username = '" + req.cookies.username + "'" + "AND post_id in (" + post_ids + ")";
+						{
+							connection.query(bumps_sql, function (err, result, fields) 
+							{	
+								var bumps = result
+								//callback(songs_list, likes_list, num_comments_list);
+								var data = {
+									songs: songs_list,
+									likes: likes_list,
+									num_comments: num_comments_list,
+									username: req.body.username,
+									user: user_info,
+									bumps: bumps,
+									user_profiles: user_profiles,
+								}
+								//var html = renderPage(req.url, data)
+								//res.send(html);
+								res.send(data);
+							})
+						}
+					})
 			 	});
 				//callback(data);
 			});			
@@ -1208,7 +1247,7 @@ app.get('/user/:user/', (req, res) => {
 	//var sql = "SELECT * FROM user_content where username = '" + req.params.user + "'ORDER BY timestamp ";
 	//var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - CURRENT_TIMESTAMP)/45000 "
 	var sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN " + 
-								  "(relevant_timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM user_content " + 
+								  "(relevant_timestamp - UNIX_TIMESTAMP() * 1000)/45000000 ELSE " + score_sql + " END as score FROM user_content " + 
 								  "WHERE username = '" + req.params.user + "' " + 
 								  "ORDER BY score DESC LIMIT " + 5 + " OFFSET " + 0
 	connection.query(sql, function (err, result, fields) 
@@ -1272,8 +1311,6 @@ app.get('/user/:user/', (req, res) => {
 							{		
 
 								var bumps = result
-								console.log(bumps_sql)
-								console.log(bumps)
 								var data = {
 									songs: songs_list,
 									likes: likes_list,
@@ -1597,7 +1634,7 @@ app.get('/post/:artist/:song', function (req, res) {
 
 		//var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - CURRENT_TIMESTAMP)/45000 "
 		var user_posts_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN " + 
-							  "(relevant_timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql+ " END as score FROM user_content " + 
+							  "(relevant_timestamp - UNIX_TIMESTAMP() * 1000)/45000000 ELSE " + score_sql+ " END as score FROM user_content " + 
 							  "WHERE artist = '" + req.params.artist + "' AND song = '" + req.params.song + "' " + 
 							  "ORDER BY score DESC LIMIT " + 5 + " OFFSET " + 0;
 		connection.query(user_posts_sql, function (err, result, fields) 
@@ -1693,7 +1730,7 @@ app.post('/load_global_posts', function(req, res)
 {
 	//var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - CURRENT_TIMESTAMP)/45000 "
 	var user_posts_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN " + 
-						  "(relevant_timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM user_content " + 
+						  "(relevant_timestamp - UNIX_TIMESTAMP() * 1000)/45000000 ELSE " + score_sql + " END as score FROM user_content " + 
 						  "WHERE artist = '" + req.body.artist + "' AND album = '" + req.body.album + "' AND song = '" + req.body.song + "' " + 
 						  "ORDER BY score DESC LIMIT " + 5 + " OFFSET " + req.body.offset;
 	connection.query(user_posts_sql, function (err, result, fields) 
@@ -1775,7 +1812,7 @@ app.get('/album/:artist/:album', function (req, res) {
 
 	//var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - CURRENT_TIMESTAMP)/45000 "
 	var user_posts_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN " + 
-						  "(relevant_timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM user_content " + 
+						  "(relevant_timestamp - UNIX_TIMESTAMP() * 1000)/45000000 ELSE " + score_sql + " END as score FROM user_content " + 
 						  "WHERE artist = '" + req.params.artist + "' AND album = '" + req.params.album + "' AND song = 'NO_SONG_ALBUM_ONLY' " + 
 						  "ORDER BY score DESC LIMIT " + 5 + " OFFSET " + 0;
 	connection.query(user_posts_sql, function (err, result, fields) 
@@ -1926,23 +1963,47 @@ app.get('/login', function(req, res)
 
 app.post('/login', function(req, res)
 {
-	var sql = "SELECT * FROM accounts where username = '" + req.body.username + "' AND password = '"+ req.body.password +"' COLLATE utf8_bin";
+	
+	    // res == true
+   	var sql = "SELECT password FROM accounts where username = '" + req.body.username + "' COLLATE utf8_bin";
 	connection.query(sql, function (err, result, fields) {
 	    if (err) throw err;
 	    var login_message = "Login Failure";
-	    if (result.length!= 0)
+	    if (result.length == 0)
 	    {
-			res.cookie('username', result[0].username);
-			var data = {login_message:"Login Successful"}
-			res.send(data);			
-	    }
-	    else
-	    {
+		    
 			var data = {login_message:"Login Failed"}
-			res.send(data);
+			res.send(data);	    
+			return	
 	    }
+	  	bcrypt.compare(req.body.password, result[0].password, function(err, decrypt_result) {
+		    if (decrypt_result)
+		    {
+				res.cookie('username', req.body.username);
+				var data = {login_message:"Login Successful"}
+				res.send(data);			
+		    }
+		    else
+		    {
+				var data = {login_message:"Login Failed"}
+				res.send(data);
+		    }	  		
+	  	});
+	  //   if (result.length!= 0)
+	  //   {
+			// res.cookie('username', result[0].username);
+			// var data = {login_message:"Login Successful"}
+			// res.send(data);			
+	  //   }
+	  //   else
+	  //   {
+			// var data = {login_message:"Login Failed"}
+			// res.send(data);
+	  //   }
 
   	});
+
+
 });
 
 app.post('/logout', function(req, res)
@@ -1965,18 +2026,38 @@ app.post('/register', function(req, res)
 	{
 		var username_check_sql = "SELECT * from accounts WHERE username = '" + req.body.username + "'";
 		var data;
+		if (req.body.username.indexOf(' ') != -1)
+		{
+	  		data = {
+				message: "Username cannot contain spaces"
+			}
+			res.send(data);
+			return
+		}
+		if (req.body.username.length > 32)
+		{
+	  		data = {
+				message: "Username is too long, must be less than 32 characters"
+			}
+			res.send(data);
+			return
+		}
 		connection.query(username_check_sql, function (err, result) {
 			if (result.length == 0)
 			{
-				var sql = "INSERT INTO accounts (username, password, email) VALUES ('" + req.body.username + "', '" + req.body.password + "', '" + req.body.email + "' )";
-				connection.query(sql, function (err, result) {
-			    	if (err) throw err;
-		  		});
-		  		data = {
-					message: "Registration Successful"
-				}
-				res.cookie('username', req.body.username);
-		  		res.send(data);			
+				bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
+				 	 // Store hash in your password DB.
+					var sql = "INSERT INTO accounts (username, password, email) VALUES ('" + req.body.username + "', '" + hash + "', '" + req.body.email + "' )";
+					connection.query(sql, function (err, result) {
+				    	if (err) throw err;
+			  		});
+			  		data = {
+						message: "Registration Successful"
+					}
+					res.cookie('username', req.body.username);
+			  		res.send(data);		
+				});
+	
 			}
 			else
 			{
@@ -2762,7 +2843,7 @@ app.post('/post', function (req, res)
 
 
 	var username = req.cookies.username;
-	var post_id = uuidv3(String(temp_username + "/" + req.body.title), uuidv3.URL);
+	var post_id = uuidv3(String(temp_username + "/" + String(date)), uuidv3.URL);
 	req.body.content = replaceAll(req.body.content, "'", "\\\'")
 	req.body.title = replaceAll(req.body.title, "'", "\\\'")
 	var spotify_username = '44a9442188734ab2999542562c6477c3';
@@ -2819,8 +2900,8 @@ app.post('/post', function (req, res)
 			artist = replaceAll(artist, "'", "\\\'")
 			song_name = replaceAll(song_name, "'", "\\\'")
 			album = replaceAll(album, "'", "\\\'")
-			var sql = "INSERT into user_content (id, username, embedded_content, content, timestamp, likes, dislikes, post_id, title, artist, album, song, data, submission_like_state, tags) VALUES('" + String(post_id) + "','" 
-			    	+ username + "','" + String(req.body.song)+ "','" + String(req.body.content) + "','" + String(date) +"', 0 "+ ", 0,'" + String(post_id) + "',\"" + String(req.body.title) 
+			var sql = "INSERT into user_content (id, username, embedded_content, content, timestamp, relevant_timestamp, likes, dislikes, post_id, title, artist, album, song, data, submission_like_state, tags) VALUES('" + String(post_id) + "','" 
+			    	+ username + "','" + String(req.body.song)+ "','" + String(req.body.content) + "','" + String(date) +"', '" + String(date) + "', 0 "+ ", 0,'" + String(post_id) + "',\"" + String(req.body.title) 
 			    	+ "\", '" + String(artist) + "', '" + String(album) + "', '" + String(song_name) +  "'," + "'{}'" + ", " + req.body.submissionLikeState + ", '";
 			// connection.query(sql, function (err, result, fields) 
 			// {
@@ -2872,8 +2953,8 @@ app.post('/post', function (req, res)
 			artist = replaceAll(artist, "'", "\\\'")
 			song_name = replaceAll(song_name, "'", "\\\'")
 			album = replaceAll(album, "'", "\\\'")
-			var sql = "INSERT into user_content (id, username, embedded_content, content, timestamp, likes, dislikes, post_id, title, artist, album, song, submission_like_state, tags) VALUES('" + String(post_id) + "','" 
-			    	+ username + "','" + String(req.body.song)+ "','" + String(req.body.content) + "','" + String(date) +"', 0 "+ ", 0,'" + String(post_id) + "',\"" + String(req.body.title) 
+			var sql = "INSERT into user_content (id, username, embedded_content, content, timestamp, relevant_timestamp, likes, dislikes, post_id, title, artist, album, song, submission_like_state, tags) VALUES('" + String(post_id) + "','" 
+			    	+ username + "','" + String(req.body.song)+ "','" + String(req.body.content) + "','" + String(date) +"', '" + String(date) + "', 0 "+ ", 0,'" + String(post_id) + "',\"" + String(req.body.title) 
 			    	+ "\", '" + String(artist) + "', '" + String(album) + "', '" + String(song_name) + "', " + req.body.submissionLikeState + ",'";
 			// connection.query(sql, function (err, result, fields) 
 			// {
@@ -2981,6 +3062,7 @@ app.get('/random', (req, res) => {
 })
 
 app.post('/search', (req, res) => {
+	req.body.text = replaceAll(req.body.text, "_", "\\\_")
 	if (req.body.text != "")
 	{
 		var user_search_sql = "SELECT * from accounts where username LIKE '" + req.body.text + "%'";
