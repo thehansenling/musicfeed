@@ -285,7 +285,7 @@ class Trending extends React.Component {
 		this.state = { global_post_index: 0 };
 		this.global_posts = []
 		this.trending_posts = []
-		this.restart = false
+
 		for (var i = 0; i < this.props.data.length; ++i)
 		{
 			var iframe_string = this.props.data[i].embedded_content;
@@ -296,7 +296,6 @@ class Trending extends React.Component {
 		this.trending_refs = []
 		this.global_posts.map((item, i) => {
 			var trending_ref = React.createRef();
-			console.log(trending_ref)
 			if (i == 0)
 			{
 				this.trending_posts.push(<div key = {item.post_id} ref = {trending_ref} dangerouslySetInnerHTML={this.renderiframe(item.embedded_content)} />)
@@ -305,7 +304,6 @@ class Trending extends React.Component {
 			{
 				this.trending_posts.push(<div key = {item.post_id} ref = {trending_ref}  style = {{display:'none'}} dangerouslySetInnerHTML={this.renderiframe(item.embedded_content)} />)
 			}
-			console.log(trending_ref)
 			this.trending_refs.push(trending_ref)
 		})
 	}
@@ -316,86 +314,20 @@ class Trending extends React.Component {
 		}
 	}
 
-	// rightClick()
-	// {
-	// 	this.trending_refs[this.global_post_index].current.style.display = 'none'
-	// 	this.global_post_index++;
-	// 	if (this.global_post_index >= this.trending_refs.length)
-	// 	{
-	// 		this.global_post_index = 0;
-	// 	}
-	// 	this.trending_refs[this.global_post_index].current.style.display = ''
-	// 	this.forceUpdate();
-	// }
 	rightClick()
 	{
-		console.log(this.trending_posts)
-		console.log(this.trending_refs)
 		this.trending_refs[this.global_post_index].current.style.display = 'none'
 		this.global_post_index++;
-		if (this.global_post_index >= this.trending_refs.length - 4 &&  this.trending_refs.length < 15)
+		if (this.global_post_index >= this.trending_refs.length)
 		{
-			if (this.global_post_index > 18 || this.restart == true) 
-			{
-				this.global_post_index = 0;
-				this.restart = false;
-				this.trending_refs[this.global_post_index].current.style.display = ''
-			}
-			else 
-			{
-				var new_offset = this.trending_refs.length;
-				var that = this;
-				fetch("/updateTrending", 
-				{
-				method: "POST",
-				headers: 
-				{
-					'Accept': 'application/json',
-					'Authorization': 'Basic',
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({global_offset: new_offset})
-				})
-				.then(function(response) { return response.json();})
-				.then(function (data) {
-					//console.log(data) 
-					for (var item of data.posts)
-					{
-						//console.log(item)
-						var trending_ref1 = React.createRef();
-						//console.log(trending_ref1)
-						that.trending_posts.push(<div  />);
-						//console.log(that.trending_posts)
-						that.trending_refs.push(trending_ref1);
-						
-						
-						that.trending_refs[that.global_post_index].current.style.display = ''
-						
-						
-					}
-
-					that.forceUpdate();
-					//console.log(that.trending_refs)
-					//console.log(that.trending_posts)
-					// for (var i = that.trending_refs.length - data.posts.length; i < that.trending_refs.length; ++i)
-					// {
-					// 	that.trending_refs[i].current.style.display = ''
-					// }
-				})
-				//console.log(this.trending_posts)
-			}
+			this.global_post_index = 0;
 		}
-		else
-		{
-			this.trending_refs[this.global_post_index].current.style.display = ''
-		}
-		
+		this.trending_refs[this.global_post_index].current.style.display = ''
 		this.forceUpdate();
 	}
 
 	leftClick()
 	{
-		console.log(this.trending_posts)
 		this.trending_refs[this.global_post_index].current.style.display = 'none'
 		this.global_post_index--;
 		if (this.global_post_index < 0)
@@ -410,7 +342,7 @@ class Trending extends React.Component {
 
 	render()
 	{
-		console.log(this.trending_posts)
+
 		//<img src = "/placeholder.jpg"  />
 		return (
 		<div style = {{width:'400px', height:'2000px', backgroundColor:'white', border:'1px solid #F1F1F1', borderRadius:'7px', position:'relative'}}>
@@ -424,7 +356,7 @@ class Trending extends React.Component {
 				<svg onClick = {this.leftClick.bind(this)} style = {{position:'relative', top:'140px', right:'20px'}} width="20" height="50" viewBox="0 0 20 50" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path d="M19 49L2 25L19 0.999998" stroke="#2F3846" strokeOpacity="0.2" strokeWidth="2"/>
 				</svg>
-				{this.trending_posts.map((child) => {return child})}
+				{this.trending_posts}
 				<svg onClick = {this.rightClick.bind(this)} style = {{position:'relative', top:'140px', left:'20px'}} width="20" height="50" viewBox="0 0 20 50" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path d="M1 1L18 25L1 49" stroke="#2F3846" strokeOpacity="0.2" strokeWidth="2"/>
 				</svg>

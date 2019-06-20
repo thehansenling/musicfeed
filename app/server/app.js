@@ -34,33 +34,23 @@ var PRIORITY_MODIFIER = 8640 / 4500
 var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (relevant_timestamp - UNIX_TIMESTAMP() * 1000)/45000000 "
 
 //test database
-var connection = mysql.createConnection({
-  host     : 'us-cdbr-iron-east-01.cleardb.net',
-  user     : 'bc7ebf9f6de242',
-  password : 'aa9b1c1f',
-  database : 'heroku_cdc4ca7b10e1680',
-  multipleStatements: true
-});
-
-// //prod database
 // var connection = mysql.createConnection({
-//   host     : 'us-iron-auto-sfo-03-bh.cleardb.net',
-//   user     : 'b82ff0c686544a',
-//   password : '52ad3adb',
-//   database : 'heroku_4df94195b1d1e6b',
+//   host     : 'us-cdbr-iron-east-01.cleardb.net',
+//   user     : 'bc7ebf9f6de242',
+//   password : 'aa9b1c1f',
+//   database : 'heroku_cdc4ca7b10e1680',
 //   multipleStatements: true
 // });
 
-app.post('/updateTrending', function (req, res)
-{
-	var modified_limit = String(parseInt(5) + 1);
-	var sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (relevant_timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM global_posts WHERE valid_feed_post != 0 ORDER BY score DESC LIMIT " + modified_limit + " OFFSET 8";
-	connection.query(sql, function (err, result, fields)
-	{
-
-		res.send({posts: result})
-	});
+// //prod database
+var connection = mysql.createConnection({
+  host     : 'us-iron-auto-sfo-03-bh.cleardb.net',
+  user     : 'b82ff0c686544a',
+  password : '52ad3adb',
+  database : 'heroku_4df94195b1d1e6b',
+  multipleStatements: true
 });
+
 
 function replaceAll(string, delimiter, replace)
 {
@@ -288,7 +278,6 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 					    									priority_global_results.length == modified_limit, non_priority_global_results.length == modified_limit);
 
 					    merged_result = merged_result[0]
-					    console.log(merged_result)
 					    var songs_list = [];
 						var post_ids = ""
 						var global_post_info = []
@@ -310,8 +299,6 @@ function GetFeed(req, res, callback, offset, non_priority_offset, global_offset,
 						}
 
 						merged_global = merged_global[0]
-						console.log(merged_result.length)
-						console.log(merged_global.length)
 						var global_songs_list = []
 						for (var i = 0; i < merged_global.length; ++i)
 						{
