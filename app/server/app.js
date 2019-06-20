@@ -2599,6 +2599,16 @@ function notifyUsers(users, sql)
 	}
 }
 
+app.post('/updateTrending', function (req, res)
+{
+	var modified_limit = String(parseInt(5));
+	var sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN (relevant_timestamp - UNIX_TIMESTAMP())/45000000 ELSE " + score_sql + " END as score FROM global_posts WHERE valid_feed_post != 0 ORDER BY score DESC LIMIT " + modified_limit + " OFFSET " + req.body.global_offset;
+	connection.query(sql, function (err, result, fields)
+	{
+		res.send({posts: result})
+	});
+});
+
 function findTags(tags, tag_urls, id, callback_sql, end_callback_sql = "", tag_sql = "", check_duplicate_tags = true)
 {
 	if (tags.length == 0)

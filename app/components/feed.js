@@ -202,7 +202,7 @@ class NewPostSubmission extends React.Component {
 		this.forceUpdate()
 	}
 
-	//<button style = {{ width:'100px', position:'relative'}} onClick = {this.beginNewPost.bind(this)} > new post </button>
+	//<button style = {{ width:'100px', position:'relative'}} onClick = {this.beginNewPost.bind(this)} > new post </button>//
 	render()
 	{
 		var tag_display = 'none'
@@ -285,11 +285,13 @@ class Trending extends React.Component {
 		this.state = { global_post_index: 0 };
 		this.global_posts = []
 		this.trending_posts = []
-
 		for (var i = 0; i < this.props.data.length; ++i)
 		{
 			var iframe_string = this.props.data[i].embedded_content;
+
 			this.props.data[i].embedded_content = SetSpotifySize(iframe_string, 250, 330)				
+
+
 			this.global_posts.push(this.props.data[i])
 		}
 
@@ -318,11 +320,45 @@ class Trending extends React.Component {
 	{
 		this.trending_refs[this.global_post_index].current.style.display = 'none'
 		this.global_post_index++;
-		if (this.global_post_index >= this.trending_refs.length)
+		if (this.global_post_index >= 15)
 		{
 			this.global_post_index = 0;
+			this.trending_refs[this.global_post_index].current.style.display = ''
 		}
-		this.trending_refs[this.global_post_index].current.style.display = ''
+		else if (this.global_post_index >= this.trending_refs.length - 2) 
+		{
+			var new_offset = this.trending_refs.length;
+			var that = this;
+			fetch("/updateTrending", 
+			{
+			method: "POST",
+			headers: 
+			{
+				'Accept': 'application/json',
+				'Authorization': 'Basic',
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({global_offset: new_offset})
+			})
+			.then(function(response) { return response.json();})
+			.then(function (data) 
+			{ 
+				for (var key in Object.keys(data.posts)) 
+				{
+					var item = data.posts[key]
+					item.embedded_content = SetSpotifySize(item.embedded_content, 250, 330)
+					var trending_ref1 = React.createRef()
+					that.trending_posts.push(<div key = {item.post_id} ref = {trending_ref1} style = {{display:'none'}} dangerouslySetInnerHTML={that.renderiframe(item.embedded_content)} />);
+					that.trending_refs.push(trending_ref1)
+					that.forceUpdate()
+				}
+				that.trending_refs[that.global_post_index].current.style.display = ''
+			})		
+		}
+		else
+		{
+			this.trending_refs[this.global_post_index].current.style.display = ''
+		}
 		this.forceUpdate();
 	}
 
@@ -332,7 +368,8 @@ class Trending extends React.Component {
 		this.global_post_index--;
 		if (this.global_post_index < 0)
 		{
-			this.global_post_index = this.trending_refs.length - 1;
+			this.global_post_index = 0;
+
 		}
 		this.trending_refs[this.global_post_index].current.style.display = ''
 		this.forceUpdate();
@@ -343,7 +380,7 @@ class Trending extends React.Component {
 	render()
 	{
 
-		//<img src = "/placeholder.jpg"  />
+		//<img src = "/placeholder.jpg" />
 		return (
 		<div style = {{width:'400px', height:'2000px', backgroundColor:'white', border:'1px solid #F1F1F1', borderRadius:'7px', position:'relative'}}>
 			<div style = {{margin:'0px auto', fontWeight:'bold', width:'110px', fontSize:'27px', paddingTop:'16px'}}>
@@ -356,7 +393,7 @@ class Trending extends React.Component {
 				<svg onClick = {this.leftClick.bind(this)} style = {{position:'relative', top:'140px', right:'20px'}} width="20" height="50" viewBox="0 0 20 50" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path d="M19 49L2 25L19 0.999998" stroke="#2F3846" strokeOpacity="0.2" strokeWidth="2"/>
 				</svg>
-				{this.trending_posts}
+				{this.trending_posts.map((child) => {return child})} 
 				<svg onClick = {this.rightClick.bind(this)} style = {{position:'relative', top:'140px', left:'20px'}} width="20" height="50" viewBox="0 0 20 50" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path d="M1 1L18 25L1 49" stroke="#2F3846" strokeOpacity="0.2" strokeWidth="2"/>
 				</svg>
@@ -364,8 +401,9 @@ class Trending extends React.Component {
 		</div>
 		)
 	}
-
-}
+	
+}	
+//
 
 export default class Feed extends React.Component{
 	constructor(props)
