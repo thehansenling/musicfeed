@@ -292,6 +292,7 @@ class Trending extends React.Component {
 			this.props.data[i].embedded_content = SetSpotifySize(iframe_string, 250, 330)				
 			this.global_posts.push(this.props.data[i])
 		}
+		this.related_links = []
 
 		this.trending_refs = []
 		this.global_posts.map((item, i) => {
@@ -338,14 +339,34 @@ class Trending extends React.Component {
 		this.forceUpdate();
 	}
 
-
+	componentDidMount() 
+	{
+		var that = this
+	    fetch('/random_links', {
+	        method: "POST",
+	        headers: {
+	        	Accept: 'application/json',
+	        	'Authorization': 'Basic',
+	        	'Content-Type': 'application/json',
+	        	},
+		    body: JSON.stringify({})})
+		    .then(function(response) { return response.json();})
+		    .then(function (data) { 
+		    	for (var item of data.data)
+		    	{
+		    		console.log(item)
+		    		that.related_links.push(<div style = {{width:'300px', height:'20px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}><a href = {item.url}> {item.text} </a> </div>)
+		    	}
+		    that.forceUpdate()
+	    })
+	}
 
 	render()
 	{
 
 		//<img src = "/placeholder.jpg"  />
 		return (
-		<div style = {{width:'400px', height:'2000px', backgroundColor:'white', border:'1px solid #F1F1F1', borderRadius:'7px', position:'relative'}}>
+		<div style = {{width:'400px', height:'680px', backgroundColor:'white', border:'1px solid #F1F1F1', borderRadius:'7px', position:'relative'}}>
 			<div style = {{margin:'0px auto', fontWeight:'bold', width:'110px', fontSize:'27px', paddingTop:'16px'}}>
 				Trending
 			</div>
@@ -360,6 +381,15 @@ class Trending extends React.Component {
 				<svg onClick = {this.rightClick.bind(this)} style = {{position:'relative', top:'140px', left:'20px'}} width="20" height="50" viewBox="0 0 20 50" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path d="M1 1L18 25L1 49" stroke="#2F3846" strokeOpacity="0.2" strokeWidth="2"/>
 				</svg>
+			</div>
+			<div style = {{paddingTop:'10px', margin: '0px auto', width:'300px'}}>
+				<div style = {{margin:'0px auto', fontWeight:'bold', width:'140', fontSize:'27px', paddingTop:'16px'}}>
+					Other Links
+				</div>
+				<div style = {{margin:'0px auto', fontWeight:'bold', width:'300px', height:'10px', fontSize:'27px', paddingTop:'16px', borderBottom:'1px solid rgba(0, 0, 0, 0.09)'}}></div>
+				<div style = {{paddingTop:'20px'}}>
+					{this.related_links.map((child) => {return child})}
+				</div>
 			</div>
 		</div>
 		)
@@ -448,7 +478,7 @@ export default class Feed extends React.Component{
 					<NewPostSubmission style = {{position:'relative', left:'10px'}} />
 					<PostInfo style = {{position:'relative', top:'20px', left:'10px'}} ref = {this.postsRef} songs = {this.props.data.songs} likes = {this.props.data.likes} num_comments = {this.props.data.num_comments} user_profiles = {this.props.data.user_profiles} bumps = {this.props.data.bumps}/>
 				</div>
-				<div style = {{position:'relative', top:'100px', left:'15px', border: '1px solid #F1F1F1', borderRadius:'7px', width:'420px', height:'2028px', backgroundColor:'#F6F6F6'}}>
+				<div style = {{position:'relative', top:'100px', left:'15px', border: '1px solid #F1F1F1', borderRadius:'7px', width:'420px', height:'708px', backgroundColor:'#F6F6F6'}}>
 					<div style = {{position:'relative', top:'14px', left:'10px'}}>
 					<Trending data = {this.props.data.global_songs} />
 					</div>

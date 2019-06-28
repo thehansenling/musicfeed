@@ -133,48 +133,7 @@ export default class StandardHeader extends React.Component {
 	  	{
 			this.login_div = <div style = {{marginRight: '30px'}}><a style = {{color:'white', fontFamily:'RobotoRegular', fontSize:'18px'}} href="/login">Login</a></div>
 	  	}
-	  	if (this.props.notifications != undefined && this.props.notifications.length > 0)
-	  	{	
-		  	for (var i = 0; i < this.props.notifications.length; ++i)
-		  	{
-		  		var comment_text = this.props.notifications[i].num_comments + ", comments"
-		  		var likes_text = this.props.notifications[i].num_likes + " likes"
 
-		  		if (this.props.notifications[i].num_comments == 0)
-		  		{
-		  			comment_text = ""
-		  		}
-		  		if (this.props.notifications[i].num_likes == 0)
-		  		{
-		  			likes_text = ""
-		  			if (comment_text.length != 0)
-		  			{
-		  				comment_text = comment_text.substring(0, comment_text.indexOf(",")) + comment_text.substring(comment_text.indexOf(",") + 1, comment_text.length)
-		  			}
-		  		}
-		  		var notification_text = "Your post " + this.props.notifications[i].name + " got " + likes_text + comment_text 
-		  		var notification_url = "/user/" + this.props.notifications[i].username + "/" + this.props.notifications[i].post_id
-		  		if (this.props.notifications[i].tag > 0)
-		  		{
-		  			notification_text = this.props.notifications[i].tagger + " tagged you in a post"
-		  			if (this.props.notifications[i].tag == 1)
-		  			{
-		  				notification_url = "/user/" + this.props.notifications[i].tagger + "/" + this.props.notifications[i].post_id
-		  			}
-		  			else
-		  			{
-		  				notification_url = "/user/" + this.props.notifications[i].name + "/" + this.props.notifications[i].post_id
-		  			}
-		  			
-		  		}
-		  		this.dropdown_content.push(<div key = {this.props.notifications[i].post_id} id = {this.props.notifications[i].post_id} className = "dropdownelement" style = {{background:'white', border: '1px solid black'}}> 
-		  			<a className = "dropdownelement" href = {notification_url} >{notification_text} </a>
-		  			 <button key = {this.props.notifications[i].post_id} style = {{right:'0px', position:'absolute', height:'25px'}} className = "dropdownelement" onClick = {this.removeNotification.bind(this, this.props.notifications[i].post_id)}> X </button>
-		  			</div>)
-		  	}
-
-		  	this.notification_div = <div className = "notifications" ref = {this.notificationsRef} onClick = {this.toggleNotifications.bind(this)} style = {{marginRight: '10px', fontWeight:'bold', fontSize:'12pt', color: "#178275", width:'24px', height:'24px', textAlign:'center', backgroundColor:'white', borderRadius:'50%'}}> {this.props.notifications.length}</div>
-	  	}
 	}
 
 	logoutClicked ()
@@ -221,6 +180,63 @@ export default class StandardHeader extends React.Component {
 
 	componentDidMount() 
 	{
+		var that = this;
+	    fetch('/notifications', {
+	        method: "POST",
+	        headers: {
+	        	Accept: 'application/json',
+	        	'Authorization': 'Basic',
+	        	'Content-Type': 'application/json',
+	        },
+	    })
+	    .then(function(response) { return response.json();})
+	    .then(function (data) {    	
+	    	that.props.notifications = data.notifications
+	    	console.log(that.props.notifications)
+		  	if (that.props.notifications != undefined && that.props.notifications.length > 0)
+		  	{	
+			  	for (var i = 0; i < that.props.notifications.length; ++i)
+			  	{
+			  		var comment_text = that.props.notifications[i].num_comments + ", comments"
+			  		var likes_text = that.props.notifications[i].num_likes + " likes"
+
+			  		if (that.props.notifications[i].num_comments == 0)
+			  		{
+			  			comment_text = ""
+			  		}
+			  		if (that.props.notifications[i].num_likes == 0)
+			  		{
+			  			likes_text = ""
+			  			if (comment_text.length != 0)
+			  			{
+			  				comment_text = comment_text.substring(0, comment_text.indexOf(",")) + comment_text.substring(comment_text.indexOf(",") + 1, comment_text.length)
+			  			}
+			  		}
+			  		var notification_text = "Your post " + that.props.notifications[i].name + " got " + likes_text + comment_text 
+			  		var notification_url = "/user/" + that.props.notifications[i].username + "/" + that.props.notifications[i].post_id
+			  		if (that.props.notifications[i].tag > 0)
+			  		{
+			  			notification_text = that.props.notifications[i].tagger + " tagged you in a post"
+			  			if (that.props.notifications[i].tag == 1)
+			  			{
+			  				notification_url = "/user/" + that.props.notifications[i].tagger + "/" + that.props.notifications[i].post_id
+			  			}
+			  			else
+			  			{
+			  				notification_url = "/user/" + that.props.notifications[i].name + "/" + that.props.notifications[i].post_id
+			  			}
+			  			
+			  		}
+			  		that.dropdown_content.push(<div key = {that.props.notifications[i].post_id} id = {that.props.notifications[i].post_id} className = "dropdownelement" style = {{background:'white', border: '1px solid black'}}> 
+			  			<a className = "dropdownelement" href = {notification_url} >{notification_text} </a>
+			  			 <button key = {that.props.notifications[i].post_id} style = {{right:'0px', position:'absolute', height:'25px'}} className = "dropdownelement" onClick = {that.removeNotification.bind(that, that.props.notifications[i].post_id)}> X </button>
+			  			</div>)
+			  	}
+			  	console.log(that.dropdown_content)
+			  	that.notification_div = <div className = "notifications" ref = {that.notificationsRef} onClick = {that.toggleNotifications.bind(that)} style = {{marginRight: '10px', fontWeight:'bold', fontSize:'12pt', color: "#178275", width:'24px', height:'24px', textAlign:'center', backgroundColor:'white', borderRadius:'50%'}}> {that.props.notifications.length}</div>
+		  	}
+		  	that.forceUpdate()
+	 	})		
 		window.addEventListener('mousedown', this.handleClickOutside.bind(this));
 	}
 
@@ -268,7 +284,7 @@ export default class StandardHeader extends React.Component {
 	        	'Authorization': 'Basic',
 	        	'Content-Type': 'application/json',
 	        },
-	        body: JSON.stringify({id: id,}),
+	        body: JSON.stringify({}),
 	    })
 	    .then(function(response) { return response.json();})
 	    .then(function (data) {    	

@@ -49,10 +49,9 @@ export default class App extends React.Component{
 	//#FAFAFA
 	render()
 	{
-
 		return (
 			<div className = "App" id='root' style = {{width:'100%', minWidth:'1200px'}}>
-				<StandardHeader username = {this.props.data.username} notifications = {this.props.data.notifications}/>
+				<StandardHeader username = {this.props.data.username} notifications = {{}}/>
 				<link rel="stylesheet" href="/styles.css"/>
 				<Switch>
 					<Route exact path = "/" render={() => (<Feed data={this.props.data}/>)} />
@@ -72,6 +71,7 @@ export default class App extends React.Component{
 					<Route exact path = "/about"  component={About} />
 				</Switch>	
 				<script type="text/javascript" src="/public/bundle.js"> </script>
+
 			</div>
 		);
 	}

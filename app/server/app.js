@@ -436,22 +436,41 @@ function RenderFeed(req, res)
 			// 	likes: likes_list,
 			// 	num_comments: num_comments_list,
 			// });	
-			var noficiations_sql = "SELECT * FROM notifications WHERE username = '" + req.cookies.username + "' "
-			connection.query(noficiations_sql, function (err, result, fields) 
-			{
-				var data = {songs: songs_list,
-							global_songs:global_songs_list,
-							likes: likes_list,
-							num_comments: num_comments_list,
-							num_posts: num_posts_list,
-							user_profiles: user_profiles,
-						    username: req.cookies.username,
-						    bumps: bumps,
-							notifications: result}
-				//var html = ReactDOMServer.renderToString(<StaticRouter location={req.url} context={context}><App data = {data}/></StaticRouter>)
-				//var html = ReactDOMServer.renderToString(<Home test= "testing"/>)
-				var html = renderPage(req.url, data);
-				res.send(html);
+			var user_content_number_sql = "SELECT COUNT(*) from user_content"
+			connection.query(user_content_number_sql, function (err, result, fields){
+				var num_user_content = result[0]['COUNT(*)']
+				var global_posts_number_sql = "SELECT COUNT(*) from global_posts"
+				connection.query(global_posts_number_sql, function (err, result, fields){
+					var num_global_content = result[0]['COUNT(*)']
+					var user_number_sql = "SELECT COUNT(*) from accounts"
+					connection.query(user_content_number_sql, function (err, result, fields){
+						var num_user_content = result[0]['COUNT(*)']
+						var artist_number_sql = "SELECT COUNT(DISTINCT artist) from user_content"
+						connection.query(artist_number_sql, function (err, result, fields){
+							var num_artists = result[0]['COUNT(DISTINCT artist)']
+							var user_search_sql = "SELECT * FROM user_content ORDER BY RAND() LIMIT 1";
+							connection.query(user_search_sql, function (err, result, fields){
+
+								var related_links_sql = "SELECT * FROM notifications WHERE username = '" + req.cookies.username + "' "
+								connection.query(related_links_sql, function (err, result, fields) 
+								{
+									var data = {songs: songs_list,
+												global_songs:global_songs_list,
+												likes: likes_list,
+												num_comments: num_comments_list,
+												num_posts: num_posts_list,
+												user_profiles: user_profiles,
+											    username: req.cookies.username,
+											    bumps: bumps}
+									//var html = ReactDOMServer.renderToString(<StaticRouter location={req.url} context={context}><App data = {data}/></StaticRouter>)
+									//var html = ReactDOMServer.renderToString(<Home test= "testing"/>)
+									var html = renderPage(req.url, data);
+									res.send(html);
+								})
+							})
+						})
+					})
+				})
 			})
 
 		}, 
@@ -904,11 +923,19 @@ var context = {};
 // 	//res.send();
 // }); 
 
-
-
 app.get('/', (req, res) => {
 	RenderFeed(req, res);
 })
+
+app.post('/notifications', function (req, res) {
+
+	var noficiations_sql = "SELECT * FROM notifications WHERE username = '" + req.cookies.username + "' "
+	connection.query(noficiations_sql, function (err, result, fields) 
+	{		
+		res.send({notifications:result});
+	})	
+});
+
 
 app.post('/post_tag_user', (req, res) => {
 
@@ -966,8 +993,8 @@ app.post('/post_tag_artist_search', (req, res) => {
 
 	var alternate_tag_name = replaceAll(req.body.tag, "\\\_", " ")
 	var alternate_artist_name = replaceAll(req.body.artist, "\\\_", " ")
-	var song_search_sql = "SELECT artist, song, album from global_posts where (song LIKE '" + req.body.tag + "%' OR song LIKE '" + alternate_tag_name + "%') AND (artist = '" + req.body.artist + "' OR artist = '" + alternate_artist_name + "') LIMIT 50";
-	var album_search_sql = "SELECT artist, song, album from global_posts where (album LIKE '" + req.body.tag + "%' OR album LIKE '" + alternate_tag_name + "%') AND song = 'NO_SONG_ALBUM_ONLY' AND (artist = '" + req.body.artist + "' OR artist = '" + alternate_artist_name + "') LIMIT 50";
+	var song_search_sql = "SELECT artist, song, album from global_posts where (song LIKE '" + req.body.tag + "%' OR song LIKE '" + alternate_tag_name + "%') AND (artist LIKE '" + req.body.artist + "%' OR artist LIKE '" + alternate_artist_name + "%') LIMIT 50";
+	var album_search_sql = "SELECT artist, song, album from global_posts where (album LIKE '" + req.body.tag + "%' OR album LIKE '" + alternate_tag_name + "%') AND song = 'NO_SONG_ALBUM_ONLY' AND (artist LIKE '" + req.body.artist + "%' OR artist = '" + alternate_artist_name + "%') LIMIT 50";
 	connection.query(song_search_sql, function (err, result, fields) 
 	{
 		var song_search = result;
@@ -1015,76 +1042,86 @@ app.get('/user/:user/:post_id', function (req, res) {
 			{
 				user_like_state = result[0].like_state;
 			}
-
-			var num_comments_sql = "SELECT COUNT(comment_id) FROM comments WHERE post_id = '" + req.params.post_id + "'"
-			connection.query(num_comments_sql, function (err, result, fields) 
-			{	
-				var num_comments;
-				if (result != undefined)
+			var userprofiles_sql = "SELECT username, profile_picture FROM accounts WHERE username = '" + req.params.user + "'"
+			connection.query(userprofiles_sql, function (err, result, fields) 
+			{			
+				var user_profile = ""
+				if (result != undefined && result.length > 0)
 				{
-					num_comments = result[0]['COUNT(comment_id)'];
-				}
-				var comment_promise_0 = GetComments(0, COMMENT_LIMIT, req.params.post_id, -1, req.cookies.username)
-				comment_promise_0.then(function(response_0) {
-				  var comment_promise_1 = GetComments(1, COMMENT_LIMIT, req.params.post_id, response_0['comment_ids'], req.cookies.username)
-				  comment_promise_1.then(function(response_1) {
-					  var comment_promise_2 = GetComments(2, COMMENT_LIMIT, req.params.post_id, response_1['comment_ids'], req.cookies.username)
-					  comment_promise_2.then(function(response_2) {
+					user_profile = result[0].profile_picture
+				}					
 
-					  	  var all_comments = []
-					  	  var all_comment_votes = []
-					  	  for (var comment of response_0['comments'])
-					  	  {
-					  	  	  all_comments.push(comment);
-					  	  }
-					  	  for (var comment of response_1['comments'])
-					  	  {
-					  	  	  all_comments.push(comment);
-					  	  }
-					  	  for (var comment of response_2['comments'])
-					  	  {
-					  	  	  all_comments.push(comment);
-					  	  }
+				var num_comments_sql = "SELECT COUNT(comment_id) FROM comments WHERE post_id = '" + req.params.post_id + "'"
+				connection.query(num_comments_sql, function (err, result, fields) 
+				{	
+					var num_comments;
+					if (result != undefined && result.length > 0)
+					{
+						num_comments = result[0]['COUNT(comment_id)'];
+					}
+					var comment_promise_0 = GetComments(0, COMMENT_LIMIT, req.params.post_id, -1, req.cookies.username)
+					comment_promise_0.then(function(response_0) {
+					  var comment_promise_1 = GetComments(1, COMMENT_LIMIT, req.params.post_id, response_0['comment_ids'], req.cookies.username)
+					  comment_promise_1.then(function(response_1) {
+						  var comment_promise_2 = GetComments(2, COMMENT_LIMIT, req.params.post_id, response_1['comment_ids'], req.cookies.username)
+						  comment_promise_2.then(function(response_2) {
 
-					  	  for (var comment_vote of response_0['comment_votes'])
-					  	  {
-					  	  	  all_comment_votes.push(comment_vote);
-					  	  }
-					  	  for (var comment_vote of response_1['comment_votes'])
-					  	  {
-					  	  	  all_comment_votes.push(comment_vote);
-					  	  }
-					  	  for (var comment_vote of response_2['comment_votes'])
-					  	  {
-					  	  	  all_comment_votes.push(comment_vote);
-					  	  }
-					  	  if (user_post.length = 1)
-					  	  	user_post = user_post[0];
+						  	  var all_comments = []
+						  	  var all_comment_votes = []
+						  	  for (var comment of response_0['comments'])
+						  	  {
+						  	  	  all_comments.push(comment);
+						  	  }
+						  	  for (var comment of response_1['comments'])
+						  	  {
+						  	  	  all_comments.push(comment);
+						  	  }
+						  	  for (var comment of response_2['comments'])
+						  	  {
+						  	  	  all_comments.push(comment);
+						  	  }
 
-							var data = {
-							  user_post: user_post,
-							  comments: all_comments,
-							  comment_votes:all_comment_votes,
-							  like_state:user_like_state,
-							  username: req.cookies.username,
-							  num_comments:num_comments,
-							}
-							var html = renderPage(req.url, data)
-							res.send(html);
+						  	  for (var comment_vote of response_0['comment_votes'])
+						  	  {
+						  	  	  all_comment_votes.push(comment_vote);
+						  	  }
+						  	  for (var comment_vote of response_1['comment_votes'])
+						  	  {
+						  	  	  all_comment_votes.push(comment_vote);
+						  	  }
+						  	  for (var comment_vote of response_2['comment_votes'])
+						  	  {
+						  	  	  all_comment_votes.push(comment_vote);
+						  	  }
+						  	  if (user_post.length = 1)
+						  	  	user_post = user_post[0];
 
-					  }, function(error_2) {
-					  	console.error("Failed!", error_2);
+								var data = {
+								  user_post: user_post,
+								  comments: all_comments,
+								  comment_votes:all_comment_votes,
+								  like_state:user_like_state,
+								  username: req.cookies.username,
+								  num_comments:num_comments,
+								  user_profile: user_profile
+								}
+								var html = renderPage(req.url, data)
+								res.send(html);
+
+						  }, function(error_2) {
+						  	console.error("Failed!", error_2);
+						  })
+
+
+					  }, function(error_1) {
+					  	console.error("Failed!", error_1);
 					  })
 
-
-				  }, function(error_1) {
-				  	console.error("Failed!", error_1);
-				  })
-
-				}, function(error_0) {
-				  console.error("Failed!", error_0);
-				})
-			});
+					}, function(error_0) {
+					  console.error("Failed!", error_0);
+					})
+				});
+			})
 		});
 	});
 });
@@ -1798,6 +1835,8 @@ app.post('/load_global_posts', function(req, res)
 app.get('/album/:artist/:album', function (req, res) {
 
 	//var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - CURRENT_TIMESTAMP)/45000 "
+		req.params.album = replaceAll(req.params.album, "'", "\\\'")
+		req.params.artist = replaceAll(req.params.artist, "'", "\\\'")
 	var user_posts_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN " + 
 						  "(relevant_timestamp - UNIX_TIMESTAMP() * 1000)/45000000 ELSE " + score_sql + " END as score FROM user_content " + 
 						  "WHERE artist = '" + req.params.artist + "' AND album = '" + req.params.album + "' AND song = 'NO_SONG_ALBUM_ONLY' " + 
@@ -1816,10 +1855,10 @@ app.get('/album/:artist/:album', function (req, res) {
 			}
 			if (post_ids.length > 0) post_ids = post_ids.substring(0, post_ids.length-1);
 		}
+
 		var sql = "SELECT * FROM global_posts WHERE artist = '" + req.params.artist + "'" + " AND album = '" + req.params.album + "' AND type = 1";
 		connection.query(sql, function (err, result, fields) 
 		{
-
 			var content = result;
 
 			if (result.length == 0)
@@ -3014,36 +3053,181 @@ app.get('/random', (req, res) => {
 		var num_user_content = result[0]['COUNT(*)']
 		var global_posts_number_sql = "SELECT COUNT(*) from global_posts"
 		connection.query(global_posts_number_sql, function (err, result, fields){
-			var num_global_posts = result[0]['COUNT(*)']
-			if (Math.random() > num_global_posts / (num_global_posts + num_user_content))
-			{
-				var user_search_sql = "SELECT * FROM user_content ORDER BY RAND() LIMIT 1";
-				connection.query(user_search_sql, function (err, result, fields){
-					result = result[0]
-					if (result.username != undefined)
+			var num_global_content = result[0]['COUNT(*)']
+			var user_number_sql = "SELECT COUNT(*) from accounts"
+			connection.query(user_content_number_sql, function (err, result, fields){
+				var num_users = result[0]['COUNT(*)']
+				var artist_number_sql = "SELECT COUNT(DISTINCT artist) from user_content"
+				connection.query(artist_number_sql, function (err, result, fields){
+					var num_artists = result[0]['COUNT(DISTINCT artist)']
+					if (Math.random() < num_user_content / (num_global_content + num_user_content + num_artists + num_users))
 					{
-						req.url = '/user/' + result.username + "/" + result.id;
+						var user_search_sql = "SELECT * FROM user_content ORDER BY RAND() LIMIT 1";
+						connection.query(user_search_sql, function (err, result, fields){
+							result = result[0]
+							if (result.username != undefined)
+							{
+								req.url = '/user/' + result.username + "/" + result.id;
 
-					} 
-					res.redirect(req.url)
-				});
-			}
-			else
-			{
-				var global_search_sql = "SELECT * FROM global_posts ORDER BY RAND() LIMIT 1";
-				connection.query(global_search_sql, function (err, result, fields){
-					result = result[0]
-					if (result.song == "NO_SONG_ALBUM_ONLY")
+							} 
+							res.redirect(req.url)
+						});
+					}
+					else if (Math.random() < (num_user_content + num_global_content)/ (num_global_content + num_user_content + num_artists + num_users))
 					{
-						req.url = '/album/' + result.artist + "/" + result.album;
+						var global_search_sql = "SELECT * FROM global_posts ORDER BY RAND() LIMIT 1";
+						connection.query(global_search_sql, function (err, result, fields){
+							result = result[0]
+							if (result.song == "NO_SONG_ALBUM_ONLY")
+							{
+								req.url = '/album/' + result.artist + "/" + result.album;
+							}
+							else
+							{
+								req.url = '/post/' + result.artist + "/" + result.song;
+							}
+							res.redirect(req.url)
+						});				
+					}
+					else if (Math.random() < (num_user_content + num_global_content + num_users)/ (num_global_content + num_user_content + num_artists + num_users))
+					{
+						var global_search_sql = "SELECT * FROM accounts ORDER BY RAND() LIMIT 1";
+						connection.query(global_search_sql, function (err, result, fields){
+							result = result[0]
+							req.url = '/user/' + result.username;
+							res.redirect(req.url)
+						});				
 					}
 					else
 					{
-						req.url = '/post/' + result.artist + "/" + result.song;
+						var global_search_sql = "SELECT * FROM global_posts ORDER BY RAND() LIMIT 1";
+						connection.query(global_search_sql, function (err, result, fields){
+							var split_artists = result[0].artist.split('^')
+							req.url = '/artist/' + split_artists[0];
+							res.redirect(req.url)
+						});				
 					}
-					res.redirect(req.url)
-				});				
-			}
+				})
+			})
+		});
+	});
+})
+
+app.post('/random_links', (req, res) => {
+	var user_content_number_sql = "SELECT COUNT(*) from user_content"
+	connection.query(user_content_number_sql, function (err, result, fields){
+		var num_user_content = result[0]['COUNT(*)']
+		var global_posts_number_sql = "SELECT COUNT(*) from global_posts"
+		connection.query(global_posts_number_sql, function (err, result, fields){
+			var num_global_content = result[0]['COUNT(*)']
+			var user_number_sql = "SELECT COUNT(*) from accounts"
+			connection.query(user_content_number_sql, function (err, result, fields){
+				var num_users = result[0]['COUNT(*)']
+				var artist_number_sql = "SELECT COUNT(DISTINCT artist) from user_content"
+				connection.query(artist_number_sql, function (err, result, fields){
+					var num_artists = result[0]['COUNT(DISTINCT artist)']
+
+					var num_users_get = 0
+					var num_artists_get = 0
+					var num_user_content_get = 0
+					var num_global_content_get = 0
+					for (var i = 0; i < 5; ++i)
+					{
+						if (Math.random() < num_user_content / (num_global_content + num_user_content + num_artists + num_users))
+						{
+							++num_user_content_get
+						}
+						else if (Math.random() < (num_user_content + num_global_content)/ (num_global_content + num_user_content + num_artists + num_users))
+						{
+							++num_global_content_get
+						}
+						else if (Math.random() < (num_user_content + num_global_content + num_users)/ (num_global_content + num_user_content + num_artists + num_users))
+						{
+							++num_users_get
+						}
+						else
+						{
+							++num_artists_get
+						}
+					}
+					var link_data = []
+					var user_search_sql = "SELECT * FROM user_content ORDER BY RAND() LIMIT " + num_user_content_get;
+					connection.query(user_search_sql, function (err, result, fields){
+						if (result != undefined)
+						{
+							for (var item of result)
+							{
+								var link_text = ""
+								var link_url = ""
+								var split_artists = item.artist.split('^')
+								if (item.song = "NO_SONG_ALBUM_ONLY")
+								{
+									link_text = split_artists[0] + " - " + item.album
+									link_url = "/album/" + split_artists[0] + "/" + item.album
+								}
+								else
+								{
+									link_text = split_artists[0] + " - " + item.song
+									link_url = "/post/" + item.username + "/" + item.post_id
+								}
+								link_data.push({text: link_text,
+												url: link_url}) 
+							}
+						} 
+						var global_search_sql = "SELECT * FROM global_posts ORDER BY RAND() LIMIT " + num_global_content_get;
+						connection.query(global_search_sql, function (err, result, fields){
+
+							if (result != undefined)
+							{
+								for (var item of result)
+								{
+									var link_text = ""
+									var link_url = ""
+									var split_artists = item.artist.split('^')
+									if (item.song == "NO_SONG_ALBUM_ONLY")
+									{
+										link_text = split_artists + " - " + item.album
+										link_url = "/album/" + split_artists + "/" + item.album
+									}
+									else
+									{
+										link_text = split_artists + " - " + item.song
+										link_url = "/post/" + item.username + "/" + item.post_id
+									}
+									link_data.push({text: link_text,
+													url: "/post/" + item.username + "/" + item.post_id}) 
+								}
+							} 
+							var global_search_sql = "SELECT * FROM accounts ORDER BY RAND() LIMIT " + num_users_get;
+							connection.query(global_search_sql, function (err, result, fields){
+								req.url = '/user/' + result.username;
+
+								if (result != undefined)
+								{
+									for (var item of result)
+									{
+										link_data.push({text:item.username,
+														url: "/user/" + item.username})
+									}
+								}
+								var global_search_sql = "SELECT * FROM global_posts ORDER BY RAND() LIMIT " + num_artists_get;
+								connection.query(global_search_sql, function (err, result, fields){
+									if (result != undefined)
+									{
+										for (var item of result)
+										{
+											var split_artists = item.artist.split('^')
+											link_data.push({text:split_artists[0],
+															url: "/user/" + split_artists[0]})
+										}
+									}
+									res.send({data:link_data})
+								});	
+							});	
+						});			
+					});
+				})
+			})
 		});
 	});
 })

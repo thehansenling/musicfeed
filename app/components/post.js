@@ -210,6 +210,7 @@ class Post extends React.Component
 			this.forceUpdate();
 
 		}
+
 	}
 
 	bumpClicked()
@@ -247,7 +248,7 @@ class Post extends React.Component
 	render()
 	{
 		var date = new Date(this.props.song.timestamp)
-		var post_title = <h1 style= {{position:'relative', fontWeight:'bold', fontSize:'24px'}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id} > {this.props.song.title}</a></h1>;
+		var post_title = <h1 className = "post_title" style= {{position:'relative', fontWeight:'bold', fontSize:'24px'}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id} > {this.props.song.title}</a></h1>;
 		var poster_username = '';//this.props.song.artist;
 		var poster_username_url = '';//"/artist/" + this.props.song.artist;
 
@@ -263,7 +264,6 @@ class Post extends React.Component
 		var artist_url = "/artist/" + this.props.song.artist;
 
 		var content_div = []
-
 
 		var content = <h2 style={{position:'relative'}}>{content_div}</h2>
 
