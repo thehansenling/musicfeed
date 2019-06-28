@@ -358,9 +358,9 @@ class Post extends React.Component
 
 						<div style = {{width:'10px', height:'30px', borderRight: '1px solid rgba(0, 0, 0, 0.09)'}}></div>
 						<div style = {{width:'10px', height:'30px'}}></div>
-						<div style = {{}}><img src="/speech_bubble.png" width="30" height="26" alt=""/></div>
+						<div style = {{}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id}><img src="/speech_bubble.png" width="30" height="26" alt=""/></a></div>
 
-						<div style = {{width:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', position: 'relative', top: '0px', fontSize: '16px', fontWeight:'bold'}}> {this.props.num_comments} </div>
+						<div style = {{width:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', position: 'relative', top: '0px', fontSize: '16px', fontWeight:'bold'}}> <a href = {"/user/" + this.props.song.username + "/" + this.props.song.id}> {this.props.num_comments} </a></div>
 						<div  style = {{width:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', position: 'relative', top: '0px', fontSize: '16px', fontWeight:'bold'}}>
 							{this.bump_button}
 						</div>
