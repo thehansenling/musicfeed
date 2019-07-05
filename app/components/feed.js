@@ -33,33 +33,23 @@ class NewPostSubmission extends React.Component {
 		this.tagged = false
 		this.show_song_display = 'none'
 		this.submissionLikeState = -1
+		this.shouldNotShowContentBox = true
 	}
 
 	songInput()
 	{
 		var input = event.target.value;
-    	//var song_str = $("#song").val();
 		var content_str = this.contentRef.current.value;
 	   	if(this.songEmbedRef.current.value != "")
 	   	{
-	   		// this.songEmbedRef.current.style.width = '670px'
-	   		// this.contentRef.current.style.width = '670px'
-	   		// this.contentRef.current.style.height = '300px'
-	   		// this.titleRef.current.style.width = '670px'
+			this.shouldNotShowContentBox = false;
 	   		this.embedded_content = this.songEmbedRef.current.value;
-	   		this.postContentRef.current.style.display = ''
-	   		this.containerRef.current.style.height = '500px'
 	   		this.show_song_display = ''
 	   	}
 	   	else 
 	   	{
-	   		// this.songEmbedRef.current.style.width = '980px'
-	   		// this.contentRef.current.style.width = '980px'
-	   		// this.contentRef.current.style.height = '50px'
-	   		// this.titleRef.current.style.width = '980px'
+			this.shouldNotShowContentBox = true;
 	   		this.embedded_content = this.songEmbedRef.current.value;
-	   		this.postContentRef.current.style.display = 'none'
-	   		this.containerRef.current.style.height = '140px'
 	   		this.show_song_display = 'none'
 	   	}
 	   	
@@ -69,27 +59,9 @@ class NewPostSubmission extends React.Component {
 	contentInput()
 	{
 		var input = event.target.value;
-    	//var song_str = $("#song").val();
 		var content_str = this.contentRef.current.value;
 		//update and prune tags list 
 		tag_utils.getTags(this)
-
-
-	   	if(this.songEmbedRef.current.value != "")
-	   	{
-	   		// this.songEmbedRef.current.style.width = '670px'
-	   		// this.contentRef.current.style.width = '670px'
-	   		// this.contentRef.current.style.height = '300px'
-	   		// this.titleRef.current.style.width = '670px'
-	   		// this.embedded_content = this.songEmbedRef.current.value;
-	   	}
-	   	else 
-	   	{
-	   		// this.songEmbedRef.current.style.width = '980px'
-	   		// this.contentRef.current.style.width = '980px'
-	   		// this.contentRef.current.style.height = '50px'
-	   		// this.titleRef.current.style.width = '980px'
-	   	}
 
     	this.lastContentSize = this.contentRef.current.value.length
 	   	this.forceUpdate();
@@ -137,44 +109,6 @@ class NewPostSubmission extends React.Component {
 		}
 	}
 
-	closeNewPost()
-	{
-   		this.postContentRef.current.style.display = 'none'
-   		this.containerRef.current.style.height = '140px'
-   		this.songEmbedRef.current.value = "" 
-		// this.newPost = undefined;
-		// this.embedded_content = ""
-		this.forceUpdate();
-	}
-
-	beginNewPost()
-	{
-		// Song/Album Spotify Embed Code: 
-		// <br/>
-		// <input ref = {this.songEmbedRef} onChange = {this.songInput.bind(this)} id="song" type="text" name="song" style={{width:'980px'}}/>
-		// <br/>
-		this.newPost = <div key = "what" id = "post" style ={{top:'0px',position:'relative', paddingBottom:'30px', width:'680px'}}  autoComplete="off">
-			<div style = {{display:'flex', flexDirection:''}}>
-				<label>Title:</label>
-				<input ref = {this.titleRef} id="title" type="text" name="title" style={{width:'980px'}}/>  
-			</div>
-			<br/>
-				Content:
-			<br/>
-			<textarea onChange = {this.contentInput.bind(this)} ref = {this.contentRef} id = "content" name="content" rows="10" cols="90" style={{position:'relative',width:'980px',height:'50px'}}></textarea>
-			<br/>
-			<button style = {{float:'left'}} onClick = {this.submitPost.bind(this)} id = "post_button" type="button">Post</button>
-			<button onClick = {this.closeNewPost.bind(this)}> Close </button>
-			<br/>
-			
-			<meta className = "post_number" content = "0"/>
-			<meta className = "non_priority_post_number" content = "0"/>
-			<meta className = "global_post_number" content = "0"/>
-			<meta className = "non_priority_global_post_number" content = "0"/>
-		</div>
-		this.forceUpdate();
-	}
-
 	submissionLiked()
 	{
 		if (this.submissionLikeState == 1)
@@ -202,7 +136,6 @@ class NewPostSubmission extends React.Component {
 		this.forceUpdate()
 	}
 
-	//<button style = {{ width:'100px', position:'relative'}} onClick = {this.beginNewPost.bind(this)} > new post </button>//
 	render()
 	{
 		var tag_display = 'none'
@@ -225,29 +158,24 @@ class NewPostSubmission extends React.Component {
 		}
 
 		return (
-			<div ref = {this.containerRef} style = {{position:'relative', margin: '0 auto', width: '735px', height:'140px', backgroundColor:'white', border: '1px solid #F1F1F1', borderRadius:'7px', top:'14px'}}>
-				<div style = {{fontFamily:'RobotoRegular', fontSize:'20px', color:'rgba(47, 56, 70, 0.58)', paddingLeft:'18px', paddingTop:'15px'}}> Create Post </div>
- 				<div style = {{display:'flex', flexDirection:'row', paddingLeft:'18px', paddingTop:'16px'}}>
-	 				<div style = {{width:'65px', height:'65px', backgroundColor:'#178275', borderRadius:'50%'}}></div>
-	 				<input ref = {this.songEmbedRef} onChange = {this.songInput.bind(this)} style = {{borderBottom:'1px solid rgba(0, 0, 0, 0.09)', borderTop:'none', borderLeft:'none', borderRight:'none', left:'16px', position:'relative', width:'618px', fontSize:'24px'}}></input>
- 				</div>
+			<div ref = {this.containerRef} style = {{display:'flex', flexDirection: 'row', backgroundColor:'white', border: '1px solid #F1F1F1', borderRadius:'7px', padding: '16px'}}>
+				<div>
+					<div style = {{fontFamily:'RobotoRegular', fontSize:'20px', color:'rgba(47, 56, 70, 0.58)', borderBottom:'1px solid rgba(0, 0, 0, 0.09)'}}>Create Post</div>
+					<div style = {{display:'flex', flexDirection:'row', paddingTop:'16px'}}>
+						<div style = {{width:'65px', height:'65px', backgroundColor:'#178275', borderRadius:'50%', marginRight:'12px'}}></div>
+						<input ref = {this.songEmbedRef} onChange={this.songInput.bind(this)} placeholder="Embed link here" style={{borderBottom:'1px solid rgba(0, 0, 0, 0.09)', borderTop:'none', borderLeft:'none', borderRight:'none', width:'618px', fontSize:'16px', padding:'8px'}}></input>
+					</div>
 
-				<div ref = {this.postContentRef} id = "post" style ={{top:'0px',position:'relative', paddingBottom:'30px', width:'703px', display:'none', left:'16px'}}  autoComplete="off">
-					<div style = {{position:'relative', top:'16px'}}> Title: </div>
-					<br/>
-					<input ref = {this.titleRef} id="title" type="text" name="title" style={{width:'703px', borderTop:'none', borderLeft:'none', borderRight:'none', borderBottom:'1px solid rgba(0, 0, 0, 0.09)'}}/>  
-					<br/>
-						Content:
-					<br/>
-					<textarea onChange = {this.contentInput.bind(this)} ref = {this.contentRef} id = "content" name="content" rows="10" cols="90" style={{position:'relative',width:'703px',height:'238px', borderTop:'none', borderLeft:'none', borderRight:'none', borderBottom:'1px solid rgba(0, 0, 0, 0.09)'}}></textarea>
-					<br/>
-					<button style = {{float:'left'}} onClick = {this.submitPost.bind(this)} id = "post_button" type="button">Post</button>
-					<button onClick = {this.closeNewPost.bind(this)}> Close </button>
-					<br/>
-					
+					<div ref = {this.postContentRef} id="post" style={{width:'703px', display: this.shouldNotShowContentBox ? 'none' : ''}}  autoComplete="off">
+						<div style={{padding: '12px 0 12px 0'}}>
+							<input ref = {this.titleRef} id="title" type="text" name="title" placeholder="Title" style={{width:'703px', border:'1px solid rgba(0, 0, 0, 0.09)', borderBottom:'none', borderRadius:'7px 7px 0 0', padding: '8px'}}/>
+							<textarea onChange = {this.contentInput.bind(this)} ref = {this.contentRef} id="content" name="content" placeholder="Your text here" rows="10" cols="90" style={{width:'703px', height:'238px', border:'1px solid rgba(0, 0, 0, 0.09)', borderRadius:'0 0 7px 7px', padding: '8px'}}></textarea>
+						</div>
+						<button onClick = {this.submitPost.bind(this)} id = "post_button" type="button">Post</button>
+					</div>
 				</div>
 
- 				<div style = {{display:this.show_song_display, position:'absolute', top:'0px', width:'416px', height: '500px', right:'-445px', backgroundColor: 'white', zIndex:'8'}}>
+				<div style = {{display:this.show_song_display, margin: '0 auto'}}>
 					{this.newPost}
 					<div id="showsong"  dangerouslySetInnerHTML={this.renderiframe(this.embedded_content)}>
 					</div>
@@ -261,7 +189,7 @@ class NewPostSubmission extends React.Component {
 					</div>
 				</div>
 
-				<div style = {{position:'fixed', width: '200px', height:'300px', right:'10%', top:'200px', backgroundColor:'white', display:tag_display, zIndex:15, overflow:'scroll'}} >
+				<div style = {{width: '200px', height:'300px', backgroundColor:'white', display:tag_display, overflow:'scroll'}} >
 					{this.tagList}
 				</div>
 			</div>
@@ -382,7 +310,7 @@ class Trending extends React.Component {
 
 		//<img src = "/placeholder.jpg" />
 		return (
-		<div style = {{width:'400px', height:'2000px', backgroundColor:'white', border:'1px solid #F1F1F1', borderRadius:'7px', position:'relative'}}>
+		<div style = {{width:'400px', height:'2000px', backgroundColor:'white', border:'1px solid #F1F1F1', borderRadius:'7px'}}>
 			<div style = {{margin:'0px auto', fontWeight:'bold', width:'110px', fontSize:'27px', paddingTop:'16px'}}>
 				Trending
 			</div>
@@ -390,11 +318,11 @@ class Trending extends React.Component {
 
 			</div>
 			<div style = {{display:'flex', flexDirection:'row', paddingTop:'30px', width:'290px', margin:'0px auto'}}>
-				<svg onClick = {this.leftClick.bind(this)} style = {{position:'relative', top:'140px', right:'20px'}} width="20" height="50" viewBox="0 0 20 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<svg onClick = {this.leftClick.bind(this)} width="20" height="50" viewBox="0 0 20 50" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path d="M19 49L2 25L19 0.999998" stroke="#2F3846" strokeOpacity="0.2" strokeWidth="2"/>
 				</svg>
 				{this.trending_posts.map((child) => {return child})} 
-				<svg onClick = {this.rightClick.bind(this)} style = {{position:'relative', top:'140px', left:'20px'}} width="20" height="50" viewBox="0 0 20 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<svg onClick = {this.rightClick.bind(this)} width="20" height="50" viewBox="0 0 20 50" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path d="M1 1L18 25L1 49" stroke="#2F3846" strokeOpacity="0.2" strokeWidth="2"/>
 				</svg>
 			</div>
@@ -481,14 +409,18 @@ export default class Feed extends React.Component{
 	render()
 	{
 		return (
-			<div style = {{display:'flex', flexDirection:'row', width:'1190px', margin:'0px auto'}}>
-				<div className = "feed" style = {{position:'relative', top:'100px', border: '1px solid #F1F1F1', borderRadius:'7px', width:'755px', backgroundColor:'#F6F6F6'}}>
-					<NewPostSubmission style = {{position:'relative', left:'10px'}} />
-					<PostInfo style = {{position:'relative', top:'20px', left:'10px'}} ref = {this.postsRef} songs = {this.props.data.songs} likes = {this.props.data.likes} num_comments = {this.props.data.num_comments} user_profiles = {this.props.data.user_profiles} bumps = {this.props.data.bumps}/>
-				</div>
-				<div style = {{position:'relative', top:'100px', left:'15px', border: '1px solid #F1F1F1', borderRadius:'7px', width:'420px', height:'2028px', backgroundColor:'#F6F6F6'}}>
-					<div style = {{position:'relative', top:'14px', left:'10px'}}>
-					<Trending data = {this.props.data.global_songs} />
+			<div style={{display:'flex', justifyContent: 'center', backgroundColor:'#F6F6F6'}}>
+				<div style={{display:'flex', flexDirection:'column'}}>
+					<div style={{marginTop: '16px'}}>
+						<NewPostSubmission />
+					</div>
+					<div style={{display:'flex', flexDirection:'row', marginTop: '12px'}}>
+						<div style={{marginRight: '12px'}}>
+							<PostInfo ref={this.postsRef} songs = {this.props.data.songs} likes = {this.props.data.likes} num_comments = {this.props.data.num_comments} user_profiles = {this.props.data.user_profiles} bumps = {this.props.data.bumps}/>
+						</div>
+						<div>
+							<Trending data = {this.props.data.global_songs} />
+						</div>
 					</div>
 				</div>
 			</div>

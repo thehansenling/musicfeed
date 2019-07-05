@@ -108,7 +108,7 @@ class SearchList extends React.Component {
 	{
 		return(
 			<div>
-				<input style = {{backgroundColor:'#178275', border:'2px solid white', height:'35px', borderRadius:'7px'}} onChange={this.handleChange.bind(this)} placeholder = "  Search" type='text' name='country' className='search_bar'/>
+				<input style = {{backgroundColor:'#178275', border:'2px solid white', height:'35px', borderRadius:'7px', paddingLeft: '8px'}} onChange={this.handleChange.bind(this)} placeholder = "Search" type='text' name='country' className='search_bar'/>
 				<SearchItem ref={this.search_list}/>
 			</div>
 		);
@@ -316,7 +316,7 @@ export default class StandardHeader extends React.Component {
 
 	<div className = "StandardHeader" >
 		<head>
-			<title>My Node Site</title>
+			<title>Unheard</title>
 			<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
 
 		</head>

@@ -44,6 +44,7 @@ export default class App extends React.Component{
 		if (typeof window !== 'undefined') 
 		{
 			document.body.style.backgroundColor = "#FFFFFF";
+			document.body.style.marginTop = "60px";
 		}
 	}
 	//#FAFAFA
