@@ -248,11 +248,7 @@ class Post extends React.Component
 	render()
 	{
 		var date = new Date(this.props.song.timestamp)
-<<<<<<< HEAD
-		var post_title = <h1 className = "post_title" style= {{position:'relative', fontWeight:'bold', fontSize:'24px'}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id} > {this.props.song.title}</a></h1>;
-=======
-		var post_title = <h1 style= {{fontWeight:'bold', fontSize:'24px'}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id} > {this.props.song.title}</a></h1>;
->>>>>>> dba99c1a574ccbc495e55dbef0124d4bb4bb6b3b
+		var post_title = <h1 className="post_title" style= {{fontWeight:'bold', fontSize:'24px'}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id} > {this.props.song.title}</a></h1>;
 		var poster_username = '';//this.props.song.artist;
 		var poster_username_url = '';//"/artist/" + this.props.song.artist;
 
