@@ -34,22 +34,22 @@ var PRIORITY_MODIFIER = 8640 / 4500
 var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (relevant_timestamp - UNIX_TIMESTAMP() * 1000)/45000000 "
 
 //test database
-// var connection = mysql.createConnection({
-//   host     : 'us-cdbr-iron-east-01.cleardb.net',
-//   user     : 'bc7ebf9f6de242',
-//   password : 'aa9b1c1f',
-//   database : 'heroku_cdc4ca7b10e1680',
-//   multipleStatements: true
-// });
-
-// //prod database
 var connection = mysql.createConnection({
-  host     : 'us-iron-auto-sfo-03-bh.cleardb.net',
-  user     : 'b82ff0c686544a',
-  password : '52ad3adb',
-  database : 'heroku_4df94195b1d1e6b',
+  host     : 'us-cdbr-iron-east-01.cleardb.net',
+  user     : 'bc7ebf9f6de242',
+  password : 'aa9b1c1f',
+  database : 'heroku_cdc4ca7b10e1680',
   multipleStatements: true
 });
+
+// //prod database
+// var connection = mysql.createConnection({
+//   host     : 'us-iron-auto-sfo-03-bh.cleardb.net',
+//   user     : 'b82ff0c686544a',
+//   password : '52ad3adb',
+//   database : 'heroku_4df94195b1d1e6b',
+//   multipleStatements: true
+// });
 
 
 function replaceAll(string, delimiter, replace)
@@ -485,10 +485,13 @@ function RenderFeed(req, res)
 function GetCommentChildren(comment_ids, comments, comment_votes, username, res, offset=  0)
 {
 	var comment_sql = "SELECT *, ((upvotes + 1.9208) / (upvotes + downvotes) - 1.96 * SQRT((upvotes * downvotes) / (upvotes + downvotes) + 0.9604) / (upvotes + downvotes)) / (1 + 3.8416 / (upvotes + downvotes)) AS order_score FROM comments WHERE parent_comment_id in (" + comment_ids + ") ORDER by order_score DESC LIMIT 18446744073709551615 OFFSET " + offset;
+	console.log(comment_sql);
 	connection.query(comment_sql, function (err, result, fields) 
 	{
+		console.log(result)
 		if (result == undefined)
 		{
+			console.log(comments)
 			res.send({comments:comments,
 					  comment_votes:comment_votes});
 		}

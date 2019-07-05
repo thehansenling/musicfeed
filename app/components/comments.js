@@ -141,6 +141,7 @@ class Comment extends React.Component
 		}
 		if (props.data.replies > 0)
 		{
+			//, color:'white', borderRadius:'7px', backgroundColor:'#188275', border:'0'
 			var left_offset = String((props.data.comment_level) * 5 - 1) + '%'
 			this.replies_button = <button onClick = {this.showReplies.bind(this)} className = 'show_replies' style = {{position:'relative', left:left_offset, fontSize:'12px'}} id = {props.data.comment_id} > show {props.data.replies} replies </button>;
       	}
@@ -294,10 +295,10 @@ class Comment extends React.Component
 				return;
 			}
 			this.new_comment = <div>
-					<textarea onChange = {this.contentInput.bind(this)} ref = {this.contentRef} class = 'comment_text' id = {this.props.data.comment_id} name='content' rows='10' cols='90' style={{width:'100%',height:'50px',zIndex:'100'}}></textarea>
+					<textarea onChange = {this.contentInput.bind(this)} ref = {this.contentRef} className = 'comment_text' id = {this.props.data.comment_id} name='content' rows='10' cols='90' style={{width:'100%',height:'50px',zIndex:'100'}}></textarea>
 					<br/>
-					<button onClick = {this.submitNewComment.bind(this)} style={{position:'relative'}} type='button' class='submit_new_comment' id = {this.props.data.comment_id}>submit</button>
-					<button onClick = {this.closeNewComment.bind(this)} style={{position:'relative'}} type='button' class='close_new_comment' id = {this.props.data.comment_id}>close</button>
+					<button onClick = {this.submitNewComment.bind(this)} style={{position:'relative'}} type='button' className='submit_new_comment' id = {this.props.data.comment_id}>submit</button>
+					<button onClick = {this.closeNewComment.bind(this)} style={{position:'relative'}} type='button' className='close_new_comment' id = {this.props.data.comment_id}>close</button>
 				</div>
 			this.forceUpdate();
 		}
@@ -368,7 +369,8 @@ class Comment extends React.Component
 	    .then(function(response) { return response.json();})
 	    .then(function (data) {    	
 
-	    	var child_comments = generateComments(data.comments, data.comment_votes, that.props.post_id, that.props.data.comment_level + 1, this.props.post_data, that.props.global_post != undefined)[0]
+	    	var child_comments = generateComments(data.comments, data.comment_votes, that.props.post_id, that.props.data.comment_level + 1, that.props.post_data, that.props.global_post != undefined)[0]
+	    	console.log(child_comments)
 	    	//don't know why this doesn't work
 	    	for (var comment of child_comments)
 	    	{
@@ -409,7 +411,9 @@ class Comment extends React.Component
 		var left_spaces = []
 		for (var i = 0; i < this.props.data.comment_level; ++i)
 		{
-			left_spaces.push(<div style = {{borderLeft: "3px solid #C5C5C5",position:'relative', width:'50px', left:'8px'}}></div>)//<span style = {{borderLeft: "3px solid black", width:'50px', height:'100%'}}> </span>);
+			var left_space = '3px'
+
+			left_spaces.push(<div style = {{borderLeft: "3px solid #C5C5C5",position:'relative', width:'44px', left:left_space}}></div>)//<span style = {{borderLeft: "3px solid black", width:'50px', height:'100%'}}> </span>);
 		}
 		//var left_spacing = <div style = {{borderLeft: "3px solid black",position:'relative', width:left_offset}}> {left_spaces} </div>;
 
@@ -423,7 +427,7 @@ class Comment extends React.Component
 			minutes = "0" + String(minutes);
 		}
 		var date_text = date.getMonth() + "/" + date.getDate() + "/" + date.getFullYear() + " at " + date.getHours() + ":" + minutes;
-
+                 
 		// var tags = JSON.parse(this.props.data.tags)
 		// var tag_indices = []
 
@@ -509,27 +513,46 @@ class Comment extends React.Component
 		}
 				      	// <button ref = {this.upvoteRef} onClick = {this.upvoteClicked.bind(this)} style={{top:'0px',position:'absolute',height:'30px', color:upvote_color}} type='button' className = 'upvote' id = {comment_id}>^</button>
 				      	// <button ref = {this.downvoteRef}  onClick = {this.downvoteClicked.bind(this)} style={{bottom:'0px',position:'absolute',height:'30px', color:downvote_color}} type='button' className = 'downvote' id = {comment_id}>v</button>
-
+						// <div style = {{top:'0px',height:'30px', zIndex:'10'}}><img onClick = {this.upvoteClicked.bind(this)} src={this.up_image} width="20" height="20" alt=""/></div>
+						// <div style = {{bottom:'0px',height:'30px', zIndex:'10'}}><img onClick = {this.downvoteClicked.bind(this)} src={this.down_image} width="20" height="20" alt=""/></div>
+						// <div style = {{position:'relative', minHeight: '14.66px', width:'6px', borderRight:'3px solid #C5C5C5', top:'20px'}}>
+						// </div>
 		//<button onClick = {this.openNewComment.bind(this)} type='button' className = 'begin_comment' id = {comment_id}>Comment</button> 
 		return (
 			<div style = {{background:'white', borderRadius:'4px', maxWidth:'1000px'}}>
 	      		
-		      	<div className= {comment_level} id= {comment_id} replies= {replies} style={{position:'relative', display:'flex', flexDirection:'row', flex: '1 1 auto'}}>
+		      	<div className= {comment_level} id= {comment_id} replies= {replies} style={{position:'relative', display:'flex', flexDirection:'row'}}>
 			      	{left_spaces}
-			      	<div style={{position:'relative', height:'60px', width:'5%'}}>
+			      	<div style={{position:'relative', minHeight:'62.66px', width:'30px', display:'flex', flexDirection:'column', top:'5px'}}>
 
-						<div style = {{top:'0px',height:'30px', zIndex:'10'}}><img onClick = {this.upvoteClicked.bind(this)} src={this.up_image} width="20" height="20" alt=""/></div>
-						<div style = {{bottom:'0px',height:'30px', zIndex:'10'}}><img onClick = {this.downvoteClicked.bind(this)} src={this.down_image} width="20" height="20" alt=""/></div>
+						<svg onClick = {this.upvoteClicked.bind(this)} width="10" height="16" viewBox="0 0 16 27" fill="none" xmlns="http://www.w3.org/2000/svg" color = 'blue'>
+							<path d="M8.70711 0.987356C8.31658 0.596832 7.68342 0.596832 7.29289 0.987356L0.928931 7.35132C0.538407 7.74184 0.538407 8.37501 0.928931 8.76553C1.31946 9.15606 1.95262 9.15606 2.34315 8.76553L8 3.10868L13.6569 8.76553C14.0474 9.15606 14.6805 9.15606 15.0711 8.76553C15.4616 8.37501 15.4616 7.74184 15.0711 7.35132L8.70711 0.987356ZM9 26.3126L9 1.69446L7 1.69446L7 26.3126L9 26.3126Z" fill={upvote_color}/>
+						</svg>
+
+						<svg style = {{position:'relative', top:'10px'}} onClick = {this.downvoteClicked.bind(this)} width="10" height="16" viewBox="0 0 16 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M7.29289 26.0197C7.68342 26.4102 8.31658 26.4102 8.70711 26.0197L15.0711 19.6557C15.4616 19.2652 15.4616 18.632 15.0711 18.2415C14.6805 17.851 14.0474 17.851 13.6569 18.2415L8 23.8984L2.34315 18.2415C1.95262 17.851 1.31946 17.851 0.928932 18.2415C0.538408 18.632 0.538408 19.2652 0.928932 19.6557L7.29289 26.0197ZM7 0.694489L7 25.3126H9L9 0.694489L7 0.694489Z" fill={downvote_color}/>
+						</svg>
 
 			      	</div>
-			      	<div style={{position:'relative', width:'100%'}}>
-			      		<div ref = {this.scoreRef} style={{width:'95%',height:'20px', fontSize:'10pt', color: '#5b5b5b'}} className='comment_header' id = {comment_id}> 
-			      			{user_id + " | " + this.votes_score + " | "+ date_text}
-			      			
+			      	<div style={{position:'relative', maxWidth:'970px'}}>
+			      		<div ref = {this.scoreRef} style={{display:'flex', flexDirection:'row', width:'95%',height:'20px', fontSize:'10pt', color: '#5b5b5b'}} className='comment_header' id = {comment_id}> 
+			      			<div style = {{color:'#188275'}}> 
+			      				<a style = {{color:'#188275', fontWeight:'bold'}} href = {"/user/" + this.props.data.user_id}> {this.props.data.user_id} </a>
+			      			</div>
+			      			<div style = {{height:'15px', width:'10px'}}>
+			      			</div>
+			      			<div>
+			      				{this.votes_score + " points"}
+			      			</div>
+			      			<div style = {{height:'15px', width:'10px'}}>
+			      			</div>
+			      			<div>
+			      				{date_text}
+			      			</div>
 			      			
 			      		</div>
 			      		<div style={{width:'95%'}} className ='comment_body' id = {comment_id}> {comment_div} </div> 
-			      		<div style={{width:'95%',height:'25px', fontSize:'10pt', color: '#5b5b5b'}} onClick = {this.openNewComment.bind(this)} className = 'begin_comment' id = {comment_id}> Reply </div>
+			      		<div style={{width:'95%',height:'25px', fontSize:'10pt', color: '#188275'}} onClick = {this.openNewComment.bind(this)} className = 'begin_comment' id = {comment_id}> Reply </div>
 			      	</div>
 		    	</div>
 		    	{this.new_comment}
@@ -808,8 +831,8 @@ export default class CommentSection extends React.Component
 		this.new_comment = <div>
 				<textarea onChange = {this.contentInput.bind(this)} ref = {this.contentRef} class = 'comment_text' id = {this.props.comment_id} name='content' rows='10' cols='90' style={{width:'80%',height:'50px',zIndex:'100'}}></textarea>
 				<br/>
-				<button onClick = {this.submitNewComment.bind(this)} style={{position:'relative'}} type='button' class='submit_new_comment' id = {this.props.comment_id}>submit</button>
-				<button onClick = {this.closeNewComment.bind(this)} style={{position:'relative'}} type='button' class='close_new_comment' id = {this.props.comment_id}>close</button>
+				<button onClick = {this.submitNewComment.bind(this)} style={{position:'relative'}} type='button' className='submit_new_comment' id = {this.props.comment_id}>submit</button>
+				<button onClick = {this.closeNewComment.bind(this)} style={{position:'relative'}} type='button' className='close_new_comment' id = {this.props.comment_id}>close</button>
 			</div>
 		this.forceUpdate();
 	}
@@ -824,6 +847,7 @@ export default class CommentSection extends React.Component
 	submitNewComment()
 	{
 		var that = this;
+		console.log(this.contentRef)
 		var submit_text = this.contentRef.current.value
 	    fetch("/comment", {
 	        method: "POST",
@@ -886,16 +910,24 @@ export default class CommentSection extends React.Component
 		{
 			tag_display = ''
 		}
-		var new_comment_button = <button onClick = {this.openNewComment.bind(this)} type='button' className = 'begin_comment'>Comment</button>
+		var new_comment_button = ""//<button onClick = {this.openNewComment.bind(this)} type='button' className = 'begin_comment'>Comment</button>
 		if (this.props.global_post != undefined)
 		{
 			new_comment_button = undefined
 		}
+
+		var profile_picture = "#188275"
+
 		return (
-			<div style = {{position:'relative', left: '5%', top:'100px', maxWidth:'1000px'}}>
+			<div style = {{position:'relative', left: '10px', maxWidth:'1000px'}}>
+				<div style = {{width:'1000px', display:'flex', flexDirection:'row'}}>
+					<div style = {{borderRadius: '50%', backgroundColor:profile_picture, position:'relative', left:'10px', width:'40px', height:'40px'}}>
+					</div>
+					<textarea ref = {this.contentRef} style = {{position:'relative', height:'40px', left: '40px', width:'920px', borderRadius:'7px', border:'1px solid black'}} placeholder = "  Comment Here.."></textarea>
+					<button onClick = {this.submitNewComment.bind(this)} style={{position:'relative'}} type='button' class='submit_new_comment' id = {this.props.comment_id}>submit</button>
+				</div>
 				{new_comment_button}
 				{this.new_comment}
-				<br/>
 				<br/>
 				{this.comments.map((comment) => {return comment})}
 				<div style = {{position:'fixed', width: '200px', height:'300px', right:'10%', top:'200px', backgroundColor:'white', display:tag_display, zIndex:15, overflow:'scroll'}} >

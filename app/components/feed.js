@@ -514,6 +514,8 @@ export default class Feed extends React.Component{
 			<div style = {{display:'flex', flexDirection:'row', width:'1190px', margin:'0px auto'}}>
 				<div className = "feed" style = {{position:'relative', top:'100px', border: '1px solid #F1F1F1', borderRadius:'7px', width:'755px', backgroundColor:'#F6F6F6'}}>
 					<NewPostSubmission style = {{position:'relative', left:'10px'}} />
+				</div>
+				<div className = "feed" style = {{position:'relative', top:'500px', border: '1px solid #F1F1F1', borderRadius:'7px', width:'755px', backgroundColor:'#F6F6F6'}}>
 					<PostInfo style = {{position:'relative', top:'20px', left:'10px'}} ref = {this.postsRef} songs = {this.props.data.songs} likes = {this.props.data.likes} num_comments = {this.props.data.num_comments} user_profiles = {this.props.data.user_profiles} bumps = {this.props.data.bumps}/>
 				</div>
 				<div style = {{position:'relative', top:'100px', left:'15px', border: '1px solid #F1F1F1', borderRadius:'7px', width:'420px', height:'708px', backgroundColor:'#F6F6F6'}}>
