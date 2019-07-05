@@ -6,9 +6,9 @@ const monthNames = ["January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December"
 ];
 
-class Post extends React.Component 
+class Post extends React.Component
 {
-	constructor(props) 
+	constructor(props)
 	{
 		super(props);
 		this.likes_score = this.props.song.likes - props.song.dislikes;
@@ -34,7 +34,7 @@ class Post extends React.Component
 
 	likeClicked()
 	{
-		
+
 		if (!utils.checkLoggedIn())
 		{
 			alert("MUST BE LOGGED IN")
@@ -63,7 +63,7 @@ class Post extends React.Component
 	        },
 	        body: JSON.stringify({user: that.props.song.username, id: id, name:this.props.song.title})})
 	    .then(function(response) { return response.json();})
-	    .then(function (data) {    	
+	    .then(function (data) {
 	    	// that.likes_score = data.likes_score;
 	    	// that.like_state = data.like_state;
 	    	// if (that.like_state == 1)
@@ -82,9 +82,9 @@ class Post extends React.Component
 	    	// {
 	    	// 	console.log("back 3")
 	    	// 	that.likeRef.current.style = 'black'
-	    	// 	that.dislikeRef.current.style.color = 'black'	    		
+	    	// 	that.dislikeRef.current.style.color = 'black'
 	    	// }
-	 	})	
+	 	})
 
     	if (this.props.like_state == 1)
     	{
@@ -100,7 +100,7 @@ class Post extends React.Component
     		{
     			this.likes_score += 1;
     		}
-    		else 
+    		else
     		{
     			this.likes_score += 2;
     		}
@@ -144,7 +144,7 @@ class Post extends React.Component
 	        },
 	        body: JSON.stringify({user: that.props.song.username, id: id, name: that.props.song.title})})
 	    .then(function(response) { return response.json();})
-	    .then(function (data) {    	
+	    .then(function (data) {
 	    	// that.likes_score = data.likes_score;
 	    	// that.like_state = data.like_state;
 	    	// if (that.like_state == 1)
@@ -160,15 +160,15 @@ class Post extends React.Component
 	    	// else
 	    	// {
 	    	// 	that.likeRef.current.style = 'black'
-	    	// 	that.dislikeRef.current.style.color = 'black'		
+	    	// 	that.dislikeRef.current.style.color = 'black'
 	    	// }
 	    	// that.forceUpdate();
-	 	})	
+	 	})
 
     	if (this.props.like_state == 0)
     	{
     		//this.likeRef.current.style = 'black'
-    		//this.dislikeRef.current.style.color = 'black'	 
+    		//this.dislikeRef.current.style.color = 'black'
     		this.down_color = "#2F3846"
     		this.props.like_state = -1;
     		this.likes_score += 1;
@@ -179,7 +179,7 @@ class Post extends React.Component
     		{
     			this.likes_score -= 1;
     		}
-    		else 
+    		else
     		{
     			this.likes_score -= 2;
     		}
@@ -230,7 +230,7 @@ class Post extends React.Component
 	        },
 	        body: JSON.stringify({post_id: this.props.song.post_id})})
 	    .then(function(response) { return response.json();})
-	    .then(function (data) { 
+	    .then(function (data) {
 	    	if (data.success)
 	    	{
 	    		//change bump to bumped
@@ -242,7 +242,7 @@ class Post extends React.Component
 	    		//alert no bumps
 	    		alert("YOU HAVE NO BUMPS AVAILABLE")
 	    	}
-	    })		
+	    })
 	}
 
 	render()
@@ -269,12 +269,7 @@ class Post extends React.Component
 
 		var content_div = []
 
-<<<<<<< HEAD
-		var content = <h2 style={{position:'relative'}}>{content_div}</h2>
-=======
-
 		var content = <h2>{content_div}</h2>
->>>>>>> dba99c1a574ccbc495e55dbef0124d4bb4bb6b3b
 
 		var by_text = " by"
 		var at_text = " posted at "
@@ -286,7 +281,7 @@ class Post extends React.Component
 		{
 			post_id = this.props.song.id;
 			//post_title = "";
-			by_text = " posted by " 
+			by_text = " posted by "
 			at_text = " at "
 			poster_username = this.props.song.username;
 			poster_username_url = "/user/" + this.props.song.username;
@@ -322,7 +317,7 @@ class Post extends React.Component
 			content_name = this.props.song.album;
 		}
 		var leftpadding = '0px'
-		var content_section = <div  style = {{maxHeight:'450px', paddingTop:'5px', lineHeight:'27px', width:'380px', fontSize:'20px', overflow:'hidden', textOverflow:'ellipsis'}}> 
+		var content_section = <div  style = {{maxHeight:'450px', paddingTop:'5px', lineHeight:'27px', width:'380px', fontSize:'20px', overflow:'hidden', textOverflow:'ellipsis'}}>
 					<div ref = {this.contentRef}>
 						{content_div}
 					</div>
@@ -352,7 +347,7 @@ class Post extends React.Component
 
 					<div style = {{paddingTop:'30px'}}><span dangerouslySetInnerHTML={this.renderiframe(this.props.song.embedded_content)}></span>
 					</div>
-					<div style = {{width:'300px', height:'30px'}}> 
+					<div style = {{width:'300px', height:'30px'}}>
 					</div>
 					<div style = {{height:'35px', display:'flex', flexDirection:'row'}}>
 						<div style = {{width:'15px', height:'30px'}}></div>
@@ -373,7 +368,7 @@ class Post extends React.Component
 						<div  style = {{width:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', fontSize: '16px', fontWeight:'bold'}}>
 							{this.bump_button}
 						</div>
-					</div>				
+					</div>
 				</div>
 
 				<div style = {{paddingTop:'30px', paddingLeft:'10px', paddingRight:'20px', width:'400px', fontSize:'20px'}}>
@@ -388,9 +383,9 @@ class Post extends React.Component
 	}
 }
 
-export default class PostInfo extends React.Component 
+export default class PostInfo extends React.Component
 {
-	constructor(props) 
+	constructor(props)
 	{
 		super(props);
 		this.posts = [];
@@ -421,11 +416,11 @@ export default class PostInfo extends React.Component
 		}
 		for (var num_comments of this.props.num_comments)
 		{
-			
+
 			if (song.post_id == num_comments.post_id)
 			{
-				current_num_comments = num_comments.count	
-				break;		
+				current_num_comments = num_comments.count
+				break;
 			}
 		}
 		var post_bumped = false
@@ -495,7 +490,7 @@ export default class PostInfo extends React.Component
 						current_num_comments = num_posts.count;
 						break;
 					}
-				}			
+				}
 			}
 			var post_bumped = false
 			for (var bump of this.props.bumps)
@@ -515,11 +510,11 @@ export default class PostInfo extends React.Component
 	    this.addSongs();
 	    this.forceUpdate();
 	}
-	
+
 
 	render()
 	{
-		
+
 		return(
 			<div style={{width:'735px'}}>
 				{this.posts.map((post) => {return <div> {post} </div>})}
