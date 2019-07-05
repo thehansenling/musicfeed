@@ -115,7 +115,7 @@ a:hover {
 }
 
 
-::placeholder
+.search_bar::placeholder
 {
   color:white;
   font-size:18px;
