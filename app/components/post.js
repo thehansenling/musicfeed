@@ -6,9 +6,9 @@ const monthNames = ["January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December"
 ];
 
-class Post extends React.Component 
+class Post extends React.Component
 {
-	constructor(props) 
+	constructor(props)
 	{
 		super(props);
 		this.likes_score = this.props.song.likes - props.song.dislikes;
@@ -34,7 +34,7 @@ class Post extends React.Component
 
 	likeClicked()
 	{
-		
+
 		if (!utils.checkLoggedIn())
 		{
 			alert("MUST BE LOGGED IN")
@@ -63,7 +63,7 @@ class Post extends React.Component
 	        },
 	        body: JSON.stringify({user: that.props.song.username, id: id, name:this.props.song.title})})
 	    .then(function(response) { return response.json();})
-	    .then(function (data) {    	
+	    .then(function (data) {
 	    	// that.likes_score = data.likes_score;
 	    	// that.like_state = data.like_state;
 	    	// if (that.like_state == 1)
@@ -82,9 +82,9 @@ class Post extends React.Component
 	    	// {
 	    	// 	console.log("back 3")
 	    	// 	that.likeRef.current.style = 'black'
-	    	// 	that.dislikeRef.current.style.color = 'black'	    		
+	    	// 	that.dislikeRef.current.style.color = 'black'
 	    	// }
-	 	})	
+	 	})
 
     	if (this.props.like_state == 1)
     	{
@@ -100,7 +100,7 @@ class Post extends React.Component
     		{
     			this.likes_score += 1;
     		}
-    		else 
+    		else
     		{
     			this.likes_score += 2;
     		}
@@ -144,7 +144,7 @@ class Post extends React.Component
 	        },
 	        body: JSON.stringify({user: that.props.song.username, id: id, name: that.props.song.title})})
 	    .then(function(response) { return response.json();})
-	    .then(function (data) {    	
+	    .then(function (data) {
 	    	// that.likes_score = data.likes_score;
 	    	// that.like_state = data.like_state;
 	    	// if (that.like_state == 1)
@@ -160,15 +160,15 @@ class Post extends React.Component
 	    	// else
 	    	// {
 	    	// 	that.likeRef.current.style = 'black'
-	    	// 	that.dislikeRef.current.style.color = 'black'		
+	    	// 	that.dislikeRef.current.style.color = 'black'
 	    	// }
 	    	// that.forceUpdate();
-	 	})	
+	 	})
 
     	if (this.props.like_state == 0)
     	{
     		//this.likeRef.current.style = 'black'
-    		//this.dislikeRef.current.style.color = 'black'	 
+    		//this.dislikeRef.current.style.color = 'black'
     		this.down_color = "#2F3846"
     		this.props.like_state = -1;
     		this.likes_score += 1;
@@ -179,7 +179,7 @@ class Post extends React.Component
     		{
     			this.likes_score -= 1;
     		}
-    		else 
+    		else
     		{
     			this.likes_score -= 2;
     		}
@@ -230,7 +230,7 @@ class Post extends React.Component
 	        },
 	        body: JSON.stringify({post_id: this.props.song.post_id})})
 	    .then(function(response) { return response.json();})
-	    .then(function (data) { 
+	    .then(function (data) {
 	    	if (data.success)
 	    	{
 	    		//change bump to bumped
@@ -242,13 +242,13 @@ class Post extends React.Component
 	    		//alert no bumps
 	    		alert("YOU HAVE NO BUMPS AVAILABLE")
 	    	}
-	    })		
+	    })
 	}
 
 	render()
 	{
 		var date = new Date(this.props.song.timestamp)
-		var post_title = <h1 className = "post_title" style= {{position:'relative', fontWeight:'bold', fontSize:'24px'}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id} > {this.props.song.title}</a></h1>;
+		var post_title = <h1 className="post_title" style= {{fontWeight:'bold', fontSize:'24px'}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id} > {this.props.song.title}</a></h1>;
 		var poster_username = '';//this.props.song.artist;
 		var poster_username_url = '';//"/artist/" + this.props.song.artist;
 
@@ -265,7 +265,7 @@ class Post extends React.Component
 
 		var content_div = []
 
-		var content = <h2 style={{position:'relative'}}>{content_div}</h2>
+		var content = <h2>{content_div}</h2>
 
 		var by_text = " by"
 		var at_text = " posted at "
@@ -277,7 +277,7 @@ class Post extends React.Component
 		{
 			post_id = this.props.song.id;
 			//post_title = "";
-			by_text = " posted by " 
+			by_text = " posted by "
 			at_text = " at "
 			poster_username = this.props.song.username;
 			poster_username_url = "/user/" + this.props.song.username;
@@ -313,7 +313,7 @@ class Post extends React.Component
 			content_name = this.props.song.album;
 		}
 		var leftpadding = '0px'
-		var content_section = <div  style = {{maxHeight:'450px', paddingTop:'5px', lineHeight:'27px', width:'380px', fontSize:'20px', overflow:'hidden', textOverflow:'ellipsis'}}> 
+		var content_section = <div  style = {{maxHeight:'450px', paddingTop:'5px', lineHeight:'27px', width:'380px', fontSize:'20px', overflow:'hidden', textOverflow:'ellipsis'}}>
 					<div ref = {this.contentRef}>
 						{content_div}
 					</div>
@@ -328,7 +328,7 @@ class Post extends React.Component
 
 		return(
 
-		<div key = {this.props.song.post_id} style = {{border: '1px solid #F1F1F1', borderRadius: '7px', width:'735px', background:'white', minHeight:'513px', position:'relative', top:'20px'}}>
+		<div key = {this.props.song.post_id} style = {{border: '1px solid #F1F1F1', borderRadius: '7px', width:'735px', background:'white', minHeight:'513px', marginBottom: '12px'}}>
 			<div style = {{display:'flex', flexDirection:'row'}}>
 				<div style = {{width:'320px', paddingTop:'30px', paddingLeft:'10px', borderRight:'1px solid rgba(0, 0, 0, 0.09)', borderRadius:'7px', borderTopRightRadius: '0px', borderBottomRightRadius: '0px'}}>
 					<div style = {{display:'flex', flexDirection:'row'}}>
@@ -343,14 +343,14 @@ class Post extends React.Component
 
 					<div style = {{paddingTop:'30px'}}><span dangerouslySetInnerHTML={this.renderiframe(this.props.song.embedded_content)}></span>
 					</div>
-					<div style = {{width:'300px', height:'30px'}}> 
+					<div style = {{width:'300px', height:'30px'}}>
 					</div>
 					<div style = {{height:'35px', display:'flex', flexDirection:'row'}}>
 						<div style = {{width:'15px', height:'30px'}}></div>
 						<svg onClick = {this.likeClicked.bind(this)} width="14" height="24" viewBox="0 0 16 27" fill="none" xmlns="http://www.w3.org/2000/svg" color = 'blue'>
 						<path d="M8.70711 0.987356C8.31658 0.596832 7.68342 0.596832 7.29289 0.987356L0.928931 7.35132C0.538407 7.74184 0.538407 8.37501 0.928931 8.76553C1.31946 9.15606 1.95262 9.15606 2.34315 8.76553L8 3.10868L13.6569 8.76553C14.0474 9.15606 14.6805 9.15606 15.0711 8.76553C15.4616 8.37501 15.4616 7.74184 15.0711 7.35132L8.70711 0.987356ZM9 26.3126L9 1.69446L7 1.69446L7 26.3126L9 26.3126Z" fill={this.up_color}/>
 						</svg>
-						<div style = {{minWidth:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', position: 'relative', top: '0px', fontSize: '16px', fontWeight:'bold'}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id + "/likes"} >{this.likes_score} </a></div>
+						<div style = {{minWidth:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', fontSize: '16px', fontWeight:'bold'}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id + "/likes"} >{this.likes_score} </a></div>
 
 						<svg onClick = {this.dislikeClicked.bind(this)} width="14" height="24" viewBox="0 0 16 27" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path d="M7.29289 26.0197C7.68342 26.4102 8.31658 26.4102 8.70711 26.0197L15.0711 19.6557C15.4616 19.2652 15.4616 18.632 15.0711 18.2415C14.6805 17.851 14.0474 17.851 13.6569 18.2415L8 23.8984L2.34315 18.2415C1.95262 17.851 1.31946 17.851 0.928932 18.2415C0.538408 18.632 0.538408 19.2652 0.928932 19.6557L7.29289 26.0197ZM7 0.694489L7 25.3126H9L9 0.694489L7 0.694489Z" fill={this.down_color}/>
@@ -360,11 +360,11 @@ class Post extends React.Component
 						<div style = {{width:'10px', height:'30px'}}></div>
 						<div style = {{}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id}><img src="/speech_bubble.png" width="30" height="26" alt=""/></a></div>
 
-						<div style = {{width:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', position: 'relative', top: '0px', fontSize: '16px', fontWeight:'bold'}}> <a href = {"/user/" + this.props.song.username + "/" + this.props.song.id}> {this.props.num_comments} </a></div>
-						<div  style = {{width:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', position: 'relative', top: '0px', fontSize: '16px', fontWeight:'bold'}}>
+						<div style = {{width:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', fontSize: '16px', fontWeight:'bold'}}> <a href = {"/user/" + this.props.song.username + "/" + this.props.song.id}> {this.props.num_comments} </a></div>
+						<div  style = {{width:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', fontSize: '16px', fontWeight:'bold'}}>
 							{this.bump_button}
 						</div>
-					</div>				
+					</div>
 				</div>
 
 				<div style = {{paddingTop:'30px', paddingLeft:'10px', paddingRight:'20px', width:'400px', fontSize:'20px'}}>
@@ -375,73 +375,13 @@ class Post extends React.Component
 			</div>
 		</div>
 
-		// <div key = {this.props.song.post_id} style = {{border: '1px solid #F1F1F1', borderRadius: '7px', width:'980px', background:'white', minHeight:'513px'}}>
-		// 	<div style = {{paddingLeft: leftpadding, display:'flex', flexDirection:'row'}}>
-		// 	<div style=  {{width:'300px', paddingLeft:'10px', paddingTop:'10px'}}>
-		// 		<div style = {{float:'left'}}> <a href ={poster_username_url} > {poster_username} </a></div>
-		// 		<div style = {{float:date_float, paddingRight:'10px'}}>{(parseInt(date.getMonth()) + 1) + "/" + date.getDate() + "/" + date.getFullYear()}</div>
-		// 		<div style = {{clear:'both'}}>{artist_names}</div>
-		// 		<div> <a href = {content_url} >{content_name} </a></div>
-		// 	</div>
-		// 	<div style = {{paddingTop:'8px', width:'680px', margin: '0px auto'}}>{post_title}</div>
-
-		// 	</div>
-		// 	<div style = {{clear:'both', paddingLeft:leftpadding}}>
-		// 		<div style = {{float:'left', paddingLeft: '10px', paddingTop:'3px'}}><span dangerouslySetInnerHTML={this.renderiframe(this.props.song.embedded_content)}></span></div>
-		// 		{content_section}
-
-		// 		<div style = {{clear:'both', display:'flex', flexDirection:'row'}}>
-					
-		// 			<div style = {{clear:'both', height:'35px'}}>
-		// 				<div style = {{float:'left', width:'15px', height:'30px'}}></div>
-		// 				<div style = {{float:'left'}}><img onClick = {this.likeClicked.bind(this)} src={this.up_image} width="30" height="30" alt=""/></div>
-		// 				<div style = {{width:'60px', height:'30px', float:'left', verticalAlign: 'middle', textAlign: 'center', width:'60px', position: 'relative', top: '0px', fontSize: '21px'}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id + "/likes"} >{this.likes_score} </a></div>
-		// 				<div style = {{float:'left'}}><img onClick = {this.dislikeClicked.bind(this)} src={this.down_image} width="30" height="30" alt=""/></div>
-		// 				<div style = {{float:'left', width:'30px', height:'30px', borderRight: '1px solid black'}}></div>
-		// 				<div style = {{float:'left', width:'30px', height:'30px'}}></div>
-		// 				<div style = {{float:'left'}}><img src="/small_comment.png" width="30" height="30" alt=""/></div>
-		// 				<div style = {{width:'60px', height:'30px', float:'left', verticalAlign: 'middle', textAlign: 'center', width:'80px', position: 'relative', top: '0px', fontSize: '21px'}}> {this.props.num_comments} </div>
-		// 			</div>
-		// 			{this.ellipsis}
-		// 		</div>
-		// 	</div>
-		// </div>
-
- 		// <div key = {this.props.song.post_id} style={{position:'relative', height:'480px',borderBottom: '4px solid gray',padding:'5px'}}>
- 		// 	<div style = {{display: 'flex',flexDirection:'row'}}>
-	 	// 		<span style={{width:'600px'}}>
-	 	// 			{post_title}
-	 	// 			<div style = {{display: 'flex',flexDirection:'row'}}>
-	 				
-	 	// 			<h3> <a href = 
-	 	// 					{content_url}  > {content_name} 
-	 	// 				</a>
-		 // 				 {by_text}
-		 // 				<a href ={poster_username_url} > {poster_username} </a> {at_text}
-		 // 				{" " + (parseInt(date.getMonth()) + 1) + "/" + date.getDate() + "/" + date.getFullYear()} 
-	 	// 			</h3>
-	 	// 			</div>
-	 	// 				{content}
-	 	// 		</span>
-	 	// 		<span dangerouslySetInnerHTML={this.renderiframe(this.props.song.embedded_content)}>
-	 	// 		</span>
- 		// 	</div>
-			// <div className= "like_section">
-			// 	{likes_section}
-			// </div>
-			// <div className= "comment_section" id = {this.props.song.id} >
-			// 	{comment_section}
-			// 	Comments: {this.props.num_comments}
-			// </div>
- 		// </div>
-
 		);
 	}
 }
 
-export default class PostInfo extends React.Component 
+export default class PostInfo extends React.Component
 {
-	constructor(props) 
+	constructor(props)
 	{
 		super(props);
 		this.posts = [];
@@ -472,11 +412,11 @@ export default class PostInfo extends React.Component
 		}
 		for (var num_comments of this.props.num_comments)
 		{
-			
+
 			if (song.post_id == num_comments.post_id)
 			{
-				current_num_comments = num_comments.count	
-				break;		
+				current_num_comments = num_comments.count
+				break;
 			}
 		}
 		var post_bumped = false
@@ -546,7 +486,7 @@ export default class PostInfo extends React.Component
 						current_num_comments = num_posts.count;
 						break;
 					}
-				}			
+				}
 			}
 			var post_bumped = false
 			for (var bump of this.props.bumps)
@@ -566,14 +506,14 @@ export default class PostInfo extends React.Component
 	    this.addSongs();
 	    this.forceUpdate();
 	}
-	
+
 
 	render()
 	{
-		
+
 		return(
-			<div style={{margin: '0 auto', position:'relative',width:'735px'}}>
-				{this.posts.map((post) => {return <div> {post} <br/></div>})}
+			<div style={{width:'735px'}}>
+				{this.posts.map((post) => {return <div> {post} </div>})}
 			</div>
 		);
 	}
