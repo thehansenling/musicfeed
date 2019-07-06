@@ -22,7 +22,15 @@ class UserPostContent extends React.Component
 		if (this.props.username == this.props.data.username)
 		{
 			this.edit_content = <button onClick={this.editContent.bind(this)}> Edit Content </button>;
-			var tags_temp = JSON.parse(this.props.data.tags)
+
+			var tags_temp = {}
+			
+			if (this.props.data.tags != undefined)
+			{
+				tags_temp = JSON.parse(this.props.data.tags)
+			}
+			
+
 			var tag_keys = Object.keys(tags_temp)
 			for (var i = 0; i < tag_keys.length; ++i)
 			{
@@ -297,14 +305,20 @@ class UserPostContent extends React.Component
 			tag_display = ''
 		}
 
+		var content_link = "/post/" + this.props.data.artist + "/" + this.props.data.song
+		var content_name = this.props.data.song
+		if (this.props.data.song == "NO_SONG_ALBUM_ONLY")
+		{
+			content_link = "/album/" + this.props.data.artist + "/" + this.props.data.album
+			content_name = this.props.data.album
+		}
 
 		return (
 		<div style = {{position:'relative', top:'100px', left:'15px', border: '1px solid #F1F1F1', borderRadius:'7px', width:'1000px', minHeight: this.post_height, backgroundColor:'#F6F6F6'}}>
 
 			<div ref = {this.postRef} key = {this.props.data.post_id} style = {{border: '1px solid #F1F1F1', borderRadius: '7px', width:'980px', background:'white', minHeight:'580px', position:'relative', top:'10px', left:'10px'}}>
-				<div style = {{}}>
 
-					<div style = {{paddingTop:'30px', paddingLeft:'10px', paddingRight:'10px', width:'980px', position:'relative', }}>
+					<div style = {{paddingTop:'30px', paddingLeft:'10px', paddingRight:'10px', width:'980px', position:'relative', minHeight:'545px'}}>
 						<div style = {{display:'flex', flexDirection:'row', float:'left', width:'330px', paddingLeft:'10px', borderRadius:'7px', borderTopRightRadius: '0px', borderBottomRightRadius: '0px'}}>
 							<div style = {{paddingRight:'10px'}}>
 								<div style = {{display:'flex', flexDirection:'row'}}>
@@ -316,12 +330,26 @@ class UserPostContent extends React.Component
 									</div>
 								</div>
 
-
 								<div style = {{paddingTop:'30px'}}><span dangerouslySetInnerHTML={this.renderiframe(this.props.data.embedded_content)}></span>
 								</div>
-								<div style = {{width:'300px', height:'30px'}}> 
+								<div style = {{width:'300px', height:'40px', display:'flex', flexDirection:'row', paddingTop:'5px', fontSize:'1.2em', color:'#2F3846', opacity:'.6'}}>
+									<a href = {"/artist/" + this.props.data.artist}> {this.props.data.artist} </a>
+									<div style = {{paddingLeft:'10px', paddingRight:'10px'}}>-</div>
+									<a href = {content_link}> {content_name} </a>  
 								</div>
-								<div style = {{height:'35px', display:'flex', flexDirection:'row'}}>
+							</div>	
+
+							<div style = {{width:'10px', height:'500px', borderLeft:'1px solid rgba(0, 0, 0, 0.09)'}}>
+							</div>	
+						</div>
+						<div style = {{fontWeight:'bold', fontSize:'24px', margin: '0px auto', paddingBottom:'10px'}}>
+							{this.props.data.title}
+						</div>
+						<div style = {{minHeight:'455px', whiteSpace:'pre-wrap'}}>
+							{content_div}
+						</div>
+					</div>
+								<div style = {{height:'35px', display:'flex', flexDirection:'row', zIndex:'9'}}>
 									<div style = {{width:'15px', height:'30px'}}></div>
 									<svg onClick = {this.likeClicked.bind(this)} width="14" height="24" viewBox="0 0 16 27" fill="none" xmlns="http://www.w3.org/2000/svg" color = 'blue'>
 									<path d="M8.70711 0.987356C8.31658 0.596832 7.68342 0.596832 7.29289 0.987356L0.928931 7.35132C0.538407 7.74184 0.538407 8.37501 0.928931 8.76553C1.31946 9.15606 1.95262 9.15606 2.34315 8.76553L8 3.10868L13.6569 8.76553C14.0474 9.15606 14.6805 9.15606 15.0711 8.76553C15.4616 8.37501 15.4616 7.74184 15.0711 7.35132L8.70711 0.987356ZM9 26.3126L9 1.69446L7 1.69446L7 26.3126L9 26.3126Z" fill={this.up_color}/>
@@ -341,18 +369,8 @@ class UserPostContent extends React.Component
 										{this.bump_button}
 									</div>
 								</div>	
-							</div>		
-							<div style = {{width:'10px', height:'500px', borderLeft:'1px solid rgba(0, 0, 0, 0.09)'}}>
-							</div>	
-						</div>
-						<div style = {{fontWeight:'bold', fontSize:'24px', margin: '0px auto', paddingBottom:'10px'}}>
-							{this.props.data.title}
-						</div>
-						{content_div}
-					</div>
-
-				</div>
 			</div>
+
 		</div>
 		);
 
@@ -426,9 +444,10 @@ export default class UserPost extends React.Component
 
 		return (
 			<div>
-				<UserPostContent ref = {this.postRef} data = {this.props.data.user_post} like_state = {this.props.data.like_state} num_comments = {this.props.data.num_comments} username = {this.props.data.username} user_profile = {this.props.data.user_profile}/>
-
-				<div style = {{position:'relative', top:"100px"}}>
+				<div style = {{position:'relative', margin:'0px auto', width:'1000px'}}>
+					<UserPostContent ref = {this.postRef} data = {this.props.data.user_post} like_state = {this.props.data.like_state} num_comments = {this.props.data.num_comments} username = {this.props.data.username} user_profile = {this.props.data.user_profile}/>
+				</div>
+				<div style = {{position:'relative', margin:'0px auto', width:'1000px', top:"120px"}}>
 					<CommentSection comments = {this.props.data.comments} comment_votes = {this.props.data.comment_votes} post_id = {this.props.data.user_post.id} post_data = {this.props.data.user_post}/>
 				</div>
 			</div>

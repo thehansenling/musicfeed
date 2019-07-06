@@ -474,7 +474,11 @@ module.exports =
 			}
 			total_index += item.length + 1
 			all_content.push(item.substring(index, item.length))
-			content_div.push(<p style = {{minHeight:'26.67px'}} key={i}>{all_content}</p>);
+			//content_div.push(<p style = {{}} key={i}>{all_content}</p>);
+			//content_div.push(<div style = {{minHeight:'23.67px'}} key={i}>{all_content}</div>);
+			content_div.push(all_content);
+			content_div.push(<br key = {i}/>)
+			//content_div.push("\n");
 		})
 		return content_div
 	}

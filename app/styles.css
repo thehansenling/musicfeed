@@ -114,6 +114,10 @@ a:hover {
     color: #178275;
 }
 
+p {
+padding-bottom: 0px;
+margin-block-end:1px;
+}
 
 .search_bar::placeholder
 {
