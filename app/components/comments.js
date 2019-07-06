@@ -370,7 +370,6 @@ class Comment extends React.Component
 	    .then(function (data) {    	
 
 	    	var child_comments = generateComments(data.comments, data.comment_votes, that.props.post_id, that.props.data.comment_level + 1, that.props.post_data, that.props.global_post != undefined)[0]
-	    	console.log(child_comments)
 	    	//don't know why this doesn't work
 	    	for (var comment of child_comments)
 	    	{
@@ -534,7 +533,7 @@ class Comment extends React.Component
 						</svg>
 
 			      	</div>
-			      	<div style={{position:'relative', maxWidth:'970px'}}>
+			      	<div style={{position:'relative', maxWidth:'970px', minWidth:'300px'}}>
 			      		<div ref = {this.scoreRef} style={{display:'flex', flexDirection:'row', width:'95%',height:'20px', fontSize:'10pt', color: '#5b5b5b'}} className='comment_header' id = {comment_id}> 
 			      			<div style = {{color:'#188275'}}> 
 			      				<a style = {{color:'#188275', fontWeight:'bold'}} href = {"/user/" + this.props.data.user_id}> {this.props.data.user_id} </a>
@@ -847,7 +846,6 @@ export default class CommentSection extends React.Component
 	submitNewComment()
 	{
 		var that = this;
-		console.log(this.contentRef)
 		var submit_text = this.contentRef.current.value
 	    fetch("/comment", {
 	        method: "POST",
@@ -924,7 +922,7 @@ export default class CommentSection extends React.Component
 					<div style = {{borderRadius: '50%', backgroundColor:profile_picture, position:'relative', left:'10px', width:'40px', height:'40px'}}>
 					</div>
 					<textarea ref = {this.contentRef} style = {{position:'relative', height:'40px', left: '40px', width:'920px', borderRadius:'7px', border:'1px solid black'}} placeholder = "  Comment Here.."></textarea>
-					<button onClick = {this.submitNewComment.bind(this)} style={{position:'relative'}} type='button' class='submit_new_comment' id = {this.props.comment_id}>submit</button>
+					<button onClick = {this.submitNewComment.bind(this)} style={{position:'relative'}} type='button' className='submit_new_comment' id = {this.props.comment_id}>submit</button>
 				</div>
 				{new_comment_button}
 				{this.new_comment}

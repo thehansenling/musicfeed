@@ -192,7 +192,6 @@ export default class StandardHeader extends React.Component {
 	    .then(function(response) { return response.json();})
 	    .then(function (data) {    	
 	    	that.props.notifications = data.notifications
-	    	console.log(that.props.notifications)
 		  	if (that.props.notifications != undefined && that.props.notifications.length > 0)
 		  	{	
 			  	for (var i = 0; i < that.props.notifications.length; ++i)
@@ -232,7 +231,6 @@ export default class StandardHeader extends React.Component {
 			  			 <button key = {that.props.notifications[i].post_id} style = {{right:'0px', position:'absolute', height:'25px'}} className = "dropdownelement" onClick = {that.removeNotification.bind(that, that.props.notifications[i].post_id)}> X </button>
 			  			</div>)
 			  	}
-			  	console.log(that.dropdown_content)
 			  	that.notification_div = <div className = "notifications" ref = {that.notificationsRef} onClick = {that.toggleNotifications.bind(that)} style = {{marginRight: '10px', fontWeight:'bold', fontSize:'12pt', color: "#178275", width:'24px', height:'24px', textAlign:'center', backgroundColor:'white', borderRadius:'50%'}}> {that.props.notifications.length}</div>
 		  	}
 		  	that.forceUpdate()

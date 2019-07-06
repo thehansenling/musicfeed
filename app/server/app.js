@@ -485,13 +485,10 @@ function RenderFeed(req, res)
 function GetCommentChildren(comment_ids, comments, comment_votes, username, res, offset=  0)
 {
 	var comment_sql = "SELECT *, ((upvotes + 1.9208) / (upvotes + downvotes) - 1.96 * SQRT((upvotes * downvotes) / (upvotes + downvotes) + 0.9604) / (upvotes + downvotes)) / (1 + 3.8416 / (upvotes + downvotes)) AS order_score FROM comments WHERE parent_comment_id in (" + comment_ids + ") ORDER by order_score DESC LIMIT 18446744073709551615 OFFSET " + offset;
-	console.log(comment_sql);
 	connection.query(comment_sql, function (err, result, fields) 
 	{
-		console.log(result)
 		if (result == undefined)
 		{
-			console.log(comments)
 			res.send({comments:comments,
 					  comment_votes:comment_votes});
 		}
