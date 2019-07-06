@@ -8,14 +8,13 @@ class NewPostSubmission extends React.Component {
 	constructor(props)
 	{
 		super(props);
+		this.state = {embedLink: ''}
 
 		this.embedded_content = "";
 
-		this.songEmbedRef = React.createRef();
 		this.contentRef = React.createRef();
 		this.titleRef = React.createRef();
 
-		this.newPost = "";
 		this.div_height = '100px'
 		this.containerRef = React.createRef()
 		this.postContentRef = React.createRef()
@@ -36,24 +35,28 @@ class NewPostSubmission extends React.Component {
 		this.shouldNotShowContentBox = true
 	}
 
-	songInput()
+	songInput(event)
 	{
-		var input = event.target.value;
-		var content_str = this.contentRef.current.value;
-	   	if(this.songEmbedRef.current.value != "")
-	   	{
-			this.shouldNotShowContentBox = false;
-	   		this.embedded_content = this.songEmbedRef.current.value;
-	   		this.show_song_display = ''
-	   	}
-	   	else
-	   	{
-			this.shouldNotShowContentBox = true;
-	   		this.embedded_content = this.songEmbedRef.current.value;
-	   		this.show_song_display = 'none'
-	   	}
+		var embedLink = event.target.value;
+		this.setState({embedLink});
+		if (embedLink) {
+			// show song display
+			// show content input box
 
-	   	this.forceUpdate();
+			this.shouldNotShowContentBox = false;
+			this.embedded_content = embedLink;
+			this.show_song_display = ''
+			this.forceUpdate();
+		} else {
+			// hide song display
+			// hide content input box
+
+			this.shouldNotShowContentBox = true;
+			this.embedded_content = embedLink;
+			this.show_song_display = 'none'
+			this.forceUpdate();
+		}
+
 	}
 
 	contentInput()
@@ -87,7 +90,7 @@ class NewPostSubmission extends React.Component {
 				'Authorization': 'Basic',
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify({song: this.songEmbedRef.current.value,
+			body: JSON.stringify({song: this.state.embedLink,
 								  content: this.contentRef.current.value,
 								  title: this.titleRef.current.value,
 								  submissionLikeState: this.submissionLikeState,
@@ -96,7 +99,7 @@ class NewPostSubmission extends React.Component {
 			.then(function(response) { return response.json();})
 			.then(function (data) {
 
-			that.songEmbedRef.current.value = ""
+			this.setState({embedLink: ''});
 			that.contentRef.current.value = ""
 			that.titleRef.current.value = ""
 			location.reload(true);
@@ -144,53 +147,77 @@ class NewPostSubmission extends React.Component {
 			tag_display = ''
 		}
 
-		var submissionLikeColor = 'black'
-		var submissionDislikeColor = 'black'
-		if (this.submissionLikeState == 1)
-		{
-			submissionLikeColor = 'blue'
-			submissionDislikeColor = 'black'
-		}
-		else if (this.submissionLikeState == 0)
-		{
-			submissionLikeColor = 'black'
-			submissionDislikeColor = 'red'
-		}
-
 		return (
-			<div ref = {this.containerRef} style = {{display:'flex', flexDirection: 'row', backgroundColor:'white', border: '1px solid #F1F1F1', borderRadius:'7px', padding: '16px'}}>
-				<div>
-					<div style = {{fontFamily:'RobotoRegular', fontSize:'20px', color:'rgba(47, 56, 70, 0.58)', borderBottom:'1px solid rgba(0, 0, 0, 0.09)'}}>Create Post</div>
-					<div style = {{display:'flex', flexDirection:'row', paddingTop:'16px'}}>
-						<div style = {{width:'65px', height:'65px', backgroundColor:'#178275', borderRadius:'50%', marginRight:'12px'}}></div>
-						<input ref = {this.songEmbedRef} onChange={this.songInput.bind(this)} placeholder="Embed link here" style={{borderBottom:'1px solid rgba(0, 0, 0, 0.09)', borderTop:'none', borderLeft:'none', borderRight:'none', width:'618px', fontSize:'16px', padding:'8px'}}></input>
+			<div
+				ref={this.containerRef}
+				style={{
+					display:'flex',
+					flexDirection: 'column',
+					backgroundColor:'white',
+					border: '1px solid #F1F1F1',
+					borderRadius:'8px',
+					padding: '12px 16px 16px 16px',
+				}}
+			>
+				<div
+					style={{
+						fontFamily: 'RobotoRegular',
+						fontSize: '20px',
+						color: 'rgba(47, 56, 70, 0.58)',
+						borderBottom: '1px solid rgba(0, 0, 0, 0.09)',
+						paddingBottom: '8px',
+					}}
+				>
+					Create Post
+				</div>
+				<div style={{display:'flex', flexDirection:'row', paddingTop:'16px'}}>
+					<div style={{width:'65px', height:'65px', backgroundColor:'#178275', borderRadius:'50%', marginRight:'12px'}}></div>
+					<div style={{display: 'flex', flex: '1 0 auto'}}>
+						<input
+							onChange={this.songInput.bind(this)}
+							value={this.state.embedLink}
+							placeholder="Embed link here"
+							style={{
+								border:'1px solid rgba(0, 0, 0, 0.09)',
+								borderRadius: '8px',
+								fontSize:'16px',
+								padding:'8px',
+								width: '100%',
+							}}
+						/>
 					</div>
-
-					<div ref = {this.postContentRef} id="post" style={{width:'703px', display: this.shouldNotShowContentBox ? 'none' : ''}}  autoComplete="off">
-						<div style={{padding: '12px 0 12px 0'}}>
-							<input ref = {this.titleRef} id="title" type="text" name="title" placeholder="Title" style={{width:'703px', border:'1px solid rgba(0, 0, 0, 0.09)', borderBottom:'none', borderRadius:'7px 7px 0 0', padding: '8px'}}/>
-							<textarea onChange = {this.contentInput.bind(this)} ref = {this.contentRef} id="content" name="content" placeholder="Your text here" rows="10" cols="90" style={{width:'703px', height:'238px', border:'1px solid rgba(0, 0, 0, 0.09)', borderRadius:'0 0 7px 7px', padding: '8px'}}></textarea>
+				</div>
+				<div style={{display: this.shouldNotShowContentBox ? 'none' : 'flex', flexDirection:'row', paddingTop: '16px'}}>
+					<div
+						ref={this.postContentRef}
+						id="post"
+						style={{display: 'flex', flexDirection: 'column', flex: '1 0 auto'}}
+						autoComplete="off"
+					>
+						<div style={{display:'flex', flexDirection:'column', flex: '1 0 auto'}}>
+							<input ref={this.titleRef} id="title" type="text" name="title" placeholder="Title" style={{border:'1px solid rgba(0, 0, 0, 0.09)', borderBottom:'none', borderRadius:'8px 8px 0 0', padding: '8px'}}/>
+							<textarea
+								onChange={this.contentInput.bind(this)}
+								ref={this.contentRef}
+								id="content"
+								name="content"
+								placeholder="Your text here"
+								style={{border:'1px solid rgba(0, 0, 0, 0.09)', borderRadius:'0 0 8px 8px', flex: '1 0 auto', padding: '8px', resize: 'none'}}
+							></textarea>
 						</div>
-						<button onClick = {this.submitPost.bind(this)} id = "post_button" type="button">Post</button>
+						<div style={{paddingTop: '12px'}}>
+							<button
+								className={'feed_postButton'}
+								onClick={this.submitPost.bind(this)}
+							>
+								Post
+							</button>
+						</div>
 					</div>
-				</div>
 
-				<div style = {{display:this.show_song_display, margin: '0 auto'}}>
-					{this.newPost}
-					<div id="showsong"  dangerouslySetInnerHTML={this.renderiframe(this.embedded_content)}>
+					<div style = {{display:this.show_song_display, marginLeft: '16px'}}>
+						<div id="showsong"  dangerouslySetInnerHTML={this.renderiframe(this.embedded_content)} />
 					</div>
-					<div style = {{display:'flex', flexDirection:'row'}}>
-						<button style = {{color:submissionLikeColor}} onClick = {this.submissionLiked.bind(this)}>
-							Like
-						</button>
-						<button style = {{color:submissionDislikeColor}} onClick = {this.submissionDisliked.bind(this)}>
-							Dislike
-						</button>
-					</div>
-				</div>
-
-				<div style = {{width: '200px', height:'300px', backgroundColor:'white', display:tag_display, overflow:'scroll'}} >
-					{this.tagList}
 				</div>
 			</div>
 		);
@@ -319,7 +346,6 @@ class Trending extends React.Component {
 		    .then(function (data) {
 		    	for (var item of data.data)
 		    	{
-		    		console.log(item)
 		    		that.related_links.push(<div style = {{width:'300px', height:'20px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}><a href = {item.url}> {item.text} </a> </div>)
 		    	}
 		    that.forceUpdate()
@@ -331,7 +357,7 @@ class Trending extends React.Component {
 
 		//<img src = "/placeholder.jpg" />
 		return (
-		<div style = {{width:'400px', height:'680px', backgroundColor:'white', border:'1px solid #F1F1F1', borderRadius:'7px'}}>
+		<div style = {{width:'400px', height:'680px', backgroundColor:'white', border:'1px solid #F1F1F1', borderRadius:'8px'}}>
 			<div style = {{margin:'0px auto', fontWeight:'bold', width:'110px', fontSize:'27px', paddingTop:'16px'}}>
 				Trending
 			</div>
@@ -363,7 +389,7 @@ class Trending extends React.Component {
 }
 //
 
-export default class Feed extends React.Component{
+export default class Feed extends React.Component {
 	constructor(props)
 	{
 		super(props);
@@ -448,7 +474,7 @@ export default class Feed extends React.Component{
 						<div style={{marginRight: '12px'}}>
 							<PostInfo ref={this.postsRef} songs = {this.props.data.songs} likes = {this.props.data.likes} num_comments = {this.props.data.num_comments} user_profiles = {this.props.data.user_profiles} bumps = {this.props.data.bumps}/>
 						</div>
-						<div>
+						<div style={{position: 'sticky', top: '72px', height: '100%'}}>
 							<Trending data = {this.props.data.global_songs} />
 						</div>
 					</div>
