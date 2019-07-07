@@ -1,6 +1,6 @@
-
-module.exports = 
+module.exports =
 {
+
 	checkLoggedIn : function ()
 	{
 		if (document.cookie.indexOf("username=") != -1)
@@ -60,8 +60,15 @@ module.exports =
 		}
 		return potential_tags
 	},
+
 	monthNames : ["January", "February", "March", "April", "May", "June",
 	  "July", "August", "September", "October", "November", "December"
 	],
+
+	renderiframe: function(iframe) {
+		return {
+			__html: iframe
+		};
+	},
 
 }

@@ -89,12 +89,6 @@ class NewPostSubmission extends React.Component {
 		});
 	}
 
-	renderiframe(iframe) {
-		return {
-			__html: iframe
-		}
-	}
-
 	submissionLiked()
 	{
 		if (this.submissionLikeState == 1)
@@ -209,7 +203,7 @@ class NewPostSubmission extends React.Component {
 					</div>
 
 					<div style={{display: this.state.embedLink ? '' : 'none', marginLeft: '16px'}}>
-						<div dangerouslySetInnerHTML={this.renderiframe(this.state.embedLink)} />
+						<div dangerouslySetInnerHTML={utils.renderiframe(this.state.embedLink)} />
 					</div>
 				</div>
 			</div>
@@ -249,20 +243,14 @@ class Trending extends React.Component {
 			var trending_ref = React.createRef();
 			if (i == 0)
 			{
-				this.trending_posts.push(<div key = {item.post_id} ref = {trending_ref} dangerouslySetInnerHTML={this.renderiframe(item.embedded_content)} />)
+				this.trending_posts.push(<div key = {item.post_id} ref = {trending_ref} dangerouslySetInnerHTML={utils.renderiframe(item.embedded_content)} />)
 			}
 			else
 			{
-				this.trending_posts.push(<div key = {item.post_id} ref = {trending_ref}  style = {{display:'none'}} dangerouslySetInnerHTML={this.renderiframe(item.embedded_content)} />)
+				this.trending_posts.push(<div key = {item.post_id} ref = {trending_ref}  style = {{display:'none'}} dangerouslySetInnerHTML={utils.renderiframe(item.embedded_content)} />)
 			}
 			this.trending_refs.push(trending_ref)
 		})
-	}
-
-	renderiframe(iframe) {
-		return {
-			__html: iframe
-		}
 	}
 
 	rightClick()
@@ -297,7 +285,7 @@ class Trending extends React.Component {
 					var item = data.posts[key]
 					item.embedded_content = SetSpotifySize(item.embedded_content, 250, 330)
 					var trending_ref1 = React.createRef()
-					that.trending_posts.push(<div key = {item.post_id} ref = {trending_ref1} style = {{display:'none'}} dangerouslySetInnerHTML={that.renderiframe(item.embedded_content)} />);
+					that.trending_posts.push(<div key = {item.post_id} ref = {trending_ref1} style = {{display:'none'}} dangerouslySetInnerHTML={utils.renderiframe(item.embedded_content)} />);
 					that.trending_refs.push(trending_ref1)
 					that.forceUpdate()
 				}
