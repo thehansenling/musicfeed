@@ -8,15 +8,14 @@ class NewPostSubmission extends React.Component {
 	constructor(props)
 	{
 		super(props);
-		this.state = {embedLink: ''}
-
-		this.embedded_content = "";
+		this.state = {
+			embedLink: '',
+			title: '',
+			content: '',
+		};
 
 		this.contentRef = React.createRef();
-		this.titleRef = React.createRef();
 
-		this.div_height = '100px'
-		this.postContentRef = React.createRef()
 		this.tagFlag = false
 		this.currentTag = ""
 		this.tagList = []
@@ -29,33 +28,18 @@ class NewPostSubmission extends React.Component {
 		this.artistFlag = false
 		this.lastContentSize = 0
 		this.tagged = false
-		this.show_song_display = 'none'
 		this.submissionLikeState = -1
-		this.shouldNotShowContentBox = true
 	}
 
 	songInput(event)
 	{
 		var embedLink = event.target.value;
 		this.setState({embedLink});
-		if (embedLink) {
-			// show song display
-			// show content input box
+	}
 
-			this.shouldNotShowContentBox = false;
-			this.embedded_content = embedLink;
-			this.show_song_display = '';
-			this.forceUpdate();
-		} else {
-			// hide song display
-			// hide content input box
-
-			this.shouldNotShowContentBox = true;
-			this.embedded_content = embedLink;
-			this.show_song_display = 'none';
-			this.forceUpdate();
-		}
-
+	onTitleChange(event) {
+		let title = event.target.value;
+		this.setState({title});
 	}
 
 	contentInput()
@@ -92,16 +76,15 @@ class NewPostSubmission extends React.Component {
 			body: JSON.stringify({
 				song: this.state.embedLink,
 				content: this.contentRef.current.value,
-				title: this.titleRef.current.value,
+				title: this.state.title,
 				submissionLikeState: this.submissionLikeState,
 				potentialTags: this.potential_tags
 			}),
 		}).then(function(response) {
 			return response.json();
 		}).then(function (data) {
-			that.setState({embedLink: ''});
+			that.setState({embedLink: '', title: ''});
 			that.contentRef.current.value = ""
-			that.titleRef.current.value = ""
 			location.reload(true);
 		});
 	}
@@ -185,23 +168,35 @@ class NewPostSubmission extends React.Component {
 						/>
 					</div>
 				</div>
-				<div style={{display: this.shouldNotShowContentBox ? 'none' : 'flex', flexDirection:'row', paddingTop: '16px'}}>
-					<div
-						ref={this.postContentRef}
-						id="post"
-						style={{display: 'flex', flexDirection: 'column', flex: '1 0 auto'}}
-						autoComplete="off"
-					>
+				<div style={{display: this.state.embedLink ? 'flex' : 'none', flexDirection: 'row', paddingTop: '16px'}}>
+					<div style={{display: 'flex', flexDirection: 'column', flex: '1 0 auto'}}>
 						<div style={{display:'flex', flexDirection:'column', flex: '1 0 auto'}}>
-							<input ref={this.titleRef} id="title" type="text" name="title" placeholder="Title" style={{border:'1px solid rgba(0, 0, 0, 0.09)', borderBottom:'none', borderRadius:'8px 8px 0 0', padding: '8px'}}/>
+							<input
+								autoComplete="off"
+								onChange={this.onTitleChange.bind(this)}
+								placeholder="Title"
+								style={{
+									border:'1px solid rgba(0, 0, 0, 0.09)',
+									borderBottom:'none',
+									borderRadius:'8px 8px 0 0',
+									padding: '8px',
+								}}
+								type="text"
+								value={this.state.title}
+							/>
 							<textarea
+								autoComplete="off"
 								onChange={this.contentInput.bind(this)}
-								ref={this.contentRef}
-								id="content"
-								name="content"
 								placeholder="Your text here"
-								style={{border:'1px solid rgba(0, 0, 0, 0.09)', borderRadius:'0 0 8px 8px', flex: '1 0 auto', padding: '8px', resize: 'none'}}
-							></textarea>
+								ref={this.contentRef}
+								style={{
+									border:'1px solid rgba(0, 0, 0, 0.09)',
+									borderRadius:'0 0 8px 8px',
+									flex: '1 0 auto',
+									padding: '8px',
+									resize: 'none',
+								}}
+							/>
 						</div>
 						<div style={{paddingTop: '12px'}}>
 							<button
@@ -213,8 +208,8 @@ class NewPostSubmission extends React.Component {
 						</div>
 					</div>
 
-					<div style = {{display:this.show_song_display, marginLeft: '16px'}}>
-						<div id="showsong"  dangerouslySetInnerHTML={this.renderiframe(this.embedded_content)} />
+					<div style={{display: this.state.embedLink ? '' : 'none', marginLeft: '16px'}}>
+						<div dangerouslySetInnerHTML={this.renderiframe(this.state.embedLink)} />
 					</div>
 				</div>
 			</div>
