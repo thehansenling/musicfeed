@@ -1,6 +1,6 @@
 import React from 'react';
 import StandardHeader from './standard_header.js'
-import PostInfo from './post.js'
+import { PostInfo, makePost } from './post.js'
 import utils from './utils.js'
 import tag_utils from './tag_utils.js'
 
@@ -16,7 +16,6 @@ class NewPostSubmission extends React.Component {
 		this.titleRef = React.createRef();
 
 		this.div_height = '100px'
-		this.containerRef = React.createRef()
 		this.postContentRef = React.createRef()
 		this.tagFlag = false
 		this.currentTag = ""
@@ -45,7 +44,7 @@ class NewPostSubmission extends React.Component {
 
 			this.shouldNotShowContentBox = false;
 			this.embedded_content = embedLink;
-			this.show_song_display = ''
+			this.show_song_display = '';
 			this.forceUpdate();
 		} else {
 			// hide song display
@@ -53,7 +52,7 @@ class NewPostSubmission extends React.Component {
 
 			this.shouldNotShowContentBox = true;
 			this.embedded_content = embedLink;
-			this.show_song_display = 'none'
+			this.show_song_display = 'none';
 			this.forceUpdate();
 		}
 
@@ -64,10 +63,10 @@ class NewPostSubmission extends React.Component {
 		var input = event.target.value;
 		var content_str = this.contentRef.current.value;
 		//update and prune tags list
-		tag_utils.getTags(this)
+		tag_utils.getTags(this);
 
-    	this.lastContentSize = this.contentRef.current.value.length
-	   	this.forceUpdate();
+		this.lastContentSize = this.contentRef.current.value.length;
+		this.forceUpdate();
 	}
 
 	selectTag(e)
@@ -90,20 +89,21 @@ class NewPostSubmission extends React.Component {
 				'Authorization': 'Basic',
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify({song: this.state.embedLink,
-								  content: this.contentRef.current.value,
-								  title: this.titleRef.current.value,
-								  submissionLikeState: this.submissionLikeState,
-								  potentialTags: this.potential_tags}
-								  )})
-			.then(function(response) { return response.json();})
-			.then(function (data) {
-
-			this.setState({embedLink: ''});
+			body: JSON.stringify({
+				song: this.state.embedLink,
+				content: this.contentRef.current.value,
+				title: this.titleRef.current.value,
+				submissionLikeState: this.submissionLikeState,
+				potentialTags: this.potential_tags
+			}),
+		}).then(function(response) {
+			return response.json();
+		}).then(function (data) {
+			that.setState({embedLink: ''});
 			that.contentRef.current.value = ""
 			that.titleRef.current.value = ""
 			location.reload(true);
-		})
+		});
 	}
 
 	renderiframe(iframe) {
@@ -117,7 +117,6 @@ class NewPostSubmission extends React.Component {
 		if (this.submissionLikeState == 1)
 		{
 			this.submissionLikeState = -1
-
 		}
 		else
 		{
@@ -149,7 +148,6 @@ class NewPostSubmission extends React.Component {
 
 		return (
 			<div
-				ref={this.containerRef}
 				style={{
 					display:'flex',
 					flexDirection: 'column',
@@ -354,7 +352,6 @@ class Trending extends React.Component {
 
 	render()
 	{
-
 		//<img src = "/placeholder.jpg" />
 		return (
 		<div style = {{width:'400px', height:'680px', backgroundColor:'white', border:'1px solid #F1F1F1', borderRadius:'8px'}}>
@@ -387,24 +384,36 @@ class Trending extends React.Component {
 	}
 
 }
-//
 
 export default class Feed extends React.Component {
 	constructor(props)
 	{
 		super(props);
+		this.state = { posts: [] };
+
 		this.loading_posts_semaphor = false;
 		this.offset = 0;
 		this.non_priority_offset = 0;
 		this.global_offset = 0;
 		this.non_priority_global_offset = 0;
-		this.postsRef = React.createRef();
 	}
 
 	componentDidMount()
 	{
 	    window.addEventListener('scroll', this.handleScroll.bind(this));
 	    this.updateOffsets(this.props.data.songs)
+			let startingPosts = [];
+			for (var song of this.props.data.songs) {
+				startingPosts.push(makePost(
+					song,
+					this.props.data.likes,
+					this.props.data.num_comments,
+					this.props.data.num_posts,
+					this.props.data.bumps,
+					this.props.data.user_profiles,
+				));
+			}
+			this.setState({posts: startingPosts});
 	}
 
 	componentWillUnmount()
@@ -438,26 +447,40 @@ export default class Feed extends React.Component {
 	handleScroll() {
 		if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight && !this.loading_posts_semaphor)
 		{
-			var that = this
+			var that = this;
 
-			this.loading_posts_semaphor = true
-		    fetch("/load_feed", {
-		        method: "POST",
-		        headers: {
-		        	'Accept': 'application/json',
-		        	'Authorization': 'Basic',
-		        	'Content-Type': 'application/json',
-		        },
-		        body: JSON.stringify({offset:this.offset,
-		        					  non_priority_offset: this.non_priority_offset,
-		        					  global_offset: this.global_offset,
-		        					  non_priority_global_offset: this.non_priority_global_offset})})
-		    .then(function(response) { return response.json();})
-		    .then(function (data) {
-		    	that.updateOffsets(data.songs)
-		    	that.postsRef.current.addPosts(data.songs, data.likes, data.num_comments, data.num_posts, data.user_profiles)
-		    	that.loading_posts_semaphor = false;
-		 	})
+			this.loading_posts_semaphor = true;
+			fetch("/load_feed", {
+				method: "POST",
+				headers: {
+					'Accept': 'application/json',
+					'Authorization': 'Basic',
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					offset:this.offset,
+					non_priority_offset: this.non_priority_offset,
+					global_offset: this.global_offset,
+					non_priority_global_offset: this.non_priority_global_offset,
+				}),
+			}).then(function(response) {
+				return response.json();
+			}).then(function (data) {
+				that.updateOffsets(data.songs)
+				let newPosts = [];
+				for (var song of data.songs) {
+					newPosts.push(makePost(
+						song,
+						data.likes,
+						data.num_comments,
+						data.num_posts,
+						data.bumps,
+						data.user_profiles
+					));
+				}
+				that.setState({posts: that.state.posts.concat(newPosts)});
+				that.loading_posts_semaphor = false;
+			});
 		}
 	}
 
@@ -472,7 +495,7 @@ export default class Feed extends React.Component {
 					</div>
 					<div style={{display:'flex', flexDirection:'row', marginTop: '12px'}}>
 						<div style={{marginRight: '12px'}}>
-							<PostInfo ref={this.postsRef} songs = {this.props.data.songs} likes = {this.props.data.likes} num_comments = {this.props.data.num_comments} user_profiles = {this.props.data.user_profiles} bumps = {this.props.data.bumps}/>
+							<PostInfo posts={this.state.posts} />
 						</div>
 						<div style={{position: 'sticky', top: '72px', height: '100%'}}>
 							<Trending data = {this.props.data.global_songs} />

@@ -379,142 +379,84 @@ class Post extends React.Component
 	}
 }
 
-export default class PostInfo extends React.Component
+function makePost(song, likes, all_num_comments, all_num_posts, bumps, user_profiles)
 {
-	constructor(props)
-	{
-		super(props);
-		this.posts = [];
-	}
+  var like_state = -1;
+  var current_num_comments = 0;
+  for (var like of likes)
+  {
+    var id = like.post_id
+    if (id == undefined)
+    {
+      id = like.id;
+    }
 
-	makePost(song)
-	{
-		var like_state = -1;
-		var current_num_comments = 0;
-		for (var like of this.props.likes)
-		{
-			var id = like.post_id
-			if (id == undefined)
-			{
-				id = like.id;
-			}
+    var post_id = song.id;
+    if (post_id == undefined)
+    {
+      post_id = song.post_id;
+    }
 
-			var post_id = song.id;
-			if (post_id == undefined)
-			{
-				post_id = song.post_id;
-			}
+    if (id == post_id)
+    {
+      like_state = like.like_state;
+    }
+  }
+  if (song.username != undefined)
+  {
+    for (var num_comments of all_num_comments)
+    {
+      var id = num_comments.post_id
+      if (id == song.post_id)
+      {
+        current_num_comments = num_comments.count;
+        break;
+      }
+    }
+  }
+  else
+  {
+    for (var num_posts of all_num_posts)
+    {
+      var id = num_posts.post_id
+      if (id == song.post_id)
+      {
+        current_num_comments = num_posts.count;
+        break;
+      }
+    }
+  }
+  var post_bumped = false
+  for (var bump of bumps)
+  {
+    if (song.post_id == bump.post_id)
+    {
+      post_bumped = true
+    }
+  }
+  var user_profile = user_profiles[song.username]
+  return (
+    <Post
+      key={song.post_id}
+      song={song}
+      like_state={like_state}
+      num_comments={current_num_comments}
+      user_profile={user_profile}
+      bump={post_bumped}
+    />
+  );
+}
 
-			if (id == post_id)
-			{
-				like_state = like.like_state;
-			}
-		}
-		for (var num_comments of this.props.num_comments)
-		{
-
-			if (song.post_id == num_comments.post_id)
-			{
-				current_num_comments = num_comments.count
-				break;
-			}
-		}
-		var post_bumped = false
-		for (var bump of this.props.bumps)
-		{
-			if (song.post_id == bump.post_id)
-			{
-				post_bumped = true
-			}
-		}
-		this.posts.push(<Post key={song.post_id} song={song} like_state = {like_state} num_comments = {current_num_comments} user_profile = {this.props.user_profiles[song.username]} bump = {post_bumped}/>);
-	}
-
-	addSongs()
-	{
-		for (var song of this.props.songs)
-		{
-			this.makePost(song);
-		}
-	}
-
-	addPosts(songs, likes, all_num_comments, all_num_posts, all_user_profiles)
-	{
-		for (var song of songs)
-		{
-			var like_state = -1;
-			var current_num_comments = 0;
-
-			for (var like of likes)
-			{
-				var id = like.post_id
-				if (id == undefined)
-				{
-					id = like.id;
-				}
-
-				var post_id = song.id;
-				if (post_id == undefined)
-				{
-					post_id = song.post_id;
-				}
-
-				if (id == post_id)
-				{
-					like_state = like.like_state;
-				}
-			}
-			if (song.username != undefined)
-			{
-				for (var num_comments of all_num_comments)
-				{
-					var id = num_comments.post_id
-					if (id == song.post_id)
-					{
-						current_num_comments = num_comments.count;
-						break;
-					}
-				}
-			}
-			else
-			{
-				for (var num_posts of all_num_posts)
-				{
-					var id = num_posts.post_id
-					if (id == song.post_id)
-					{
-						current_num_comments = num_posts.count;
-						break;
-					}
-				}
-			}
-			var post_bumped = false
-			for (var bump of this.props.bumps)
-			{
-				if (song.post_id == bump.post_id)
-				{
-					post_bumped = true
-				}
-			}
-			var user_profile = all_user_profiles[song.username]
-			this.posts.push(<Post key={song.post_id} song={song} like_state = {like_state} num_comments = {current_num_comments} user_profile = {user_profile} bump = {post_bumped}/>);
-		}
-		this.forceUpdate()
-	}
-
-	componentDidMount() {
-	    this.addSongs();
-	    this.forceUpdate();
-	}
-
-
+class PostInfo extends React.Component
+{
 	render()
 	{
-
 		return(
 			<div style={{width:'735px'}}>
-				{this.posts.map((post) => {return <div> {post} </div>})}
+				{this.props.posts.map((post) => {return <div> {post} </div>})}
 			</div>
 		);
 	}
 }
+
+export { PostInfo, makePost }

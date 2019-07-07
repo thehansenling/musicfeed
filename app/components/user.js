@@ -1,6 +1,6 @@
 import React from 'react';
 import StandardHeader from './standard_header.js'
-import PostInfo from './post.js'
+import { PostInfo } from './post.js'
 import FollowerInfo from './followerinfo.js'
 
 class UserInfo extends React.Component {
@@ -31,11 +31,11 @@ class UserInfo extends React.Component {
 	        },
 	        body: JSON.stringify({text: that.description_text.current.value, user:that.props.user.username})})
 	    .then(function(response) { return response.json();})
-	    .then(function (data) {    	
+	    .then(function (data) {
 	    	that.description = that.description_text.current.value;
 			that.description_ui = <button onClick={that.editDescription.bind(that)}> Edit Description </button>
 		 	that.forceUpdate();
-	 	})	
+	 	})
 
 	}
 
@@ -63,7 +63,7 @@ class UserInfo extends React.Component {
 				<div style = {{fontSize:'18pt'}}>{this.description}</div>
 				{this.description_ui}
 				<div style = {{fontSize:'18pt'}}>Score: {this.props.user.upvotes - this.props.user.downvotes}</div>
-				{this.bumps_ui} 
+				{this.bumps_ui}
 			</div>
 		);
 	}
@@ -79,7 +79,7 @@ class ProfilePicture extends React.Component {
 			this.colors.push(<div key = {colors[i]} onClick = {this.setColor.bind(this)} style = {{backgroundColor:colors[i], width:'106px', height:'50px'}}>  </div>)
 		}
 		this.colorsRef = React.createRef()
-	}	
+	}
 
 	showColors()
 	{
@@ -108,9 +108,9 @@ class ProfilePicture extends React.Component {
 	        body: JSON.stringify({color:e.target.style.backgroundColor,
 	        					  username:that.props.user.username})})
 	    .then(function(response) { return response.json();})
-	    .then(function (data) {    	
+	    .then(function (data) {
 
-	 	})			
+	 	})
 	 	this.forceUpdate()
 	}
 
@@ -118,7 +118,7 @@ class ProfilePicture extends React.Component {
 	{
 		return (<div style = {{position:'relative', paddingLeft:'10px', margin:'0px auto', width:'980px', height:'20px'}}>
 					<div style = {{display:'flex', flexDirection:'row'}}>
-						<div onClick = {this.showColors.bind(this)}> Select Profile Color </div> 
+						<div onClick = {this.showColors.bind(this)}> Select Profile Color </div>
 						<div style = {{width:'50px', height:'15px', backgroundColor: this.props.user.profile_picture, left:'10px', top:'3px', position:'relative'}}></div>
 					</div>
 					<div ref = {this.colorsRef} style = {{display:'none', flexDirection:'row'}}>
@@ -154,11 +154,11 @@ class FavoriteSongs extends React.Component {
 		this.artistRefs.push(React.createRef());
 		this.artistRefs.push(React.createRef());
 	}
-	
+
 	selectSongClicked(e)
 	{
 		if (this.selectSongRefs[parseInt(e.target.id)].current.style.display == 'none')
-		{	
+		{
 			this.selectSongRefs[parseInt(e.target.id)].current.style.display  = ''
 		}
 		else
@@ -170,7 +170,7 @@ class FavoriteSongs extends React.Component {
 	selectArtistClicked(e)
 	{
 		if (this.selectArtistRefs[parseInt(e.target.id)].current.style.display == 'none')
-		{	
+		{
 			this.selectArtistRefs[parseInt(e.target.id)].current.style.display  = ''
 		}
 		else
@@ -206,9 +206,9 @@ class FavoriteSongs extends React.Component {
 	        					  username: this.props.user.username,
 	        					  })})
 	    .then(function(response) { return response.json();})
-	    .then(function (data) {    	
+	    .then(function (data) {
 
-	 	})		
+	 	})
 	 	this.forceUpdate();
 	}
 
@@ -240,9 +240,9 @@ class FavoriteSongs extends React.Component {
 	        					  username: this.props.user.username,
 	        					  })})
 	    .then(function(response) { return response.json();})
-	    .then(function (data) {    	
+	    .then(function (data) {
 
-	 	})		
+	 	})
 	 	this.forceUpdate();
 	}
 
@@ -274,12 +274,12 @@ class FavoriteSongs extends React.Component {
 						</div>
 						<div ref = {this.songRefs[2]}>
 							{this.props.user.song2}
-						</div>						
+						</div>
 						<div style = {{display:user_display}}>
 							<div>
 								<div>
 								<button id = '0' onClick = {this.selectSongClicked.bind(this)}> Select Song 1 </button>
-								
+
 								</div>
 								<div ref = {this.selectSongRefs[0]} style = {{display:'none'}}>
 									<input />
@@ -306,7 +306,7 @@ class FavoriteSongs extends React.Component {
 						</div>
 					</div>
 					<div style = {{width:'490px'}}>
-						<h1>Top 3 Artists</h1> 
+						<h1>Top 3 Artists</h1>
 						<div ref = {this.artistRefs[0]}>
 							{this.props.user.artist0}
 						</div>
@@ -315,12 +315,12 @@ class FavoriteSongs extends React.Component {
 						</div>
 						<div ref = {this.artistRefs[2]}>
 							{this.props.user.artist2}
-						</div>			
+						</div>
 						<div style = {{display:user_display}}>
 							<div>
 								<div>
 								<button id = '0' onClick = {this.selectArtistClicked.bind(this)}> Select Artist 1 </button>
-								
+
 								</div>
 								<div ref = {this.selectArtistRefs[0]} style = {{display:'none'}}>
 									<input />
@@ -331,7 +331,7 @@ class FavoriteSongs extends React.Component {
 							<div>
 								<div>
 								<button id = '1' onClick = {this.selectArtistClicked.bind(this)}> Select Artist 2 </button>
-								
+
 								</div>
 								<div ref = {this.selectArtistRefs[1]} style = {{display:'none'}}>
 									<input />
@@ -342,7 +342,7 @@ class FavoriteSongs extends React.Component {
 							<div>
 								<div>
 								<button id = '2' onClick = {this.selectArtistClicked.bind(this)}> Select Artist 3 </button>
-								
+
 								</div>
 								<div ref = {this.selectArtistRefs[2]} style = {{display:'none'}}>
 									<input />
@@ -354,7 +354,7 @@ class FavoriteSongs extends React.Component {
 					</div>
 				</div>
 		)
-	}	
+	}
 }
 
 export default class UserPage extends React.Component{
@@ -366,19 +366,19 @@ export default class UserPage extends React.Component{
 		this.loading_posts_semaphor = false;
 	}
 
-	componentDidMount() 
+	componentDidMount()
 	{
 	    window.addEventListener('scroll', this.handleScroll.bind(this));
 	    //this.updateOffsets(this.props.data.songs)
 	}
 
-	componentWillUnmount() 
+	componentWillUnmount()
 	{
 	    window.removeEventListener('scroll', this.handleScroll.bind(this));
 	}
 
 	handleScroll() {
-		if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight && !this.loading_posts_semaphor) 
+		if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight && !this.loading_posts_semaphor)
 		{
 			var that = this
 			this.loading_posts_semaphor = true
@@ -392,7 +392,7 @@ export default class UserPage extends React.Component{
 		        body: JSON.stringify({offset:that.offset,
 		        					  user: that.props.data.username})})
 		    .then(function(response) { return response.json();})
-		    .then(function (data) { 
+		    .then(function (data) {
 		    	that.offset += data.songs.length;
 		    	that.postsRef.current.addPosts(data.songs, data.likes, data.num_comments, data.num_posts, data.user_profiles)
 		    	that.loading_posts_semaphor = false;
@@ -420,7 +420,7 @@ export default class UserPage extends React.Component{
 			<FavoriteSongs user = {this.props.data.user} username = {this.props.data.username}/>
 		</div>
 		<br/>
-		
+
 		<div style = {{position:'relative', top:display_top}} >
 			<PostInfo ref = {this.postsRef} songs = {this.props.data.songs} likes = {this.props.data.likes} num_comments = {this.props.data.num_comments} user_profiles = {this.props.data.user_profiles} bumps = {this.props.data.bumps} />
 		</div>
@@ -432,4 +432,3 @@ export default class UserPage extends React.Component{
 	</div>
 	)};
 }
-
