@@ -1383,6 +1383,7 @@ app.post('/favorite_song', function(req, res)
 
 app.post('/submit_description', function(req, res)
 {
+	req.body.text = replaceAll(req.body.text, "'", "\\\'")
 	var user_search_sql = "UPDATE accounts SET description = '" + req.body.text + "' WHERE username = '" + req.body.user + "'";
 	connection.query(user_search_sql, function (err, result, fields){
 		res.send({nothing:0});

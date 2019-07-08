@@ -1,11 +1,37 @@
 import React from 'react';
 import StandardHeader from './standard_header.js'
-import { PostInfo } from './post.js'
+import PostInfo from './post.js'
 import FollowerInfo from './followerinfo.js'
 
-class UserInfo extends React.Component {
+class ProfileColor extends React.Component 
+{
+	constructor(props)
+	{
+		super(props)
+		this.state = {colors:[]}
+		this.state.colors = ['#178275', '#26408d', '#50b520', '#a5c823', '#46268f', '#d1aa25', '#af1f63', '#d19225', '#d12525'];
+	}
 
-	constructor(props) {
+	render()
+	{
+		if (this.state.colors.length == 0 || this.props.active == undefined || !this.props.active)
+		{
+			return null
+		}
+		var color_divs = []
+		for (var color of this.state.colors)
+		{
+			color_divs.push(<div key = {color} onClick = {this.props.setcolor} style = {{backgroundColor:color, width:'104px', height:'50px'}}>  </div>)
+		}
+		return (<div style = {{position:'relative', paddingLeft:'10px', margin:'0px auto', width:'980px', height:'60px', flexDirection:'row', display:'flex'}}>
+					{color_divs}
+				</div>
+		)
+	}
+}
+class UserInfo extends React.Component {
+	constructor(props) 
+	{
 		super(props);
 		this.description = props.user.description;
 		this.description_ui = undefined
@@ -15,8 +41,20 @@ class UserInfo extends React.Component {
 		}
 		this.description_text = React.createRef();
 		this.bumps_ui = <div> Bumps: {this.props.user.bumps} </div>
+		
+		this.button_text = "Follow"
+		for (var follow of props.follows)
+		{
+			if (follow.user_id == props.username)
+			{
+				this.button_text = "Unfollow"
+				this.following_ui = "Following"
+				this.following_state = true;
+				break;
+			}
+		}
 
-
+		this.state = {change_color:false}
 	}
 
     submitDescription()
@@ -31,18 +69,18 @@ class UserInfo extends React.Component {
 	        },
 	        body: JSON.stringify({text: that.description_text.current.value, user:that.props.user.username})})
 	    .then(function(response) { return response.json();})
-	    .then(function (data) {
+	    .then(function (data) {    	
 	    	that.description = that.description_text.current.value;
 			that.description_ui = <button onClick={that.editDescription.bind(that)}> Edit Description </button>
 		 	that.forceUpdate();
-	 	})
+	 	})	
 
 	}
 
 	editDescription()
 	{
 		this.description_ui = <div>
-		<textarea ref = {this.description_text} style={{width:'80%',height:'50px',zIndex:'100'}}></textarea>
+		<textarea ref = {this.description_text} style={{width:'80%',height:'50px',zIndex:'100'}}>{this.props.user.description}</textarea>
 		<button onClick = {this.submitDescription.bind(this)} style= {{height:'30px', bottom:'30px', position:'relative'}} type='button'>submit</button>
 		<button onClick = {this.closeDescription.bind(this)} style= {{bottom:'0px', position:'relative', height:'30px'}} type='button'>x</button>
 		</div>
@@ -55,15 +93,69 @@ class UserInfo extends React.Component {
 		this.forceUpdate();
 	}
 
+	setColor(e)
+	{
+		this.props.user.profile_picture = e.target.style.backgroundColor
+		var that = this;
+	    fetch("/set_color", {
+	        method: "POST",
+	        headers: {
+	        	Accept: 'application/json',
+	        	'Authorization': 'Basic',
+	        	'Content-Type': 'application/json',
+	        },
+	        body: JSON.stringify({color:e.target.style.backgroundColor,
+	        					  username:that.props.user.username})})
+	    .then(function(response) { return response.json();})
+	    .then(function (data) {    	
+
+	 	})			
+	 	this.setState({change_color: false});
+	 	this.forceUpdate()
+	}
+
+	changeColorClicked()
+	{
+		this.setState({change_color: !this.state.change_color});
+	}
+
 	render ()
 	{
+		var change_color_display = 'none'
+	  	if (this.props.username == this.props.user.username)
+	  	{
+	  		change_color_display = ''
+	  	}
 		return(
-			<div className = "user_info" style={{margin: '0 auto', paddingTop:'10px', paddingLeft: '10px', paddingBottom:'10px', background:'white', border:'gray solid 1px', borderRadius:'4px', position:'relative', top:'100px', position:'relative', maxWidth:'980px'}}>
-				<div style = {{fontSize:'30pt'}}>{this.props.user.username}</div>
-				<div style = {{fontSize:'18pt'}}>{this.description}</div>
-				{this.description_ui}
-				<div style = {{fontSize:'18pt'}}>Score: {this.props.user.upvotes - this.props.user.downvotes}</div>
-				{this.bumps_ui}
+			<div className = "user_info" style={{margin: '0 auto', paddingTop:'10px', paddingLeft: '10px', paddingBottom:'10px', background:'white', border: '1px solid #F1F1F1', borderRadius: '7px', maxWidth:'980px'}}>
+				<div style = {{display:'flex', flexDirection:'row'}}>
+					<div>
+						<div style = {{borderRadius:'50%', width:'64px', height:'64px', backgroundColor:this.props.user.profile_picture}}></div>
+						<div onClick = {this.changeColorClicked.bind(this)} style = {{color:'#999999', fontSize:'16px', textAlign:'center', display:change_color_display }}> Change </div>
+						
+					</div>
+
+					<div style = {{paddingLeft:'20px'}}>
+						<div style = {{display:'flex', flexDirection:'row'}}>
+							<div style = {{fontSize:'30pt'}}>{this.props.user.username}</div>
+							<div style = {{flex:'1 0 auto', verticalAlign:'middle', display:'flex', flexDirection: 'column', justifyContent:'center', paddingLeft:'20px'}}>
+								<button style = {{height:'30px'}} className = 'follow_button' id = "follow_button" type="button" >{this.button_text}</button>
+							</div>
+						</div>
+						<div style = {{display:'flex', flexDirection:'row'}}>
+							<div> <a style = {{fontWeight:'bold'}} href = {"/following/" + this.props.user.username}> {this.props.followees} </a>{' following'}</div>
+							<div style = {{paddingLeft:'20px'}}> <a style = {{fontWeight:'bold'}} href = {"/followers/" + this.props.user.username}> {this.props.follows.length} </a> {' followers'}</div>
+							<div style = {{paddingLeft:'20px'}}>Score: {this.props.user.upvotes - this.props.user.downvotes}</div>
+						</div>
+					</div>
+
+				</div>
+				<ProfileColor user_color = {this.props.user.profile_picture} active = {this.state.change_color} setcolor = {this.setColor.bind(this)}/>
+				<div style = {{}}>
+					<div style = {{fontSize:'18pt', paddingRight:'10px'}}>{this.description}</div>
+					{this.description_ui}
+				</div>				
+		
 			</div>
 		);
 	}
@@ -79,7 +171,7 @@ class ProfilePicture extends React.Component {
 			this.colors.push(<div key = {colors[i]} onClick = {this.setColor.bind(this)} style = {{backgroundColor:colors[i], width:'106px', height:'50px'}}>  </div>)
 		}
 		this.colorsRef = React.createRef()
-	}
+	}	
 
 	showColors()
 	{
@@ -108,9 +200,9 @@ class ProfilePicture extends React.Component {
 	        body: JSON.stringify({color:e.target.style.backgroundColor,
 	        					  username:that.props.user.username})})
 	    .then(function(response) { return response.json();})
-	    .then(function (data) {
+	    .then(function (data) {    	
 
-	 	})
+	 	})			
 	 	this.forceUpdate()
 	}
 
@@ -118,7 +210,7 @@ class ProfilePicture extends React.Component {
 	{
 		return (<div style = {{position:'relative', paddingLeft:'10px', margin:'0px auto', width:'980px', height:'20px'}}>
 					<div style = {{display:'flex', flexDirection:'row'}}>
-						<div onClick = {this.showColors.bind(this)}> Select Profile Color </div>
+						<div onClick = {this.showColors.bind(this)}> Select Profile Color </div> 
 						<div style = {{width:'50px', height:'15px', backgroundColor: this.props.user.profile_picture, left:'10px', top:'3px', position:'relative'}}></div>
 					</div>
 					<div ref = {this.colorsRef} style = {{display:'none', flexDirection:'row'}}>
@@ -154,11 +246,11 @@ class FavoriteSongs extends React.Component {
 		this.artistRefs.push(React.createRef());
 		this.artistRefs.push(React.createRef());
 	}
-
+	
 	selectSongClicked(e)
 	{
 		if (this.selectSongRefs[parseInt(e.target.id)].current.style.display == 'none')
-		{
+		{	
 			this.selectSongRefs[parseInt(e.target.id)].current.style.display  = ''
 		}
 		else
@@ -170,7 +262,7 @@ class FavoriteSongs extends React.Component {
 	selectArtistClicked(e)
 	{
 		if (this.selectArtistRefs[parseInt(e.target.id)].current.style.display == 'none')
-		{
+		{	
 			this.selectArtistRefs[parseInt(e.target.id)].current.style.display  = ''
 		}
 		else
@@ -206,9 +298,9 @@ class FavoriteSongs extends React.Component {
 	        					  username: this.props.user.username,
 	        					  })})
 	    .then(function(response) { return response.json();})
-	    .then(function (data) {
+	    .then(function (data) {    	
 
-	 	})
+	 	})		
 	 	this.forceUpdate();
 	}
 
@@ -240,9 +332,9 @@ class FavoriteSongs extends React.Component {
 	        					  username: this.props.user.username,
 	        					  })})
 	    .then(function(response) { return response.json();})
-	    .then(function (data) {
+	    .then(function (data) {    	
 
-	 	})
+	 	})		
 	 	this.forceUpdate();
 	}
 
@@ -274,12 +366,12 @@ class FavoriteSongs extends React.Component {
 						</div>
 						<div ref = {this.songRefs[2]}>
 							{this.props.user.song2}
-						</div>
+						</div>						
 						<div style = {{display:user_display}}>
 							<div>
 								<div>
 								<button id = '0' onClick = {this.selectSongClicked.bind(this)}> Select Song 1 </button>
-
+								
 								</div>
 								<div ref = {this.selectSongRefs[0]} style = {{display:'none'}}>
 									<input />
@@ -306,7 +398,7 @@ class FavoriteSongs extends React.Component {
 						</div>
 					</div>
 					<div style = {{width:'490px'}}>
-						<h1>Top 3 Artists</h1>
+						<h1>Top 3 Artists</h1> 
 						<div ref = {this.artistRefs[0]}>
 							{this.props.user.artist0}
 						</div>
@@ -315,12 +407,12 @@ class FavoriteSongs extends React.Component {
 						</div>
 						<div ref = {this.artistRefs[2]}>
 							{this.props.user.artist2}
-						</div>
+						</div>			
 						<div style = {{display:user_display}}>
 							<div>
 								<div>
 								<button id = '0' onClick = {this.selectArtistClicked.bind(this)}> Select Artist 1 </button>
-
+								
 								</div>
 								<div ref = {this.selectArtistRefs[0]} style = {{display:'none'}}>
 									<input />
@@ -331,7 +423,7 @@ class FavoriteSongs extends React.Component {
 							<div>
 								<div>
 								<button id = '1' onClick = {this.selectArtistClicked.bind(this)}> Select Artist 2 </button>
-
+								
 								</div>
 								<div ref = {this.selectArtistRefs[1]} style = {{display:'none'}}>
 									<input />
@@ -342,7 +434,7 @@ class FavoriteSongs extends React.Component {
 							<div>
 								<div>
 								<button id = '2' onClick = {this.selectArtistClicked.bind(this)}> Select Artist 3 </button>
-
+								
 								</div>
 								<div ref = {this.selectArtistRefs[2]} style = {{display:'none'}}>
 									<input />
@@ -354,7 +446,7 @@ class FavoriteSongs extends React.Component {
 					</div>
 				</div>
 		)
-	}
+	}	
 }
 
 export default class UserPage extends React.Component{
@@ -366,19 +458,19 @@ export default class UserPage extends React.Component{
 		this.loading_posts_semaphor = false;
 	}
 
-	componentDidMount()
+	componentDidMount() 
 	{
 	    window.addEventListener('scroll', this.handleScroll.bind(this));
 	    //this.updateOffsets(this.props.data.songs)
 	}
 
-	componentWillUnmount()
+	componentWillUnmount() 
 	{
 	    window.removeEventListener('scroll', this.handleScroll.bind(this));
 	}
 
 	handleScroll() {
-		if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight && !this.loading_posts_semaphor)
+		if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight && !this.loading_posts_semaphor) 
 		{
 			var that = this
 			this.loading_posts_semaphor = true
@@ -392,7 +484,7 @@ export default class UserPage extends React.Component{
 		        body: JSON.stringify({offset:that.offset,
 		        					  user: that.props.data.username})})
 		    .then(function(response) { return response.json();})
-		    .then(function (data) {
+		    .then(function (data) { 
 		    	that.offset += data.songs.length;
 		    	that.postsRef.current.addPosts(data.songs, data.likes, data.num_comments, data.num_posts, data.user_profiles)
 		    	that.loading_posts_semaphor = false;
@@ -408,20 +500,21 @@ export default class UserPage extends React.Component{
   	{
   		display_top = '450px'
   	}
-
+	//<FollowerInfo user = {this.props.data.user} follows={this.props.data.follows} followees={this.props.data.followees} username = {this.props.data.username} follow_type = {0}/>
+		// <div style = {{position:'relative', top:'150px'}}>
+		// 	<ProfilePicture user = {this.props.data.user} username = {this.props.data.username}/>
+		// </div>
+		// <div style = {{position:'relative', top:'170px'}}>
+		// 	<FavoriteSongs user = {this.props.data.user} username = {this.props.data.username}/>
+		// </div>
 	return (
-	<div>
-		<UserInfo user = {this.props.data.user} username = {this.props.data.username}/>
-		<FollowerInfo user = {this.props.data.user} follows={this.props.data.follows} followees={this.props.data.followees} username = {this.props.data.username} follow_type = {0}/>
-		<div style = {{position:'relative', top:'150px'}}>
-			<ProfilePicture user = {this.props.data.user} username = {this.props.data.username}/>
-		</div>
-		<div style = {{position:'relative', top:'170px'}}>
-			<FavoriteSongs user = {this.props.data.user} username = {this.props.data.username}/>
-		</div>
-		<br/>
+	<div style = {{paddingTop:'50px'}}>
 
-		<div style = {{position:'relative', top:display_top}} >
+		<UserInfo user = {this.props.data.user} username = {this.props.data.username} follows={this.props.data.follows} followees={this.props.data.followees} username = {this.props.data.username} follow_type = {0}/>
+
+		<br/>
+		
+		<div style = {{width:'735px', margin:'0px auto'}} >
 			<PostInfo ref = {this.postsRef} songs = {this.props.data.songs} likes = {this.props.data.likes} num_comments = {this.props.data.num_comments} user_profiles = {this.props.data.user_profiles} bumps = {this.props.data.bumps} />
 		</div>
 		<div className = "user_body" style={{left:'5%', top:'100px', position:'relative', width:'100%'}}>
@@ -432,3 +525,4 @@ export default class UserPage extends React.Component{
 	</div>
 	)};
 }
+
