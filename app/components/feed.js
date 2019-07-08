@@ -319,7 +319,6 @@ class Trending extends React.Component {
 		    .then(function (data) {
 		    	for (var item of data.data)
 		    	{
-		    		console.log(item)
 		    		that.related_links.push(<div style = {{width:'300px', height:'20px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}><a href = {item.url}> {item.text} </a> </div>)
 		    	}
 		    that.forceUpdate()
