@@ -9,8 +9,7 @@ class ProfileColor extends React.Component
 	constructor(props)
 	{
 		super(props)
-		this.state = {colors:[]}
-		this.state.colors = ['#178275', '#26408d', '#50b520', '#a5c823', '#46268f', '#d1aa25', '#af1f63', '#d19225', '#d12525'];
+		this.state = {colors:['#178275', '#26408d', '#50b520', '#a5c823', '#46268f', '#d1aa25', '#af1f63', '#d19225', '#d12525']}
 	}
 
 	render()
