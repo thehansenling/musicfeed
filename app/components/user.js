@@ -21,9 +21,9 @@ class ProfileColor extends React.Component
 		var color_divs = []
 		for (var color of this.state.colors)
 		{
-			color_divs.push(<div key = {color} onClick = {this.props.setcolor} style = {{backgroundColor:color, width:'104px', height:'50px'}}>  </div>)
+			color_divs.push(<div key = {color} onClick = {this.props.setcolor} style = {{backgroundColor:color, width:'77px', height:'50px'}}>  </div>)
 		}
-		return (<div style = {{position:'relative', paddingLeft:'10px', margin:'0px auto', width:'980px', height:'60px', flexDirection:'row', display:'flex'}}>
+		return (<div style = {{position:'relative', paddingLeft:'10px', margin:'0px auto', width:'735px', height:'60px', flexDirection:'row', display:'flex'}}>
 					{color_divs}
 				</div>
 		)
@@ -127,7 +127,7 @@ class UserInfo extends React.Component {
 	  		change_color_display = ''
 	  	}
 		return(
-			<div className = "user_info" style={{margin: '0 auto', paddingTop:'10px', paddingLeft: '10px', paddingBottom:'10px', background:'white', border: '1px solid #F1F1F1', borderRadius: '7px', maxWidth:'980px'}}>
+			<div className = "user_info" style={{margin: '0 auto', paddingTop:'10px', paddingLeft: '10px', paddingBottom:'10px', background:'white', border: '1px solid #F1F1F1', borderRadius: '7px', maxWidth:'735px'}}>
 				<div style = {{display:'flex', flexDirection:'row'}}>
 					<div>
 						<div style = {{borderRadius:'50%', width:'64px', height:'64px', backgroundColor:this.props.user.profile_picture}}></div>
@@ -152,7 +152,7 @@ class UserInfo extends React.Component {
 				</div>
 				<ProfileColor user_color = {this.props.user.profile_picture} active = {this.state.change_color} setcolor = {this.setColor.bind(this)}/>
 				<div style = {{}}>
-					<div style = {{fontSize:'18pt', paddingRight:'10px'}}>{this.description}</div>
+					<div style = {{fontSize:'14pt', paddingRight:'10px'}}>{this.description}</div>
 					{this.description_ui}
 				</div>				
 		
@@ -168,7 +168,7 @@ class ProfilePicture extends React.Component {
 		this.colors = []
 		for (var i = 0; i < colors.length; ++i)
 		{
-			this.colors.push(<div key = {colors[i]} onClick = {this.setColor.bind(this)} style = {{backgroundColor:colors[i], width:'106px', height:'50px'}}>  </div>)
+			this.colors.push(<div key = {colors[i]} onClick = {this.setColor.bind(this)} style = {{backgroundColor:colors[i], width:'88px', height:'50px'}}>  </div>)
 		}
 		this.colorsRef = React.createRef()
 	}	
