@@ -1,6 +1,7 @@
 import React from 'react';
 import StandardHeader from './standard_header.js'
-import PostInfo from './post.js'
+import { PostInfo, makePost } from './post.js'
+import utils from './utils.js'
 import FollowerInfo from './followerinfo.js'
 
 class ProfileColor extends React.Component 
@@ -456,12 +457,25 @@ export default class UserPage extends React.Component{
 		this.offset = this.props.data.songs.length;
 		this.postsRef = React.createRef();
 		this.loading_posts_semaphor = false;
+		this.state = { posts: [] };
 	}
 
 	componentDidMount() 
 	{
 	    window.addEventListener('scroll', this.handleScroll.bind(this));
-	    //this.updateOffsets(this.props.data.songs)
+	    //this.updateOffsets(this.props.data.songs)\\
+		let startingPosts = [];
+		for (var song of this.props.data.songs) {
+			startingPosts.push(makePost(
+				song,
+				this.props.data.likes,
+				this.props.data.num_comments,
+				this.props.data.num_posts,
+				this.props.data.bumps,
+				this.props.data.user_profiles,
+			));
+		}
+		this.setState({posts: startingPosts});
 	}
 
 	componentWillUnmount() 
@@ -515,7 +529,7 @@ export default class UserPage extends React.Component{
 		<br/>
 		
 		<div style = {{width:'735px', margin:'0px auto'}} >
-			<PostInfo ref = {this.postsRef} songs = {this.props.data.songs} likes = {this.props.data.likes} num_comments = {this.props.data.num_comments} user_profiles = {this.props.data.user_profiles} bumps = {this.props.data.bumps} />
+			<PostInfo posts = {this.state.posts} />
 		</div>
 		<div className = "user_body" style={{left:'5%', top:'100px', position:'relative', width:'100%'}}>
 
