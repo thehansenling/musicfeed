@@ -148,3 +148,10 @@ margin-block-end:1px;
   transform: scale(.98);
   transition: transform 0s;
 }
+
+.feed_stickySideBar {
+  position: sticky;
+  position: -webkit-sticky;
+  top: 72px;
+  height: 100%;
+}
