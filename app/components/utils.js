@@ -71,4 +71,11 @@ module.exports =
 		};
 	},
 
+	SetSpotifySize: function(iframe_string, width, height)
+	{
+		return iframe_string.substring(0, iframe_string.indexOf("width") + 7) + width +
+		iframe_string.substring(iframe_string.indexOf("height") - 2, iframe_string.indexOf("height") + 7) +
+		height + iframe_string.substring(iframe_string.indexOf("frameborder") - 2, iframe_string.length)
+	},
+
 }

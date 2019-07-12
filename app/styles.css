@@ -211,6 +211,8 @@ p {
 .feed_postButton {
   background-color: #178275;
   border-radius: 8px;
+  border-style: 'none';
+  border:0px;
   color: white;
   cursor: pointer;
   font-family: 'RobotoRegular';
@@ -232,6 +234,27 @@ p {
   transition: transform 0s;
 }
 
+.grayButton {
+  background-color: #DADADA;
+  border-radius: 8px;
+  border-style: 'none';
+  border:0px;
+  cursor: pointer;
+  font-family: 'RobotoRegular';
+  text-align: center;
+  transition: transform .2s;
+}
+
+.grayButton:hover {
+  background-color: #CACACA;
+}
+
+.grayButton:active {
+  background-color: #AAAAAA;
+  outline: none;
+  transform: scale(.98);
+  transition: transform 0s;
+}
 .feed_stickySideBar {
   position: sticky;
   position: -webkit-sticky;

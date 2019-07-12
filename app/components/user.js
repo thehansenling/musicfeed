@@ -37,7 +37,7 @@ class UserInfo extends React.Component {
 		this.description_ui = undefined
 		if (this.props.username == this.props.user.username)
 		{
-			this.description_ui = <button onClick={this.editDescription.bind(this)}> Edit Description </button>;
+			this.description_ui = <button style ={{fontSize:'15px', left:'8px', position:'relative'}} className = "grayButton" onClick={this.editDescription.bind(this)}> Edit </button>;
 		}
 		this.description_text = React.createRef();
 		this.bumps_ui = <div> Bumps: {this.props.user.bumps} </div>
@@ -137,9 +137,9 @@ class UserInfo extends React.Component {
 
 					<div style = {{paddingLeft:'20px'}}>
 						<div style = {{display:'flex', flexDirection:'row'}}>
-							<div style = {{fontSize:'30pt'}}>{this.props.user.username}</div>
+							<div style = {{fontSize:'30pt', fontWeight:'bold'}}>{this.props.user.username}</div>
 							<div style = {{flex:'1 0 auto', verticalAlign:'middle', display:'flex', flexDirection: 'column', justifyContent:'center', paddingLeft:'20px'}}>
-								<button style = {{height:'30px'}} className = 'follow_button' id = "follow_button" type="button" >{this.button_text}</button>
+								<button style = {{height:'30px', fontSize:'18px'}} className = 'grayButton' id = "follow_button" type="button" >{this.button_text}</button>
 							</div>
 						</div>
 						<div style = {{display:'flex', flexDirection:'row'}}>
@@ -152,8 +152,10 @@ class UserInfo extends React.Component {
 				</div>
 				<ProfileColor user_color = {this.props.user.profile_picture} active = {this.state.change_color} setcolor = {this.setColor.bind(this)}/>
 				<div style = {{}}>
-					<div style = {{fontSize:'14pt', paddingRight:'10px'}}>{this.description}</div>
+					<div style = {{fontSize:'15pt'}}>{this.description}
 					{this.description_ui}
+					</div>
+					
 				</div>				
 		
 			</div>
