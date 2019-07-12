@@ -473,7 +473,7 @@ export default class Feed extends React.Component {
 						<div style={{marginRight: '12px'}}>
 							<PostInfo posts={this.state.posts} />
 						</div>
-						<div style={{position: 'sticky', top: '72px', height: '100%'}}>
+						<div className={'feed_stickySideBar'}>
 							<Trending data = {this.props.data.global_songs} />
 						</div>
 					</div>
