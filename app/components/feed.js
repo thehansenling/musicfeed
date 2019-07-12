@@ -211,13 +211,7 @@ class NewPostSubmission extends React.Component {
 	}
 }
 
-function SetSpotifySize(iframe_string, width, height)
-{
-	return iframe_string.substring(0, iframe_string.indexOf("width") + 7) + width +
-	iframe_string.substring(iframe_string.indexOf("height") - 2, iframe_string.indexOf("height") + 7) +
-	height + iframe_string.substring(iframe_string.indexOf("frameborder") - 2, iframe_string.length)
-	this.props.data[i].embedded_content = iframe_string
-}
+
 
 class Trending extends React.Component {
 	constructor(props)
@@ -231,7 +225,7 @@ class Trending extends React.Component {
 		{
 			var iframe_string = this.props.data[i].embedded_content;
 
-			this.props.data[i].embedded_content = SetSpotifySize(iframe_string, 250, 330)
+			this.props.data[i].embedded_content = utils.SetSpotifySize(iframe_string, 250, 330)
 
 
 			this.global_posts.push(this.props.data[i])
@@ -283,7 +277,7 @@ class Trending extends React.Component {
 				for (var key in Object.keys(data.posts))
 				{
 					var item = data.posts[key]
-					item.embedded_content = SetSpotifySize(item.embedded_content, 250, 330)
+					item.embedded_content = utils.SetSpotifySize(item.embedded_content, 250, 330)
 					var trending_ref1 = React.createRef()
 					that.trending_posts.push(<div key = {item.post_id} ref = {trending_ref1} style = {{display:'none'}} dangerouslySetInnerHTML={utils.renderiframe(item.embedded_content)} />);
 					that.trending_refs.push(trending_ref1)

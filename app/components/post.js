@@ -434,6 +434,7 @@ function makePost(song, likes, all_num_comments, all_num_posts, bumps, user_prof
       post_bumped = true
     }
   }
+  console.log(song)
   var user_profile = user_profiles[song.username]
   return (
     <Post
