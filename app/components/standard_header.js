@@ -58,17 +58,26 @@ class SearchItem extends React.Component {
 
 	renderItem(item, url)
 	{
-		this.item_list.push(<div><a href = {url}> {item} </a></div>);
+		this.item_list.push(
+			<div
+				tabindex
+				className="searchItem"
+				onClick={() => {window.location.href = url; console.log(document.activeElement)}}
+			>
+				{item}
+			</div>
+		);
 		this.forceUpdate();
 	}
 
-	render ()
+	render()
 	{
-		return(
-			<div className="SearchItems">
-				{this.item_list}
-			</div>
-		);
+		return this.item_list.length > 0 ?
+			(
+				<div className="searchItems">
+					{this.item_list}
+				</div>
+			) : null;
 	}
 };
 
@@ -85,36 +94,36 @@ class SearchList extends React.Component {
 		var input = event.target.value;
 		var that = this;
 
-	    fetch("/search", {
-	        method: "POST",
-	        headers: {
-	        	Accept: 'application/json',
-	        	'Authorization': 'Basic',
-	        	'Content-Type': 'application/json',
-	        },
-	        body: JSON.stringify({type: "search", text: input}),
-	    }).then(function(response) { return response.json();})
-	    .then(function (data) {
-	    	var search_results = SortSearch(data.users, data.artists, data.songs, data.albums);
-	    	that.search_list.current.clearItems();
-	    	for (var key in search_results)
-	        {
-	        	that.search_list.current.renderItem(search_results[key][0], search_results[key][1]);
-	        }
+		fetch("/search", {
+			method: "POST",
+			headers: {
+				Accept: 'application/json',
+				'Authorization': 'Basic',
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({type: "search", text: input}),
+		}).then(function(response) { return response.json();}
+		).then(function (data) {
+			var search_results = SortSearch(data.users, data.artists, data.songs, data.albums);
+			that.search_list.current.clearItems();
+			for (var key in search_results)
+			{
+				that.search_list.current.renderItem(search_results[key][0], search_results[key][1]);
+			}
 	 	})
 	}
 
 	render ()
 	{
 		return(
-			<div>
+			<div className="searchBarContainer">
 				<input
-					className={'search_bar'}
+					className={'searchBar'}
 					onChange={this.handleChange.bind(this)}
 					placeholder='Search'
 					type='text'
 					/>
-				<SearchItem ref={this.search_list}/>
+				<SearchItem ref={this.search_list} />
 			</div>
 		);
 
@@ -329,10 +338,8 @@ export default class StandardHeader extends React.Component {
 				<header>
 					<div className="fixedHeader">
 						<div className="headerLink" onClick={() => {window.location.href = "/"}}>Home</div>
-						<div className="searchBarContainer">
-							<div className="search_list" style={{overflow: 'auto'}}>
-								<SearchList />
-							</div>
+						<div style={{flex: '1 0 auto', padding: '0 12px'}}>
+							<SearchList />
 						</div>
 						{login_div}
 						{user_login}
