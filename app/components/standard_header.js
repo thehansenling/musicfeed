@@ -62,7 +62,7 @@ class SearchItem extends React.Component {
 			<div
 				tabindex
 				className="searchItem"
-				onClick={() => {window.location.href = url; console.log(document.activeElement)}}
+				onClick={() => {window.location.href = url}}
 			>
 				{item}
 			</div>
