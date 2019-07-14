@@ -196,7 +196,9 @@ class Post extends React.Component
 	    	}
 	    })
 	}
-
+						// <div  style = {{width:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', fontSize: '16px', fontWeight:'bold'}}>
+						// 	{this.bump_button}
+						// </div>
 	render()
 	{
 		var date = new Date(this.props.song.timestamp)
@@ -313,9 +315,7 @@ class Post extends React.Component
 						<div style = {{}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id}><img src="/speech_bubble.png" width="30" height="26" alt=""/></a></div>
 
 						<div style = {{width:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', fontSize: '16px', fontWeight:'bold'}}> <a href = {"/user/" + this.props.song.username + "/" + this.props.song.id}> {this.props.num_comments} </a></div>
-						<div  style = {{width:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', fontSize: '16px', fontWeight:'bold'}}>
-							{this.bump_button}
-						</div>
+
 					</div>
 				</div>
 

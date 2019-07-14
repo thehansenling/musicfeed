@@ -43,7 +43,7 @@ export default class App extends React.Component{
 	{
 		if (typeof window !== 'undefined') 
 		{
-			document.body.style.backgroundColor = "rgb(246, 246, 246)";
+			document.body.style.backgroundColor = "rgb(242, 242, 242)";
 			document.body.style.marginTop = "60px";
 		}
 	}

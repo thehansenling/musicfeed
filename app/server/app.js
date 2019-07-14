@@ -34,23 +34,29 @@ var PRIORITY_MODIFIER = 8640 / 4500
 var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (relevant_timestamp - UNIX_TIMESTAMP() * 1000)/45000000 "
 
 //test database
-// var connection = mysql.createConnection({
-//   host     : 'us-cdbr-iron-east-01.cleardb.net',
-//   user     : 'bc7ebf9f6de242',
-//   password : 'aa9b1c1f',
-//   database : 'heroku_cdc4ca7b10e1680',
-//   multipleStatements: true
-// });
-
-//prod database
 var connection = mysql.createConnection({
-  host     : 'us-iron-auto-sfo-03-bh.cleardb.net',
-  user     : 'b82ff0c686544a',
-  password : '52ad3adb',
-  database : 'heroku_4df94195b1d1e6b',
+  host     : 'us-cdbr-iron-east-01.cleardb.net',
+  user     : 'bc7ebf9f6de242',
+  password : 'aa9b1c1f',
+  database : 'heroku_cdc4ca7b10e1680',
   multipleStatements: true
 });
 
+//prod database
+// var connection = mysql.createConnection({
+//   host     : 'us-iron-auto-sfo-03-bh.cleardb.net',
+//   user     : 'b82ff0c686544a',
+//   password : '52ad3adb',
+//   database : 'heroku_4df94195b1d1e6b',
+//   multipleStatements: true
+// });
+
+var spotify_username = '44a9442188734ab2999542562c6477c3';
+var spotify_password = '9c24d61cf7234c4a80f6f2f49ecc9c45';
+var spotify = new Spotify({
+  id: spotify_username,
+  secret: spotify_password
+});
 
 function replaceAll(string, delimiter, replace)
 {
@@ -1390,6 +1396,29 @@ app.post('/submit_description', function(req, res)
 	});
 })
 
+app.post('/artist_picture', function(req, res)
+{
+	console.log(req.body.artist)
+	spotify
+	.search({ type: 'artist', query: req.body.artist })
+	.then(function(response) {
+	console.log(response);
+		if (response.artists.items.length > 0)
+		{
+			console.log(response.artists.items[0].images[0].url)
+			response.artists.items[0].images[0].url
+			res.send({picture:response.artists.items[0].images[0].url})
+		}
+		else
+		{
+			res.send({picture:undefined})
+		}
+
+	})
+})
+
+
+
 app.get('/artist/:artist/', (req, res) => {
 
 
@@ -1427,178 +1456,168 @@ app.get('/artist/:artist/', (req, res) => {
 		connection.query(like_sql, function (err, result, fields) 
 		{
 			var likes_list = [];
+			var num_comments_list = [];
 			if (result != undefined)
 			{
 				for (i =0; i < result.length; ++i)
 				{
 					likes_list.push(result[i])
 				}
-				var num_comments_sql ="";
-				for (var id of post_ids.split(","))
+				var num_comments_sql ="";				
+				for (i =0; i < result.length; ++i)
 				{
-					//user_id = '" + req.cookies.username + "'" + "AND
-					num_comments_sql = num_comments_sql + "SELECT COUNT(comment_id), post_id FROM comments WHERE post_id =" + id + " UNION " ;
+					num_comments_list.push({'count':result[i]["COUNT(comment_id)"], 'post_id':result[i]["post_id"] });
 				}
 				num_comments_sql = num_comments_sql.substr(0, num_comments_sql.length-6);
 			}
-			connection.query(num_comments_sql, function (err, result, fields) 
+
+			var regexpartist = getregexartists(req.params.artist)
+			var album_sql = "SELECT * from global_posts WHERE artist REGEXP '" + regexpartist + "' AND song = 'NO_SONG_ALBUM_ONLY' LIMIT 3"
+			var album_post_ids = "";
+			connection.query(album_sql, function (err, result, fields) 
 			{
-				var num_comments_list = [];
+			    for (var i = 0; i < result.length; ++i)
+				{
+					album_post_ids = album_post_ids + "'" + result[i].post_id + "',"
+				}
+				if (album_post_ids.length > 0) album_post_ids = album_post_ids.substring(0, album_post_ids.length-1);
+				var album_data = result;
+
 				if (result != undefined)
 				{
-					for (i =0; i < result.length; ++i)
+					var num_album_comments_sql ="";
+					for (var id of album_post_ids.split(","))
 					{
-						num_comments_list.push({'count':result[i]["COUNT(comment_id)"], 'post_id':result[i]["post_id"] });
+						num_album_comments_sql = num_album_comments_sql + "SELECT COUNT(comment_id), post_id FROM comments WHERE post_id =" + id + "; " ;
 					}
 				}
-
-				var regexpartist = getregexartists(req.params.artist)
-				var album_sql = "SELECT * from global_posts WHERE artist REGEXP '" + regexpartist + "' AND song = 'NO_SONG_ALBUM_ONLY'"
-				var album_post_ids = "";
-				connection.query(album_sql, function (err, result, fields) 
+				connection.query(num_album_comments_sql, function (err, result, fields) 
 				{
-				    for (var i = 0; i < result.length; ++i)
-					{
-						album_post_ids = album_post_ids + "'" + result[i].post_id + "',"
-					}
-					if (album_post_ids.length > 0) album_post_ids = album_post_ids.substring(0, album_post_ids.length-1);
-					var album_data = result;
-
+					var num_album_comments_list = [];
 					if (result != undefined)
 					{
-						var num_album_comments_sql ="";
-						for (var id of album_post_ids.split(","))
+						if (result.length == 1)
 						{
-							num_album_comments_sql = num_album_comments_sql + "SELECT COUNT(comment_id), post_id FROM comments WHERE post_id =" + id + "; " ;
+							num_album_comments_list.push({'count':result[0]["COUNT(comment_id)"], 'post_id':result[0]["post_id"] });
+						}
+						else
+						{
+							for (i =0; i < result.length; ++i)
+							{
+								num_album_comments_list.push({'count':result[i][0]["COUNT(comment_id)"], 'post_id':result[i][0]["post_id"] });
+							}
 						}
 					}
-					connection.query(num_album_comments_sql, function (err, result, fields) 
+
+					var priorities = {}
+					var album_post_data = AggregateLikes(num_album_comments_list, album_data, []);
+					var ordered_song_data = SortPosts(album_post_data);
+					var ordered_albums = OrderPosts(ordered_song_data, album_data);
+					var song_sql = "SELECT * from global_posts WHERE artist REGEXP '" + regexpartist + "' AND song != 'NO_SONG_ALBUM_ONLY'";
+					var song_post_ids = "";
+					connection.query(song_sql, function (err, result, fields) 
 					{
-						var num_album_comments_list = [];
+					    for (i =0; i < result.length; ++i)
+						{
+							song_post_ids = song_post_ids + "'" + result[i].post_id + "',"
+						}
+						if (song_post_ids.length > 0) song_post_ids = song_post_ids.substring(0, song_post_ids.length-1);
+						var song_data = result;
+
 						if (result != undefined)
 						{
-							if (result.length == 1)
+							var num_song_comments_sql ="";
+							for (id of song_post_ids.split(","))
 							{
-								num_album_comments_list.push({'count':result[0]["COUNT(comment_id)"], 'post_id':result[0]["post_id"] });
-							}
-							else
-							{
-								for (i =0; i < result.length; ++i)
-								{
-									num_album_comments_list.push({'count':result[i][0]["COUNT(comment_id)"], 'post_id':result[i][0]["post_id"] });
-								}
+								num_song_comments_sql = num_song_comments_sql + "SELECT COUNT(comment_id), post_id FROM comments WHERE post_id =" + id + "; " ;
 							}
 						}
 
-						var priorities = {}
-						var album_post_data = AggregateLikes(num_album_comments_list, album_data, []);
-						var ordered_song_data = SortPosts(album_post_data);
-						var ordered_albums = OrderPosts(ordered_song_data, album_data);
-						var song_sql = "SELECT * from global_posts WHERE artist REGEXP '" + regexpartist + "' AND song != 'NO_SONG_ALBUM_ONLY'";
-						var song_post_ids = "";
-						connection.query(song_sql, function (err, result, fields) 
+						connection.query(num_song_comments_sql, function (err, result, fields) 
 						{
-						    for (i =0; i < result.length; ++i)
-							{
-								song_post_ids = song_post_ids + "'" + result[i].post_id + "',"
-							}
-							if (song_post_ids.length > 0) song_post_ids = song_post_ids.substring(0, song_post_ids.length-1);
-							var song_data = result;
-
+							var num_song_comments_list = [];
 							if (result != undefined)
 							{
-								var num_song_comments_sql ="";
-								for (id of song_post_ids.split(","))
+								if (result.length == 1)
 								{
-									num_song_comments_sql = num_song_comments_sql + "SELECT COUNT(comment_id), post_id FROM comments WHERE post_id =" + id + "; " ;
+									num_song_comments_list.push({'count':result[0]["COUNT(comment_id)"], 'post_id':result[0]["post_id"] });
+								}
+								else
+								{
+									for (i = 0; i < result.length; ++i)
+									{
+										num_song_comments_list.push({'count':result[i][0]["COUNT(comment_id)"], 'post_id':result[i][0]["post_id"] });
+									}
 								}
 							}
 
-							connection.query(num_song_comments_sql, function (err, result, fields) 
+							priorities = {}
+							var song_like_data = []
+							for (var song of song_data)
 							{
-								var num_song_comments_list = [];
-								if (result != undefined)
+								var like_data = {}
+
+								like_data["id"] = song.post_id;
+								like_data["likes"] = song.likes;
+								song_like_data.push(like_data);
+							}
+							var song_post_data = AggregateLikes(num_song_comments_list, song_like_data, []);
+							var ordered_song_data = SortPosts(song_post_data);
+							var ordered_songs = OrderPosts(ordered_song_data, song_data);
+
+							var follow_sql = "SELECT * FROM follows WHERE followee_id = '" + req.params.artist + "'";
+							connection.query(follow_sql, function (err, result, fields) 
+							{
+								var follows_data = result;
+
+								var num_user_posts_sql = "SELECT COUNT(*) FROM user_content WHERE artist = '" + req.params.artist + "'";
+								connection.query(num_user_posts_sql, function (err, result, fields) 
 								{
-									if (result.length == 1)
-									{
-										num_song_comments_list.push({'count':result[0]["COUNT(comment_id)"], 'post_id':result[0]["post_id"] });
-									}
-									else
-									{
-										for (i = 0; i < result.length; ++i)
+									var num_user_posts = result[0]['COUNT(*)']
+
+									usernames_string = "(" + usernames_string + ")"
+									var userprofiles_sql = "SELECT username, profile_picture FROM accounts WHERE username in " + usernames_string
+									connection.query(userprofiles_sql, function (err, result, fields) 
+									{			
+										var user_profiles = {}		
+										if (result != undefined)
 										{
-											num_song_comments_list.push({'count':result[i][0]["COUNT(comment_id)"], 'post_id':result[i][0]["post_id"] });
-										}
-									}
-								}
-
-								priorities = {}
-								var song_like_data = []
-								for (var song of song_data)
-								{
-									var like_data = {}
-
-									like_data["id"] = song.post_id;
-									like_data["likes"] = song.likes;
-									song_like_data.push(like_data);
-								}
-								var song_post_data = AggregateLikes(num_song_comments_list, song_like_data, []);
-								var ordered_song_data = SortPosts(song_post_data);
-								var ordered_songs = OrderPosts(ordered_song_data, song_data);
-
-								var follow_sql = "SELECT * FROM follows WHERE followee_id = '" + req.params.artist + "'";
-								connection.query(follow_sql, function (err, result, fields) 
-								{
-									var follows_data = result;
-
-									var num_user_posts_sql = "SELECT COUNT(*) FROM user_content WHERE artist = '" + req.params.artist + "'";
-									connection.query(num_user_posts_sql, function (err, result, fields) 
-									{
-										var num_user_posts = result[0]['COUNT(*)']
-
-										usernames_string = "(" + usernames_string + ")"
-										var userprofiles_sql = "SELECT username, profile_picture FROM accounts WHERE username in " + usernames_string
-										connection.query(userprofiles_sql, function (err, result, fields) 
-										{			
-											var user_profiles = {}		
-											if (result != undefined)
+											for (var profile of result)
 											{
-												for (var profile of result)
-												{
-													user_profiles[profile.username] = profile.profile_picture
-												}
-											}			
-											var follow_sql = "SELECT * FROM follows WHERE followee_id = '" + req.params.artist + "'";
-											var data = {
-												songs: songs_list,
-												likes: likes_list,
-												num_comments: num_comments_list,
-												artist: req.params.artist,
-												album_data: ordered_albums,
-												song_data: ordered_songs,
-												username: req.cookies.username,
-												follows: follows_data,
-												num_user_posts: num_user_posts,
-												user_profiles: user_profiles,
-											}	
-											var html = renderPage(req.url, data)
-											res.send(html);				
-										})			
-									})
+												user_profiles[profile.username] = profile.profile_picture
+											}
+										}			
+										var follow_sql = "SELECT * FROM follows WHERE followee_id = '" + req.params.artist + "'";
+										var data = {
+											songs: songs_list,
+											likes: likes_list,
+											num_comments: num_comments_list,
+											artist: req.params.artist,
+											album_data: ordered_albums,
+											song_data: ordered_songs,
+											username: req.cookies.username,
+											follows: follows_data,
+											num_user_posts: num_user_posts,
+											user_profiles: user_profiles,
+										}	
+										var html = renderPage(req.url, data)
+										res.send(html);				
+									})			
+								})
 
 
-								});
-							});	
+							});
+						});	
 
-
-						});
 
 					});
 
-
 				});
-			})
-		});
+
+
+			});
+		})
+		
 	});
 
 })
@@ -1642,6 +1661,7 @@ app.get('/artist/:artist/songs', function (req, res) {
 					}
 				}
 			}
+			
 			var priorities = {}
 			var song_like_data = []
 			for (var song of song_data)
@@ -2975,17 +2995,13 @@ app.post('/post', function (req, res)
 	var post_id = uuidv3(String(temp_username + "/" + String(date)), uuidv3.URL);
 	req.body.content = replaceAll(req.body.content, "'", "\\\'")
 	req.body.title = replaceAll(req.body.title, "'", "\\\'")
-	var spotify_username = '44a9442188734ab2999542562c6477c3';
-	var spotify_password = '9c24d61cf7234c4a80f6f2f49ecc9c45';
+
 	if (url == "")
 	{
 		res.send({})
 		return;
 	}
-	var spotify = new Spotify({
-	  id: spotify_username,
-	  secret: spotify_password
-	});
+
 
 	spotify
 	  .request(url)

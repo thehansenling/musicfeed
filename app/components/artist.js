@@ -129,6 +129,42 @@ class SongDisplay extends React.Component
 	}
 }
 
+class ArtistPicture extends React.Component
+{
+	constructor(props)
+	{
+		super(props)
+		this.state = {picture:undefined}
+	}
+
+	componentDidMount() 
+	{
+		console.log("AHG")
+		var that = this
+	    fetch("/artist_picture", {
+	        method: "POST",
+	        headers: {
+	        	'Accept': 'application/json',
+	        	'Authorization': 'Basic',
+	        	'Content-Type': 'application/json',
+	        },
+	        body: JSON.stringify({artist:that.props.artist,})})
+	    .then(function(response) { return response.json();})
+	    .then(function (data) { 
+	    	that.setState({picture:data.picture})
+	 	})		
+	}
+
+	render()
+	{
+		return (
+			<div>
+				<img style = {{width:'260px', height:'260px'}} src = {this.state.picture}></img> 
+			</div>
+		)
+	}
+}
+
 class ArtistPost extends React.Component
 {
 	constructor(props)
@@ -139,9 +175,10 @@ class ArtistPost extends React.Component
 	render()
 	{
 		return (
-			<div style={{width:'735px'}}>
+			<div style={{width:'735px', border: '1px solid #F1F1F1'}}>
 				<div style = {{display:'flex', flexDirection:'row', height:'300px', paddingLeft:'20px', paddingTop:'20px'}}>
-					<div style = {{backgroundColor:'blue', width:'260px', height:'260px', paddingLeft:'20px', paddingTop:'20px'}}>
+					<div style = {{width:'260px', height:'260px'}}>
+						<ArtistPicture artist = {this.props.data.artist}/>
 					</div>
 					<div style = {{paddingLeft:'20px', display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'row', height:'260px'}}>
 						<div style = {{fontWeight:'bold', fontSize:'40px'}}>
@@ -200,7 +237,9 @@ export default class ArtistPage extends React.Component
 				<div style = {{backgroundColor:"#FFFFFF", borderRadius:'7px'}}>
 					<ArtistPost data = {this.props.data}/>
 				</div>
-				<PostInfo posts = {this.state.posts}/>
+				<div style = {{paddingTop:'20px'}} >
+					<PostInfo posts = {this.state.posts}/>
+				</div>
 			</div>
 
 		);
