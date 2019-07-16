@@ -1398,14 +1398,11 @@ app.post('/submit_description', function(req, res)
 
 app.post('/artist_picture', function(req, res)
 {
-	console.log(req.body.artist)
 	spotify
 	.search({ type: 'artist', query: req.body.artist })
 	.then(function(response) {
-	console.log(response);
 		if (response.artists.items.length > 0)
 		{
-			console.log(response.artists.items[0].images[0].url)
 			response.artists.items[0].images[0].url
 			res.send({picture:response.artists.items[0].images[0].url})
 		}
@@ -1417,7 +1414,9 @@ app.post('/artist_picture', function(req, res)
 	})
 })
 
-
+app.post('/load_artist_post_data', function (req, res) {
+	GetPosts("WHERE artist = '" + req.body.artist + "' ", req, res, 5);
+});
 
 app.get('/artist/:artist/', (req, res) => {
 

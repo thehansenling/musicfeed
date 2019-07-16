@@ -139,7 +139,6 @@ class ArtistPicture extends React.Component
 
 	componentDidMount() 
 	{
-		console.log("AHG")
 		var that = this
 	    fetch("/artist_picture", {
 	        method: "POST",
@@ -211,10 +210,13 @@ export default class ArtistPage extends React.Component
 	{
 		super(props);
 		this.state = { posts: [] };
+		this.offset = this.props.data.songs.length;
 	}
 
 	componentDidMount() 
 	{
+	window.addEventListener('scroll', this.handleScroll.bind(this));
+
 		let startingPosts = [];
 		for (var song of this.props.data.songs) {
 			startingPosts.push(makePost(
@@ -227,6 +229,46 @@ export default class ArtistPage extends React.Component
 			));
 		}
 		this.setState({posts: startingPosts});
+	}
+
+	componentWillUnmount() 
+	{
+	    window.removeEventListener('scroll', this.handleScroll.bind(this));
+	}
+
+	handleScroll() {
+		if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight && !this.loading_posts_semaphor) 
+		{
+			var that = this
+			this.loading_posts_semaphor = true
+		    fetch("/load_artist_post_data", {
+		        method: "POST",
+		        headers: {
+		        	'Accept': 'application/json',
+		        	'Authorization': 'Basic',
+		        	'Content-Type': 'application/json',
+		        },
+		        body: JSON.stringify({offset:that.offset,
+		        					  artist: that.props.data.artist})})
+		    .then(function(response) { return response.json();})
+		    .then(function (data) { 
+		    	that.offset += data.songs.length;
+		    	//that.postsRef.current.addPosts(data.songs, data.likes, data.num_comments, data.num_posts, data.user_profiles)
+				let newPosts = [];
+				for (var song of data.songs) {
+					newPosts.push(makePost(
+						song,
+						data.likes,
+						data.num_comments,
+						data.num_posts,
+						data.bumps,
+						data.user_profiles
+					));
+				}		
+				that.setState({posts: that.state.posts.concat(newPosts)});
+		    	that.loading_posts_semaphor = false;
+		 	})
+		}
 	}
 
 	render()

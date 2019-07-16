@@ -338,14 +338,19 @@ class Trending extends React.Component {
 			<div style = {{margin:'0px auto', fontWeight:'bold', width:'324px', height:'10px', fontSize:'27px', paddingTop:'16px', borderBottom:'1px solid rgba(0, 0, 0, 0.09)'}}>
 
 			</div>
-			<div style = {{display:'flex', flexDirection:'row', paddingTop:'30px', width:'290px', margin:'0px auto'}}>
-				<svg onClick = {this.leftClick.bind(this)} width="20" height="50" viewBox="0 0 20 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path d="M19 49L2 25L19 0.999998" stroke="#2F3846" strokeOpacity="0.2" strokeWidth="2"/>
-				</svg>
+			<div style = {{display:'flex', flexDirection:'row', paddingTop:'30px', width:'290px', margin:'0px auto', justifyContent:'center', alignItems:'center'}}>
+				
+				<div style = {{paddingRight:'10px', width:'30px', height:'50px'}}>
+					<svg onClick = {this.leftClick.bind(this)} width="20" height="50" viewBox="0 0 20 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M19 49L2 25L19 0.999998" stroke="#2F3846" strokeOpacity="0.2" strokeWidth="2"/>
+					</svg>
+				</div>
 				{this.trending_posts.map((child) => {return child})}
-				<svg onClick = {this.rightClick.bind(this)} width="20" height="50" viewBox="0 0 20 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path d="M1 1L18 25L1 49" stroke="#2F3846" strokeOpacity="0.2" strokeWidth="2"/>
-				</svg>
+				<div style = {{paddingLeft:'10px', width:'20px', height:'50px'}}>
+					<svg onClick = {this.rightClick.bind(this)} width="20" height="50" viewBox="0 0 20 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M1 1L18 25L1 49" stroke="#2F3846" strokeOpacity="0.2" strokeWidth="2"/>
+					</svg>
+				</div>
 			</div>
 			<div style = {{paddingTop:'10px', margin: '0px auto', width:'300px'}}>
 				<div style = {{margin:'0px auto', fontWeight:'bold', width:'140', fontSize:'27px', paddingTop:'16px'}}>

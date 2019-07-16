@@ -501,7 +501,19 @@ export default class UserPage extends React.Component{
 		    .then(function(response) { return response.json();})
 		    .then(function (data) { 
 		    	that.offset += data.songs.length;
-		    	that.postsRef.current.addPosts(data.songs, data.likes, data.num_comments, data.num_posts, data.user_profiles)
+		    	//that.postsRef.current.addPosts(data.songs, data.likes, data.num_comments, data.num_posts, data.user_profiles)
+				let newPosts = [];
+				for (var song of data.songs) {
+					newPosts.push(makePost(
+						song,
+						data.likes,
+						data.num_comments,
+						data.num_posts,
+						data.bumps,
+						data.user_profiles
+					));
+				}		    	
+				that.setState({posts: that.state.posts.concat(newPosts)});
 		    	that.loading_posts_semaphor = false;
 		 	})
 		}
