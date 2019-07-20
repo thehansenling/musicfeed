@@ -380,6 +380,41 @@ export default class Feed extends React.Component {
 		this.non_priority_global_offset = 0;
 	}
 
+	handleScroll() {
+		if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight && !this.loading_posts_semaphor) 
+		{
+			var that = this
+			this.loading_posts_semaphor = true
+		    fetch("/load_post_data", {
+		        method: "POST",
+		        headers: {
+		        	'Accept': 'application/json',
+		        	'Authorization': 'Basic',
+		        	'Content-Type': 'application/json',
+		        },
+		        body: JSON.stringify({offset:that.offset,
+		        					  user: that.props.data.username})})
+		    .then(function(response) { return response.json();})
+		    .then(function (data) { 
+		    	that.offset += data.songs.length;
+		    	//that.postsRef.current.addPosts(data.songs, data.likes, data.num_comments, data.num_posts, data.user_profiles)
+				let newPosts = [];
+				for (var song of data.songs) {
+					newPosts.push(makePost(
+						song,
+						data.likes,
+						data.num_comments,
+						data.num_posts,
+						data.bumps,
+						data.user_profiles
+					));
+				}		    	
+				that.setState({posts: that.state.posts.concat(newPosts)});
+		    	that.loading_posts_semaphor = false;
+		 	})
+		}
+	}
+
 	componentDidMount()
 	{
 	    window.addEventListener('scroll', this.handleScroll.bind(this));

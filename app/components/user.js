@@ -519,7 +519,6 @@ export default class UserPage extends React.Component{
 		}
 	}
 
-
   render() {
 
   	var display_top = '200px'

@@ -1777,6 +1777,7 @@ app.get('/post/:artist/:song', function (req, res) {
 		{		
 			var user_posts = result;
 			var post_ids = ""
+			var usernames = ""
 			if (result != undefined)
 			{
 				var songs_list = []
@@ -1784,8 +1785,10 @@ app.get('/post/:artist/:song', function (req, res) {
 				{
 					songs_list.push(result[i]);
 					post_ids = post_ids + "'" + result[i].post_id + "',"
+					usernames += "'" + result[i].username + "',"
 				}
 				if (post_ids.length > 0) post_ids = post_ids.substring(0, post_ids.length-1);
+				if (usernames.length > 0) usernames = usernames.substring(0, usernames.length-1);
 			}
 			var like_state_sql = "SELECT like_state from likes where post_id = '"+ String(like_post_id) + "' AND user_id = '" + req.cookies.username + "'";
 			connection.query(like_state_sql, function (err, result, fields) 
@@ -1798,63 +1801,57 @@ app.get('/post/:artist/:song', function (req, res) {
 				{
 					user_like_state = result[0].like_state;
 				}
-				var comment_promise_0 = GetCommentsFromPost(COMMENT_LIMIT, post_ids, -1, req.cookies.username)
-				comment_promise_0.then(function(response_0) {
-				  var comment_promise_1 = GetCommentsFromComments(COMMENT_LIMIT, response_0['comment_ids'], req.cookies.username, 0, false)
-				  comment_promise_1.then(function(response_1) {
-					  var comment_promise_2 = GetCommentsFromComments(COMMENT_LIMIT, response_0['comment_ids'], req.cookies.username, 0, false)
-					  comment_promise_2.then(function(response_2) {
 
-					  	  var all_comments = []
-					  	  var all_comment_votes = []
-					  	  for (var comment of response_0['comments'])
-					  	  {
-					  	  	  all_comments.push(comment);
-					  	  }
-					  	  for (var comment of response_1['comments'])
-					  	  {
-					  	  	  all_comments.push(comment);
-					  	  }
-					  	  for (var comment of response_2['comments'])
-					  	  {
-					  	  	  all_comments.push(comment);
-					  	  }
-
-					  	  for (var comment_vote of response_0['comment_votes'])
-					  	  {
-					  	  	  all_comment_votes.push(comment_vote);
-					  	  }
-					  	  for (var comment_vote of response_1['comment_votes'])
-					  	  {
-					  	  	  all_comment_votes.push(comment_vote);
-					  	  }
-					  	  for (var comment_vote of response_2['comment_votes'])
-					  	  {
-					  	  	  all_comment_votes.push(comment_vote);
-					  	  }
+				var user_profiles_sql = "SELECT * FROM accounts where username in (" + usernames + ")"
+				connection.query(user_profiles_sql, function (err, result, fields) 
+				{		
+					var user_profiles = {}
+					for (var i = 0; i < result.length; ++i)
+					{
+						user_profiles[result[i].username] = result[i]
+					}
+					var all_likes_sql = "SELECT COUNT(likes) as all_posts, SUM(likes) - SUM(dislikes) as all_likes FROM user_content WHERE artist = '" + req.params.artist + "' AND song = '" + req.params.song + "'" 
+					connection.query(all_likes_sql, function (err, result, fields) 
+					{		
+						var all_likes = 0
+						var all_posts = 0
+						if (all_likes_sql.length > 0)
+						{
+							all_likes = result[0]['all_likes']
+							all_posts = result[0]['all_posts']
+						} 
+						var num_comments_sql = "SELECT post_id FROM comments WHERE post_id in (" + post_ids + ")"
+						connection.query(num_comments_sql, function (err, result, fields) 
+						{	
+							var num_comments = {}
+							for (var comment of result)
+							{
+								if (num_comments[comment.post_id] == undefined)
+								{
+									num_comments[comment.post_id] = 1
+								}
+								else 
+								{
+									num_comments[comment.post_id] += 1
+								}
+							}
 							var data = 
 							{
 								global_post: content[0],
-								comments: all_comments,
-								comment_votes:all_comment_votes,
 								like_state: user_like_state,
 								username: req.cookies.username,
-								user_posts: user_posts
+								num_posts: all_posts,
+								user_posts: user_posts,
+								likes:all_likes,
+								user_profiles:user_profiles,
+								num_comments:num_comments
 							};
 							var html = renderPage(req.url, data)
 							res.send(html);
-					  }, function(error_2) {
-					  	console.error("Failed!", error_2);
-					  })
+						});
+					});
+				});
 
-
-				  }, function(error_1) {
-				  	console.error("Failed!", error_1);
-				  })
-
-				}, function(error_0) {
-				  console.error("Failed!", error_0);
-				})
 
 			});
 	
@@ -1943,6 +1940,77 @@ app.post('/load_global_posts', function(req, res)
 	});
 });
 
+app.post('/load_user_posts', function(req, res)
+{
+
+	//var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (timestamp - CURRENT_TIMESTAMP)/45000 "
+	var user_posts_sql = "SELECT *, CASE WHEN cast(likes as signed) - cast(dislikes as signed) = 0 THEN " + 
+						  "(relevant_timestamp - UNIX_TIMESTAMP() * 1000)/45000000 ELSE " + score_sql+ " END as score FROM user_content " + 
+						  "WHERE artist = '" + req.body.artist + "' AND song = '" + req.body.song + "' AND album = '" + req.body.album +  
+						  "' ORDER BY score DESC LIMIT " + 5 + " OFFSET " + req.body.offset;
+	connection.query(user_posts_sql, function (err, result, fields) 
+	{		
+		var user_posts = result;
+		var post_ids = ""
+		var usernames = ""
+		if (result != undefined)
+		{
+			var songs_list = []
+		    for (var i = 0; i < result.length; ++i)
+			{
+				songs_list.push(result[i]);
+				post_ids = post_ids + "'" + result[i].post_id + "',"
+				usernames += "'" + result[i].username + "',"
+			}
+			if (post_ids.length > 0) post_ids = post_ids.substring(0, post_ids.length-1);
+			if (usernames.length > 0) usernames = usernames.substring(0, usernames.length-1);
+		}
+
+
+			var user_profiles_sql = "SELECT * FROM accounts where username in (" + usernames + ")"
+			connection.query(user_profiles_sql, function (err, result, fields) 
+			{		
+				var user_profiles = {}
+				if (result != undefined)
+				{
+					for (var i = 0; i < result.length; ++i)
+					{
+						user_profiles[result[i].username] = result[i]
+					}
+				}
+				var num_comments_sql = "SELECT post_id FROM comments WHERE post_id in (" + post_ids + ")"
+				connection.query(num_comments_sql, function (err, result, fields) 
+				{	
+					var num_comments = {}
+					if (result != undefined)
+					{
+						for (var comment of result)
+						{
+							if (num_comments[comment.post_id] == undefined)
+							{
+								num_comments[comment.post_id] = 1
+							}
+							else 
+							{
+								num_comments[comment.post_id] += 1
+							}
+						}
+					}
+					var data = 
+					{
+						username: req.cookies.username,
+						posts: user_posts,
+						user_profiles:user_profiles,
+						num_comments:num_comments
+					};
+					res.send(data);
+				});
+			});
+
+
+
+	});
+});
 
 app.get('/album/:artist/:album', function (req, res) {
 
@@ -1960,12 +2028,15 @@ app.get('/album/:artist/:album', function (req, res) {
 		if (result != undefined)
 		{
 			var songs_list = []
+			var usernames = []
 		    for (var i = 0; i < result.length; ++i)
 			{
 				songs_list.push(result[i]);
 				post_ids = post_ids + "'" + result[i].post_id + "',"
+				usernames += "'" + result[i].username + "',"
 			}
 			if (post_ids.length > 0) post_ids = post_ids.substring(0, post_ids.length-1);
+			if (usernames.length > 0) usernames = usernames.substring(0, usernames.length-1);
 		}
 
 		var sql = "SELECT * FROM global_posts WHERE artist = '" + req.params.artist + "'" + " AND album = '" + req.params.album + "' AND type = 1";
@@ -1975,7 +2046,6 @@ app.get('/album/:artist/:album', function (req, res) {
 
 			if (result.length == 0)
 			{
-
 				var data = 
 				{
 					global_post: undefined,
@@ -1990,8 +2060,6 @@ app.get('/album/:artist/:album', function (req, res) {
 				return
 			}
 
-
-
 			var like_state_sql = "SELECT like_state from likes where post_id = '"+ String(result[0].post_id) + "' AND user_id = '" + req.cookies.username + "'";
 			connection.query(like_state_sql, function (err, result, fields) 
 			{		
@@ -2004,87 +2072,58 @@ app.get('/album/:artist/:album', function (req, res) {
 					user_like_state = result[0].like_state;
 				}
 
-				sql = "SELECT * FROM user_content where artist = '" + req.params.artist + "' AND album = '" + req.params.album + "'";
-				connection.query(sql, function (err, result, fields) 
-				{
-
-					var post_ids = []
-					if (result != undefined)
+				var user_profiles_sql = "SELECT * FROM accounts where username in (" + usernames + ")"
+				connection.query(user_profiles_sql, function (err, result, fields) 
+				{		
+					var user_profiles = {}
+					for (var i = 0; i < result.length; ++i)
 					{
-					    for (var i = 0; i < result.length; ++i)
-						{
-							post_ids.push("'" + result[i].post_id + "'")
-						}
-						//if (post_ids.length > 0) post_ids = post_ids.substring(0, post_ids.length-1);
+						user_profiles[result[i].username] = result[i]
 					}
-					var comment_promise_0 = GetCommentsFromPost(COMMENT_LIMIT, post_ids, -1, req.cookies.username)
-					comment_promise_0.then(function(response_0) {
-
-					  var comment_promise_1 = GetCommentsFromComments(COMMENT_LIMIT, response_0['comment_ids'], req.cookies.username, 0, false)
-					  comment_promise_1.then(function(response_1) {
-						  var comment_promise_2 = GetCommentsFromComments(COMMENT_LIMIT, response_1['comment_ids'], req.cookies.username, 0, false)
-						  comment_promise_2.then(function(response_2) {
-
-						// var comment_promise_0 = GetComments(0, COMMENT_LIMIT, content[0].post_id, -1, req.cookies.username)
-						// comment_promise_0.then(function(response_0) {
-						//   var comment_promise_1 = GetComments(1, COMMENT_LIMIT, content[0].post_id, response_0['comment_ids'], req.cookies.username)
-						//   comment_promise_1.then(function(response_1) {
-						// 	  var comment_promise_2 = GetComments(2, COMMENT_LIMIT, content[0].post_id, response_1['comment_ids'], req.cookies.username)
-						// 	  comment_promise_2.then(function(response_2) {
-
-						  	  var all_comments = []
-						  	  var all_comment_votes = []
-						  	  for (var comment of response_0['comments'])
-						  	  {
-						  	  	  all_comments.push(comment);
-						  	  }
-						  	  for (var comment of response_1['comments'])
-						  	  {
-						  	  	  all_comments.push(comment);
-						  	  }
-						  	  for (var comment of response_2['comments'])
-						  	  {
-						  	  	  all_comments.push(comment);
-						  	  }
-
-						  	  for (var comment_vote of response_0['comment_votes'])
-						  	  {
-						  	  	  all_comment_votes.push(comment_vote);
-						  	  }
-						  	  for (var comment_vote of response_1['comment_votes'])
-						  	  {
-						  	  	  all_comment_votes.push(comment_vote);
-						  	  }
-						  	  for (var comment_vote of response_2['comment_votes'])
-						  	  {
-						  	  	  all_comment_votes.push(comment_vote);
-						  	  }
-
-						      var data =
-							  {
-								  global_post: content[0],
-								  comments: all_comments,
-								  comment_votes:all_comment_votes,
-								  like_state: user_like_state,
-								  username: req.cookies.username,
-								  user_posts: user_posts
-							  };
-								var html = renderPage(req.url, data)
-								res.send(html);
-
-						  }, function(error_2) {
-						  	console.error("Failed!", error_2);
-						  })
-
-
-					  }, function(error_1) {
-					  	console.error("Failed!", error_1);
-					  })
-
-					}, function(error_0) {
-					  console.error("Failed!", error_0);
-					})
+					var all_likes_sql = "SELECT COUNT(likes) as all_posts, SUM(likes) - SUM(dislikes) as all_likes FROM user_content WHERE artist = '" + req.params.artist + "' AND song = 'NO_SONG_ALBUM_ONLY' AND album = '" + req.params.album + "'" 
+					connection.query(all_likes_sql, function (err, result, fields) 
+					{		
+						var all_likes = 0
+						var all_posts = 0
+						if (all_likes_sql.length > 0)
+						{
+							all_likes = result[0]['all_likes']
+							all_posts = result[0]['all_posts']
+						} 
+						var num_comments_sql = "SELECT post_id FROM comments WHERE post_id in (" + post_ids + ")"
+						connection.query(num_comments_sql, function (err, result, fields) 
+						{	
+							var num_comments = {}
+							for (var comment of result)
+							{
+								if (num_comments[comment.post_id] == undefined)
+								{
+									num_comments[comment.post_id] = 1
+								}
+								else 
+								{
+									num_comments[comment.post_id] += 1
+								}
+							}
+							var data =
+							{
+								global_post: content[0],
+								comments: [],
+								comment_votes:[],
+								like_state: user_like_state,
+								username: req.cookies.username,
+								user_posts: user_posts,
+								user_profiles:user_profiles,
+								num_comments:num_comments,
+								likes:all_likes,
+								num_posts: all_posts,
+							};
+							var html = renderPage(req.url, data)
+							res.send(html);
+						});
+					});
 				});
+
 			});
 
 		});
