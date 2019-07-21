@@ -51,6 +51,16 @@ var connection = mysql.createConnection({
   multipleStatements: true
 });
 
+//local database
+var connection = mysql.createConnection({
+  host     : 'localhost',
+  user     : 'root',
+  password : 'qwertyman1',
+  database : 'heroku_4df94195b1d1e6b',
+  multipleStatements: true
+});
+
+
 var spotify_username = '44a9442188734ab2999542562c6477c3';
 var spotify_password = '9c24d61cf7234c4a80f6f2f49ecc9c45';
 var spotify = new Spotify({

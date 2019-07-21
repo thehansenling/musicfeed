@@ -271,6 +271,7 @@ class MiniPost extends React.Component
 
 	render()
 	{
+		var content_div = tag_utils.formatContent(this.props.post.content, this.props.post.tags)
 		var date = new Date(this.props.post.timestamp)
 		return(
 			<div style = {{width:'735px', backgroundColor:'white', borderRadius:'7px', border: '1px solid #F1F1F1'}}>
@@ -304,7 +305,7 @@ class MiniPost extends React.Component
 					</div>
 				</div>
 				<div style = {{paddingLeft:'16px', paddingTop:'8px'}}>
-					{this.props.post.content}
+					{content_div}
 				</div>
 			</div>
 		)

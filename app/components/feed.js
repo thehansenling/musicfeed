@@ -48,7 +48,6 @@ class NewPostSubmission extends React.Component {
 		var content_str = this.contentRef.current.value;
 		//update and prune tags list
 		tag_utils.getTags(this);
-
 		this.lastContentSize = this.contentRef.current.value.length;
 		this.forceUpdate();
 	}
@@ -205,6 +204,9 @@ class NewPostSubmission extends React.Component {
 					<div style={{display: this.state.embedLink ? '' : 'none', marginLeft: '16px'}}>
 						<div dangerouslySetInnerHTML={utils.renderiframe(this.state.embedLink)} />
 					</div>
+				<div style = {{position:'fixed', width: '200px', height:'300px', right:'1%', top:'60px', backgroundColor:'white', display:tag_display, zIndex:15, overflowY:'scroll', border:'1px solid #F1F1F1', borderRadius:'7px'}} >
+					{this.tagList}
+				</div>
 				</div>
 			</div>
 		);

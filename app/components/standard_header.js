@@ -235,12 +235,12 @@ export default class StandardHeader extends React.Component {
 			  			}
 
 			  		}
-			  		that.dropdown_content.push(<div key = {that.props.notifications[i].post_id} id = {that.props.notifications[i].post_id} className = "dropdownelement" style = {{background:'white', border: '1px solid black'}}>
-			  			<a className = "dropdownelement" href = {notification_url} >{notification_text} </a>
-			  			 <button key = {that.props.notifications[i].post_id} style = {{right:'0px', position:'absolute', height:'25px'}} className = "dropdownelement" onClick = {that.removeNotification.bind(that, that.props.notifications[i].post_id)}> X </button>
+			  		that.dropdown_content.push(<div key = {that.props.notifications[i].post_id} id = {that.props.notifications[i].post_id} className = "dropdownelement" style = {{background:'white', border: '1px solid #F8F8F8', backgroundColor:'#F8F8F8'}}>
+			  			<a className = "dropdownelement" href = {notification_url} style = {{textDecoration:'none', fontFamily:'Roboto'}}>{notification_text} </a>
+			  			 <button key = {that.props.notifications[i].post_id} style = {{right:'0px', position:'absolute', borderRadius:'0px', height:'20px'}} className = "dropdownelement grayButton" onClick = {that.removeNotification.bind(that, that.props.notifications[i].post_id)}> X </button>
 			  			</div>)
 			  	}
-			  	that.notification_div = <div className = "notifications" ref = {that.notificationsRef} onClick = {that.toggleNotifications.bind(that)} style = {{marginRight: '10px', fontWeight:'bold', fontSize:'12pt', color: "#178275", width:'24px', height:'24px', textAlign:'center', backgroundColor:'white', borderRadius:'50%'}}> {that.props.notifications.length}</div>
+			  	that.notification_div = <div className = "notifications" ref = {that.notificationsRef} onClick = {that.toggleNotifications.bind(that)} style = {{marginRight: '10px', fontWeight:'bold', fontSize:'12pt', color: "#178275", width:'24px', height:'24px', textAlign:'center', backgroundColor:'white', borderRadius:'50%', position:'relative', top:'6px', display:'flex', justifyContent:'center', alignItems:'center'}}> {that.props.notifications.length}</div>
 		  	}
 		  	that.forceUpdate()
 	 	})
@@ -315,7 +315,7 @@ export default class StandardHeader extends React.Component {
 		this.optionsRef.current.style.display = 'none'
 	}
   render() {
-		this.dropdown_div = <div className = "dropdown" ref = {this.dropdownRef} style = {{ width:'400px', minHeight:'10px', position: "fixed", right:'220px', top:'50px', background:'white', display:'none', fontWeight:'normal', fontSize:'12pt', zIndex:'8'}}>{this.dropdown_content}</div>
+		this.dropdown_div = <div className = "dropdown" ref = {this.dropdownRef} style = {{ width:'400px', minHeight:'10px', position: "fixed", right:'124', top:'52px', background:'white', display:'none', fontWeight:'normal', fontSize:'12pt', zIndex:'8'}}>{this.dropdown_content}</div>
 
   	let user_login, login_div;
   	if (this.props.username == undefined) {

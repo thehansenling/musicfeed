@@ -314,9 +314,7 @@ class UserPostContent extends React.Component
 		}
 
 		return (
-		<div style = {{position:'relative', top:'100px', left:'15px', border: '1px solid #F1F1F1', borderRadius:'7px', width:'1000px', minHeight: this.post_height, backgroundColor:'#F6F6F6'}}>
-
-			<div ref = {this.postRef} key = {this.props.data.post_id} style = {{border: '1px solid #F1F1F1', borderRadius: '7px', width:'980px', background:'white', minHeight:'580px', position:'relative', top:'10px', left:'10px'}}>
+			<div ref = {this.postRef} key = {this.props.data.post_id} style = {{border: '1px solid #F1F1F1', borderRadius: '7px', width:'980px', background:'white', minHeight:'580px', position:'relative', top:'10px', left:'10px', margin:'0px auto'}}>
 
 					<div style = {{paddingTop:'30px', paddingLeft:'10px', paddingRight:'10px', width:'980px', position:'relative', minHeight:'545px'}}>
 						<div style = {{display:'flex', flexDirection:'row', float:'left', width:'330px', paddingLeft:'10px', borderRadius:'7px', borderTopRightRadius: '0px', borderBottomRightRadius: '0px'}}>
@@ -371,7 +369,6 @@ class UserPostContent extends React.Component
 								</div>	
 			</div>
 
-		</div>
 		);
 
 			// <div style = {{background: 'white', position:'relative', top:'10px', paddingLeft:'10px', height: 'auto', minHeight: '550px', maxWidth:'980px', paddingBottom:'20px', paddingRight:'10px', left:'10px', borderBottom: 'solid black 3px', borderRadius: '4px'}}>
@@ -447,7 +444,7 @@ export default class UserPost extends React.Component
 				<div style = {{position:'relative', margin:'0px auto', width:'1000px'}}>
 					<UserPostContent ref = {this.postRef} data = {this.props.data.user_post} like_state = {this.props.data.like_state} num_comments = {this.props.data.num_comments} username = {this.props.data.username} user_profile = {this.props.data.user_profile}/>
 				</div>
-				<div style = {{position:'relative', margin:'0px auto', width:'1000px', top:"120px"}}>
+				<div style = {{margin:'0px auto', width:'1000px', paddingTop:"40px"}}>
 					<CommentSection comments = {this.props.data.comments} comment_votes = {this.props.data.comment_votes} post_id = {this.props.data.user_post.id} post_data = {this.props.data.user_post}/>
 				</div>
 			</div>

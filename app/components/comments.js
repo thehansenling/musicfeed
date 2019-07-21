@@ -295,10 +295,10 @@ class Comment extends React.Component
 				return;
 			}
 			this.new_comment = <div>
-					<textarea onChange = {this.contentInput.bind(this)} ref = {this.contentRef} className = 'comment_text' id = {this.props.data.comment_id} name='content' rows='10' cols='90' style={{width:'100%',height:'50px',zIndex:'100'}}></textarea>
+					<textarea onChange = {this.contentInput.bind(this)} ref = {this.contentRef} className = 'comment_text' id = {this.props.data.comment_id} name='content' rows='10' cols='90' style={{width:'100%',height:'50px',borderRadius:'7px'}}></textarea>
 					<br/>
-					<button onClick = {this.submitNewComment.bind(this)} style={{position:'relative'}} type='button' className='submit_new_comment' id = {this.props.data.comment_id}>submit</button>
-					<button onClick = {this.closeNewComment.bind(this)} style={{position:'relative'}} type='button' className='close_new_comment' id = {this.props.data.comment_id}>close</button>
+					<button onClick = {this.submitNewComment.bind(this)} style={{position:'relative', width:'50%', height:'28px'}} type='button' className='submit_new_comment grayButton' id = {this.props.data.comment_id}>submit</button>
+					<button onClick = {this.closeNewComment.bind(this)} style={{position:'relative', width:'50%', height:'28px'}} type='button' className='close_new_comment grayButton' id = {this.props.data.comment_id}>close</button>
 				</div>
 			this.forceUpdate();
 		}
@@ -921,8 +921,8 @@ export default class CommentSection extends React.Component
 				<div style = {{width:'1000px', display:'flex', flexDirection:'row'}}>
 					<div style = {{borderRadius: '50%', backgroundColor:profile_picture, position:'relative', left:'10px', width:'40px', height:'40px'}}>
 					</div>
-					<textarea ref = {this.contentRef} style = {{position:'relative', height:'40px', left: '40px', width:'920px', borderRadius:'7px', border:'1px solid black'}} placeholder = "  Comment Here.."></textarea>
-					<button onClick = {this.submitNewComment.bind(this)} style={{position:'relative'}} type='button' className='submit_new_comment' id = {this.props.comment_id}>submit</button>
+					<textarea ref = {this.contentRef} style = {{position:'relative', height:'40px', left: '40px', width:'820px', borderRadius:'7px', border:'1px solid black'}} placeholder = "  Comment Here.."></textarea>
+					<button onClick = {this.submitNewComment.bind(this)} style={{position:'relative', width:'92px', left:'40px'}} type='button' className='submit_new_comment grayButton' id = {this.props.comment_id}>submit</button>
 				</div>
 				{new_comment_button}
 				{this.new_comment}
