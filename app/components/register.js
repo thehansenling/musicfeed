@@ -11,11 +11,16 @@ export default class RegisterPage extends React.Component
 		this.passwordRef = React.createRef();
 		this.confirmRef = React.createRef();
 		this.registration_message = "";
-		
 	}
 	
+	componentDidMount()
+	{
+		this.props.mixpanel.track("Registration Page")
+	}
+
 	submitRegistration(e)
 	{
+		this.props.mixpanel.track("Registration Submitted")
 		var that = this;
 	    fetch("/register", {
 	        method: "POST",

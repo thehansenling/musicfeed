@@ -9,6 +9,11 @@ export default class ArtistSongsPage extends React.Component
 		this.songs = [];
 	}
 
+	componentDidMount()
+	{
+		this.props.mixpanel.track("Artist Songs Page", {"Artist":this.props.artist})
+	}
+
 	generateSongs()
 	{
 		for (var song of this.props.data.song_data) 

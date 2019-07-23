@@ -2,7 +2,7 @@ import React from 'react';
 import utils from './utils.js'
 import tag_utils from './tag_utils.js'
 
-function generateComments(comments, comment_votes, id, starting_comment_level, post_data, is_global = false)
+function generateComments(comments, comment_votes, id, starting_comment_level, post_data, mixpanel)
 {
 	var levels = [];
 	var level_zero_comments = 0;
@@ -48,7 +48,7 @@ function generateComments(comments, comment_votes, id, starting_comment_level, p
 					comment_vote = vote;
 				}
 			}
-			current_comments.push(<Comment key = {comment.comment_id} original_replies = {original_replies} data = {comment} child_comments = {comment_map[comment.comment_id]} vote_state = {comment_vote} post_id = {comment.post_id} is_global = {is_global} post_data = {post_data}/>)
+			current_comments.push(<Comment key = {comment.comment_id} original_replies = {original_replies} data = {comment} child_comments = {comment_map[comment.comment_id]} vote_state = {comment_vote} post_id = {comment.post_id} post_data = {post_data} mixpanel = {mixpanel}/>)
 			//current_comments.push(<div>PLEASE</div>)
 		}
 		if (level == starting_comment_level)
@@ -178,11 +178,12 @@ class Comment extends React.Component
 
 	addChild(comment)
 	{
-		this.child_comments.push(<Comment key={comment.data.comment_id} data = {comment.data} post_data = {this.props.post_data}/>)
+		this.child_comments.push(<Comment key={comment.data.comment_id} data = {comment.data} post_data = {this.props.post_data} mixpanel = {this.props.mixpanel}/>)
 	}
 
 	upvoteClicked()
 	{
+		this.props.mixpanel.track("Upvote Clicked", {"Vote State":this.vote_state})
 		if (!utils.checkLoggedIn())
 		{
 			alert("MUST BE LOGGED IN")
@@ -233,6 +234,7 @@ class Comment extends React.Component
 
 	downvoteClicked()
 	{
+		this.props.mixpanel.track("Downvote Clicked", {"Vote State":this.vote_state})
 		if (!utils.checkLoggedIn())
 		{
 			alert("MUST BE LOGGED IN")
@@ -283,28 +285,23 @@ class Comment extends React.Component
 
 	openNewComment()
 	{
-		if (this.props.is_global)
+		this.props.mixpanel.track("New Comment Started", {"Comment ID": this.props.data.comment_id})
+		if (!utils.checkLoggedIn())
 		{
-			window.location = "/user/" + this.props.data.user_id + "/" + this.props.data.post_id
+			alert("MUST BE LOGGED IN")
+			return;
 		}
-		else
-		{
-			if (!utils.checkLoggedIn())
-			{
-				alert("MUST BE LOGGED IN")
-				return;
-			}
-			this.new_comment = <div>
-					<textarea onChange = {this.contentInput.bind(this)} ref = {this.contentRef} className = 'comment_text' id = {this.props.data.comment_id} name='content' rows='10' cols='90' style={{width:'100%',height:'50px',borderRadius:'7px'}}></textarea>
-					<br/>
-					<button onClick = {this.submitNewComment.bind(this)} style={{position:'relative', width:'50%', height:'28px'}} type='button' className='submit_new_comment grayButton' id = {this.props.data.comment_id}>submit</button>
-					<button onClick = {this.closeNewComment.bind(this)} style={{position:'relative', width:'50%', height:'28px'}} type='button' className='close_new_comment grayButton' id = {this.props.data.comment_id}>close</button>
-				</div>
-			this.forceUpdate();
-		}
+		this.new_comment = <div>
+				<textarea onChange = {this.contentInput.bind(this)} ref = {this.contentRef} className = 'comment_text' id = {this.props.data.comment_id} name='content' rows='10' cols='90' style={{width:'100%',height:'50px',borderRadius:'7px'}}></textarea>
+				<br/>
+				<button onClick = {this.submitNewComment.bind(this)} style={{position:'relative', width:'50%', height:'28px'}} type='button' className='submit_new_comment grayButton' id = {this.props.data.comment_id}>submit</button>
+				<button onClick = {this.closeNewComment.bind(this)} style={{position:'relative', width:'50%', height:'28px'}} type='button' className='close_new_comment grayButton' id = {this.props.data.comment_id}>close</button>
+			</div>
+		this.forceUpdate();
 	}
 	closeNewComment()
 	{
+		this.props.mixpanel.track("Close New Comment", {"Comment ID": this.props.data.comment_id})
 		this.new_comment = undefined
 		this.tagFlag = false
 		this.forceUpdate();		
@@ -312,6 +309,7 @@ class Comment extends React.Component
 
 	submitNewComment()
 	{
+		this.props.mixpanel.track("Submit New Comment", {"Comment ID": this.props.data.comment_id})
 		var submit_text = this.contentRef.current.value;
 		var that = this
 	    fetch("/comment", {
@@ -345,7 +343,7 @@ class Comment extends React.Component
 		    	parent_comment_id: that.props.data.comment_id,
 		    	comment_level: that.props.data.comment_level + 1,
 		    }
-		    that.child_comments.splice(0, 0,<Comment key = {data.comment_id} original_replies = {0} data = {new_comment_data} child_comments = {[]} vote_state = {-1} post_id = {data.comment_id} is_global = {that.props.global_post != undefined} post_data = {that.props.post_data}/>)
+		    that.child_comments.splice(0, 0,<Comment key = {data.comment_id} original_replies = {0} data = {new_comment_data} child_comments = {[]} vote_state = {-1} post_id = {data.comment_id} post_data = {that.props.post_data} mixpanel ={that.props.mixpanel}/>)
 		    that.forceUpdate()
 	    })	    
 	    this.tagFlag = false
@@ -355,6 +353,7 @@ class Comment extends React.Component
 
 	showReplies()
 	{
+		this.props.mixpanel.track("Show Replies", {"Comment ID": this.props.data.comment_id})
 		var that= this;
 		this.replies_button = undefined;
 		this.forceUpdate()
@@ -369,7 +368,7 @@ class Comment extends React.Component
 	    .then(function(response) { return response.json();})
 	    .then(function (data) {    	
 
-	    	var child_comments = generateComments(data.comments, data.comment_votes, that.props.post_id, that.props.data.comment_level + 1, that.props.post_data, that.props.global_post != undefined)[0]
+	    	var child_comments = generateComments(data.comments, data.comment_votes, that.props.post_id, that.props.data.comment_level + 1, that.props.post_data, that.props.mixpanel)[0]
 	    	//don't know why this doesn't work
 	    	for (var comment of child_comments)
 	    	{
@@ -716,7 +715,7 @@ export default class CommentSection extends React.Component
 
 	getComments(comments, comment_votes, id)
 	{
-		var comment_result = generateComments(comments, comment_votes, id, 0, this.props.post_data, this.props.global_post != undefined);		
+		var comment_result = generateComments(comments, comment_votes, id, 0, this.props.post_data, this.props.mixpanel);		
 		this.comments = comment_result[0];
 		this.offset += comment_result[1]
 	}
@@ -758,7 +757,7 @@ export default class CommentSection extends React.Component
 		        body: JSON.stringify({id: that.props.post_id, offset:that.offset})})
 		    .then(function(response) { return response.json();})
 		    .then(function (data) { 
-		    	var comment_result = generateComments(data.comments, data.comment_votes, that.props.post_id, 0, that.props.post_data, that.props.global_post != undefined)
+		    	var comment_result = generateComments(data.comments, data.comment_votes, that.props.post_id, 0, that.props.post_data, that.props.mixpanel)
 		    	var child_comments = comment_result[0];
 		    	that.offset += comment_result[1]
 		    	for (var comment of child_comments)
@@ -790,7 +789,7 @@ export default class CommentSection extends React.Component
 						        	album:that.props.global_post.album})})
 		    .then(function(response) { return response.json();})
 		    .then(function (data) { 
-		    	var comment_result = generateComments(data.comments, data.comment_votes, that.props.post_id, 0, that.props.post_data, that.props.global_post != undefined)
+		    	var comment_result = generateComments(data.comments, data.comment_votes, that.props.post_id, 0, that.props.post_data, this.props.mixpanel)
 		    	var child_comments = comment_result[0];
 		    	that.offset += comment_result[1]
 		    	
@@ -845,6 +844,7 @@ export default class CommentSection extends React.Component
 
 	submitNewComment()
 	{
+		this.props.mixpanel.track("Submit New First Comment", {"Comment ID": this.props.post_data.post_id})
 		var that = this;
 		var submit_text = this.contentRef.current.value
 	    fetch("/comment", {

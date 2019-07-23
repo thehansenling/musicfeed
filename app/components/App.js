@@ -26,6 +26,8 @@ import Followers from './followers.js'
 import Following from './following.js'
 import UserPostLikesPage from './userpostlikes.js'
 import StandardHeader from './standard_header.js'
+import mixpanel from 'mixpanel-browser';
+import { MixpanelProvider, MixpanelConsumer } from 'react-mixpanel';
 //	<Route path = "/user/:user" exact component={User} />
 // <Route path = "/user" exact render={() => (<Home data={{hmm:"what"}}/>)}  />
 export default class App extends React.Component{
@@ -33,6 +35,7 @@ export default class App extends React.Component{
 	constructor(props)
 	{
 		super(props)
+		mixpanel.init("63586aff50e8055326d4fb5944633383");
 	}
 
 	handleClick(e)
@@ -47,32 +50,44 @@ export default class App extends React.Component{
 			document.body.style.marginTop = "60px";
 		}
 	}
+	componentDidMount()
+	{
+		if (typeof window !== 'undefined') 
+		{
+			document.body.style.backgroundColor = "rgb(242, 242, 242)";
+			document.body.style.marginTop = "60px";
+		}
+		
+		//mixpanel.track("An event");
+	}
 	//#FAFAFA
 	render()
 	{
+		//mixpanel.init("63586aff50e8055326d4fb5944633383");
 		return (
 			<div className = "App" id='root' style = {{width:'100%', minWidth:'1200px'}}>
+			<MixpanelProvider>
 				<StandardHeader username = {this.props.data.username} notifications = {{}}/>
 				<link rel="stylesheet" href="/styles.css"/>
 				<Switch>
-					<Route exact path = "/" render={() => (<Feed data={this.props.data}/>)} />
-					<Route exact path = "/user/:user/:post_id" render={() => (<UserPost data={this.props.data}/>)}/>
-					<Route exact path = "/user/:user/:post_id/likes" render={() => (<UserPostLikesPage data={this.props.data}/>)}/>
-					<Route exact path = "/user/:user"  render={() => (<User data={this.props.data}/>)} />
-					<Route exact path = "/followers/:user"  render={() => (<Followers data={this.props.data}/>)} />
-					<Route exact path = "/following/:user"  render={() => (<Following data={this.props.data}/>)} />
-					<Route exact path = "/login" render = {() => (<Login data={this.props.data}/>)} />
-					<Route exact path = "/register" render = {() => (<Register data={this.props.data}/>)} />
-					<Route exact path = "/post/:artist/:song" render = {() => (<GlobalPost data={this.props.data} />)} />
-					<Route exact path = "/album/:artist/:album" render = {() => (<GlobalPost data={this.props.data} />)} />
-					<Route exact path = "/artist/:artist" render={() => (<ArtistPost data = {this.props.data}/>)} />
-					<Route exact path = "/artist/:artist/songs" render={() => (<ArtistSongsPost data = {this.props.data}/>)} />
-					<Route exact path = "/artist/:artist/albums" render={() => (<ArtistAlbumsPost data = {this.props.data}/>)} />
-					<Route exact path = "/contact" render={() => (<Contact data = {this.props.data}/>)} />
-					<Route exact path = "/about"  component={About} />
+					<Route exact path = "/" render={() => (<Feed data={this.props.data} mixpanel = {mixpanel}/>)} />
+					<Route exact path = "/user/:user/:post_id" render={() => (<UserPost data={this.props.data} mixpanel = {mixpanel}/>)}/>
+					<Route exact path = "/user/:user/:post_id/likes" render={() => (<UserPostLikesPage data={this.props.data} mixpanel = {mixpanel}/>)}/>
+					<Route exact path = "/user/:user"  render={() => (<User data={this.props.data} mixpanel = {mixpanel}/>)} />
+					<Route exact path = "/followers/:user"  render={() => (<Followers data={this.props.data} mixpanel = {mixpanel}/>)} />
+					<Route exact path = "/following/:user"  render={() => (<Following data={this.props.data} mixpanel = {mixpanel}/>)} />
+					<Route exact path = "/login" render = {() => (<Login data={this.props.data} mixpanel = {mixpanel}/>)} />
+					<Route exact path = "/register" render = {() => (<Register data={this.props.data} mixpanel = {mixpanel}/>)} />
+					<Route exact path = "/post/:artist/:song" render = {() => (<GlobalPost data={this.props.data} mixpanel = {mixpanel} />)} />
+					<Route exact path = "/album/:artist/:album" render = {() => (<GlobalPost data={this.props.data} mixpanel = {mixpanel} />)} />
+					<Route exact path = "/artist/:artist" render={() => (<ArtistPost data = {this.props.data} mixpanel = {mixpanel}/>)} />
+					<Route exact path = "/artist/:artist/songs" render={() => (<ArtistSongsPost data = {this.props.data} mixpanel = {mixpanel}/>)} />
+					<Route exact path = "/artist/:artist/albums" render={() => (<ArtistAlbumsPost data = {this.props.data} mixpanel = {mixpanel}/>)} />
+					<Route exact path = "/contact" render={() => (<Contact data = {this.props.data} mixpanel = {mixpanel}/>)} />
+					<Route exact path = "/about" render={() => (<About data = {this.props.data} mixpanel = {mixpanel}/>)}/>
 				</Switch>	
 				<script type="text/javascript" src="/public/bundle.js"> </script>
-
+			</MixpanelProvider>
 			</div>
 		);
 	}

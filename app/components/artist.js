@@ -169,6 +169,59 @@ class ArtistPost extends React.Component
 	constructor(props)
 	{
 		super(props);
+		this.button_text = "Follow"
+		for (var follow of props.data.follows)
+		{
+			if (follow.user_id == props.data.username)
+			{
+				this.button_text = "Unfollow"
+				this.following_ui = "Following"
+				this.following_state = true;
+				break;
+			}
+		}		
+	}
+
+	followClicked()
+	{
+		this.props.mixpanel.track("Follow Artist", {"Artist":this.props.user.username,
+												  "Follow State":this.following_state})
+		if (!utils.checkLoggedIn())
+		{
+			alert("MUST BE LOGGED IN")
+			return;
+		}
+		var that = this;
+		if (this.following_state)
+		{
+			this.following_ui = "Not Following"
+			this.button_text = "Follow"
+			this.following_state = false
+			this.follows_num -= 1
+		}
+		else
+		{
+			this.following_ui = "Following"
+			this.button_text = "Unfollow"
+			this.following_state = true;
+			this.follows_num += 1
+		}
+		var followee;
+		followee = that.props.data.artist
+
+	    fetch("/follow", {
+	        method: "POST",
+	        headers: {
+	        	Accept: 'application/json',
+	        	'Authorization': 'Basic',
+	        	'Content-Type': 'application/json',
+	        },
+	        body: JSON.stringify({followee_id: followee, type:1,})})
+	    .then(function(response) { return response.json();})
+	    .then(function (data) {    	
+	    	
+	 	})	
+	 	this.forceUpdate();
 	}
 
 	render()
@@ -187,7 +240,7 @@ class ArtistPost extends React.Component
 							</div>
 						</div>
 						<div style = {{position:'relative', left:'32px', paddingTop:'10px'}}>
-							<button style = {{height:'38px', width:'120px', fontSize:'18px'}}  className = "grayButton"> Follow </button>
+							<button onClick = {this.followClicked.bind(this)} style = {{height:'38px', width:'120px', fontSize:'18px'}}  className = "grayButton"> {this.button_text} </button>
 							<div style = {{fontSize:'20px', paddingTop:'10px'}}>
 								{this.props.data.follows.length + " Followers"}
 							</div>
@@ -215,8 +268,8 @@ export default class ArtistPage extends React.Component
 
 	componentDidMount() 
 	{
-	window.addEventListener('scroll', this.handleScroll.bind(this));
-
+		window.addEventListener('scroll', this.handleScroll.bind(this));
+		this.props.mixpanel.track("Artist Page", {"Artist":this.props.data.artist})
 		let startingPosts = [];
 		for (var song of this.props.data.songs) {
 			startingPosts.push(makePost(
@@ -226,6 +279,7 @@ export default class ArtistPage extends React.Component
 				[],
 				[],
 				this.props.data.user_profiles,
+				this.props.mixpanel
 			));
 		}
 		this.setState({posts: startingPosts});
@@ -262,7 +316,8 @@ export default class ArtistPage extends React.Component
 						data.num_comments,
 						data.num_posts,
 						data.bumps,
-						data.user_profiles
+						data.user_profiles,
+						this.props.mixpanel
 					));
 				}		
 				that.setState({posts: that.state.posts.concat(newPosts)});

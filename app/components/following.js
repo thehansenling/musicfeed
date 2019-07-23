@@ -9,6 +9,12 @@ export default class FollowingPage extends React.Component
 		this.follows = []
 	}
 
+	componentDidMount()
+	{
+
+		this.props.mixpanel.track("Following Page", {"Follower":this.props.user})
+	}
+	
 	generateFollows()
 	{
 		for (var follow of this.props.data.following) 

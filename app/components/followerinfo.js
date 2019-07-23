@@ -21,6 +21,20 @@ export default class FollowerInfo extends React.Component {
 		
 	}
 
+	componentDidMount()
+	{
+		var followee;
+		if (that.props.follow_type == 0)
+		{
+			followee = that.props.user.username
+		}
+		else
+		{
+			followee = that.props.artist
+		}
+		this.props.mixpanel.track("Follower Info Page", {"Followee":followee})
+	}
+
 	followClicked()
 	{
 		if (!utils.checkLoggedIn())

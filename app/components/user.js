@@ -57,6 +57,49 @@ class UserInfo extends React.Component {
 		this.state = {change_color:false}
 	}
 
+	followClicked()
+	{
+		this.props.mixpanel.track("Follow User", {"User":this.props.user.username,
+												  "Follow State":this.following_state})
+		if (!utils.checkLoggedIn())
+		{
+			alert("MUST BE LOGGED IN")
+			return;
+		}
+		var that = this;
+		if (this.following_state)
+		{
+			this.following_ui = "Not Following"
+			this.button_text = "Follow"
+			this.following_state = false
+			this.follows_num -= 1
+		}
+		else
+		{
+			this.following_ui = "Following"
+			this.button_text = "Unfollow"
+			this.following_state = true;
+			this.follows_num += 1
+		}
+		var followee;
+
+		followee = that.props.user.username
+
+	    fetch("/follow", {
+	        method: "POST",
+	        headers: {
+	        	Accept: 'application/json',
+	        	'Authorization': 'Basic',
+	        	'Content-Type': 'application/json',
+	        },
+	        body: JSON.stringify({followee_id: followee, type:0,})})
+	    .then(function(response) { return response.json();})
+	    .then(function (data) {    	
+	    	
+	 	})	
+	 	this.forceUpdate();
+	}
+
     submitDescription()
     {
 		var that = this;
@@ -139,7 +182,7 @@ class UserInfo extends React.Component {
 						<div style = {{display:'flex', flexDirection:'row'}}>
 							<div style = {{fontSize:'30pt', fontWeight:'bold'}}>{this.props.user.username}</div>
 							<div style = {{flex:'1 0 auto', verticalAlign:'middle', display:'flex', flexDirection: 'column', justifyContent:'center', paddingLeft:'20px'}}>
-								<button style = {{height:'30px', fontSize:'18px'}} className = 'grayButton' id = "follow_button" type="button" >{this.button_text}</button>
+								<button onClick = {this.followClicked.bind(this)} style = {{height:'30px', fontSize:'18px'}} className = 'grayButton' id = "follow_button" type="button" >{this.button_text}</button>
 							</div>
 						</div>
 						<div style = {{display:'flex', flexDirection:'row'}}>
@@ -459,10 +502,12 @@ export default class UserPage extends React.Component{
 		this.postsRef = React.createRef();
 		this.loading_posts_semaphor = false;
 		this.state = { posts: [] };
+
 	}
 
 	componentDidMount() 
 	{
+		this.props.mixpanel.track("User Post Page", {"User":this.props.data.username})
 	    window.addEventListener('scroll', this.handleScroll.bind(this));
 	    //this.updateOffsets(this.props.data.songs)\\
 		let startingPosts = [];
@@ -474,6 +519,7 @@ export default class UserPage extends React.Component{
 				this.props.data.num_posts,
 				this.props.data.bumps,
 				this.props.data.user_profiles,
+				this.props.mixpanel
 			));
 		}
 		this.setState({posts: startingPosts});
@@ -510,7 +556,8 @@ export default class UserPage extends React.Component{
 						data.num_comments,
 						data.num_posts,
 						data.bumps,
-						data.user_profiles
+						data.user_profiles,
+						that.props.mixpanel
 					));
 				}		    	
 				that.setState({posts: that.state.posts.concat(newPosts)});

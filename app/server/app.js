@@ -9,6 +9,7 @@ var Spotify = require('node-spotify-api');
 var bcrypt = require('bcrypt')
 var saltRounds = 10;
 
+
 import React from 'react';
 const app = express();
 
@@ -19,6 +20,8 @@ import  {BrowserRouter as Router} from 'react-router-dom'
 import App from '../components/App.js';
 import { StaticRouter } from 'react-router-dom';
 import Home from '../components/Home.js';
+import mixpanel from 'mixpanel-browser';
+import { MixpanelProvider, MixpanelConsumer } from 'react-mixpanel';
 
 app.use(publicPath);
 app.use(cookieParser());
@@ -52,14 +55,13 @@ var connection = mysql.createConnection({
 });
 
 //local database
-var connection = mysql.createConnection({
-  host     : 'localhost',
-  user     : 'root',
-  password : 'qwertyman1',
-  database : 'heroku_4df94195b1d1e6b',
-  multipleStatements: true
-});
-
+// var connection = mysql.createConnection({
+//   host     : 'localhost',
+//   user     : 'root',
+//   password : 'qwertyman1',
+//   database : 'heroku_4df94195b1d1e6b',
+//   multipleStatements: true
+// });
 
 var spotify_username = '44a9442188734ab2999542562c6477c3';
 var spotify_password = '9c24d61cf7234c4a80f6f2f49ecc9c45';
@@ -1687,6 +1689,7 @@ app.get('/artist/:artist/songs', function (req, res) {
 
 			var data =
 			{
+				artist:req.params.artist,
 				song_data: ordered_songs,
 				username: req.cookies.username,
 			};		
@@ -1743,6 +1746,7 @@ app.get('/artist/:artist/albums', function (req, res) {
 
 			var data =
 			{
+				artist:req.params.artist,
 				album_data: ordered_albums,
 				username: req.cookies.username,
 			};
@@ -2086,10 +2090,14 @@ app.get('/album/:artist/:album', function (req, res) {
 				connection.query(user_profiles_sql, function (err, result, fields) 
 				{		
 					var user_profiles = {}
-					for (var i = 0; i < result.length; ++i)
+					if (result != undefined)
 					{
-						user_profiles[result[i].username] = result[i]
+						for (var i = 0; i < result.length; ++i)
+						{
+							user_profiles[result[i].username] = result[i]
+						}						
 					}
+
 					var all_likes_sql = "SELECT COUNT(likes) as all_posts, SUM(likes) - SUM(dislikes) as all_likes FROM user_content WHERE artist = '" + req.params.artist + "' AND song = 'NO_SONG_ALBUM_ONLY' AND album = '" + req.params.album + "'" 
 					connection.query(all_likes_sql, function (err, result, fields) 
 					{		
@@ -2104,17 +2112,21 @@ app.get('/album/:artist/:album', function (req, res) {
 						connection.query(num_comments_sql, function (err, result, fields) 
 						{	
 							var num_comments = {}
-							for (var comment of result)
+							if (result != undefined)
 							{
-								if (num_comments[comment.post_id] == undefined)
+								for (var comment of result)
 								{
-									num_comments[comment.post_id] = 1
-								}
-								else 
-								{
-									num_comments[comment.post_id] += 1
-								}
+									if (num_comments[comment.post_id] == undefined)
+									{
+										num_comments[comment.post_id] = 1
+									}
+									else 
+									{
+										num_comments[comment.post_id] += 1
+									}
+								}								
 							}
+
 							var data =
 							{
 								global_post: content[0],
@@ -2271,6 +2283,7 @@ app.get('/followers/:user', function (req, res) {
 	{
 		var data = 
 		{
+			user: req.params.user,
 			followers: result,
 			username: req.cookies.username,
 		};	
@@ -2285,6 +2298,7 @@ app.get('/following/:user', function (req, res) {
 	{
 		var data = 
 		{
+			user: req.params.user,
 			following: result,
 			username: req.cookies.username,
 		};	
@@ -3300,15 +3314,17 @@ app.post('/random_links', (req, res) => {
 					var num_global_content_get = 0
 					for (var i = 0; i < 5; ++i)
 					{
-						if (Math.random() < num_user_content / (num_global_content + num_user_content + num_artists + num_users))
-						{
-							++num_user_content_get
-						}
-						else if (Math.random() < (num_user_content + num_global_content)/ (num_global_content + num_user_content + num_artists + num_users))
+						var random_number = Math.random();
+						// if (random_number < num_user_content / (num_global_content + num_user_content + num_artists + num_users))
+						// {
+						// 	++num_user_content_get
+						// }
+						//else 
+						if (random_number < (num_global_content)/ (num_global_content + num_artists + num_users))
 						{
 							++num_global_content_get
 						}
-						else if (Math.random() < (num_user_content + num_global_content + num_users)/ (num_global_content + num_user_content + num_artists + num_users))
+						else if (random_number < (num_global_content + num_users)/ (num_global_content + num_artists + num_users))
 						{
 							++num_users_get
 						}
@@ -3327,7 +3343,7 @@ app.post('/random_links', (req, res) => {
 								var link_text = ""
 								var link_url = ""
 								var split_artists = item.artist.split('^')
-								if (item.song = "NO_SONG_ALBUM_ONLY")
+								if (item.song == "NO_SONG_ALBUM_ONLY")
 								{
 									link_text = split_artists[0] + " - " + item.album
 									link_url = "/album/" + split_artists[0] + "/" + item.album
@@ -3335,7 +3351,7 @@ app.post('/random_links', (req, res) => {
 								else
 								{
 									link_text = split_artists[0] + " - " + item.song
-									link_url = "/post/" + item.username + "/" + item.post_id
+									link_url = "/user/" + item.username + "/" + item.post_id
 								}
 								link_data.push({text: link_text,
 												url: link_url}) 
@@ -3359,10 +3375,10 @@ app.post('/random_links', (req, res) => {
 									else
 									{
 										link_text = split_artists + " - " + item.song
-										link_url = "/post/" + item.username + "/" + item.post_id
+										link_url = "/post/" + item.artist + "/" + item.song
 									}
 									link_data.push({text: link_text,
-													url: "/post/" + item.username + "/" + item.post_id}) 
+													url: link_url}) 
 								}
 							} 
 							var global_search_sql = "SELECT * FROM accounts ORDER BY RAND() LIMIT " + num_users_get;
@@ -3385,7 +3401,7 @@ app.post('/random_links', (req, res) => {
 										{
 											var split_artists = item.artist.split('^')
 											link_data.push({text:split_artists[0],
-															url: "/user/" + split_artists[0]})
+															url: "/artist/" + split_artists[0]})
 										}
 									}
 									res.send({data:link_data})

@@ -7,8 +7,14 @@ export default class FollowersPage extends React.Component
 	{
 		super(props)
 		this.followers = []
+		
 	}
 
+	componentDidMount()
+	{
+		this.props.mixpanel.track("Followers Page", {"Followee":this.props.user})
+	}
+	
 	generateFollowers()
 	{
 		for (var follower of this.props.data.followers) 

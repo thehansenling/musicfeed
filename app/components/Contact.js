@@ -7,6 +7,11 @@ export default class Contact extends React.Component {
 		super(props);
 	}
 
+	componentDidMount()
+	{
+		this.props.mixpanel.track("Contact Page")
+	}
+
 	render ()
 	{
 		return (<div style = {{top: '150px', left:'5%', position:'relative'}}> 

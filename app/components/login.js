@@ -9,11 +9,17 @@ export default class LoginPage extends React.Component
 		this.usernameRef = React.createRef();
 		this.passwordRef = React.createRef();
 		this.login_message = "";
+		this.props.mixpanel.track("Login Page")
+	}
 
+	componentDidMount()
+	{
+		this.props.mixpanel.track("Login Page")
 	}
 
 	submitLogin()
 	{
+		this.props.mixpanel.track("Log In Submitted")
 		var that = this;
 	    fetch("/login", {
 	        method: "POST",

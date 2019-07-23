@@ -8,6 +8,12 @@ export default class UserPostLikesPage extends React.Component
 		super(props)
 		this.likes = []
 		this.dislikes = []
+		
+	}
+
+	componentDidMount()
+	{
+		this.props.mixpanel.track("User Post Likes Page")
 	}
 
 	generatelikes()

@@ -4,13 +4,11 @@ import StandardHeader from './standard_header.js'
 export default class About extends React.Component{
 	constructor(props){
 		super(props);
-
-
 	}
 
 	componentDidMount()
 	{
-
+		this.props.mixpanel.track("About Page")
 	}
 
 

@@ -2,6 +2,7 @@ import React from 'react';
 import StandardHeader from './standard_header.js'
 import CommentSection from './comments.js'
 import utils from './utils.js'
+import tag_utils from './tag_utils.js'
 
 class GlobalPostContent extends React.Component 
 {
@@ -390,6 +391,16 @@ export default class GlobalPost extends React.Component
 							// <div>
 							// 	<button className = "grayButton" style = {{height:'50px', width:'120px', fontSize:'1.2em'}}> Create Post </button>
 							// </div>
+	componentDidMount()
+	{
+		if (this.props.data.global_post != undefined)
+		{
+			this.props.mixpanel.track("Global Post Page", {"Artist":this.props.data.global_post.artist,
+															"Album":this.props.data.global_post.album,
+															"Song":this.props.data.global_post.song,})
+		}
+	}
+
 	render()
 	{
 		if (this.props.data.global_post == undefined)

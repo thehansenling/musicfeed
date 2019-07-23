@@ -34,7 +34,8 @@ class Post extends React.Component
 
 	likeClicked()
 	{
-
+		this.props.mixpanel.track("Post Like Clicked", {"Post ID": this.props.song.id,
+														"Like State":this.props.like_state,})
 		if (!utils.checkLoggedIn())
 		{
 			alert("MUST BE LOGGED IN")
@@ -54,44 +55,46 @@ class Post extends React.Component
 			post_url = "/global_like"
 		}
 
-    fetch(post_url, {
-      method: "POST",
-      headers: {
-      	Accept: 'application/json',
-      	'Authorization': 'Basic',
-      	'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({user: that.props.song.username, id: id, name:this.props.song.title})
-    }).then(function(response) {
-      return response.json();
-    });
+	    fetch(post_url, {
+	      method: "POST",
+	      headers: {
+	      	Accept: 'application/json',
+	      	'Authorization': 'Basic',
+	      	'Content-Type': 'application/json',
+	      },
+	      body: JSON.stringify({user: that.props.song.username, id: id, name:this.props.song.title})
+	    }).then(function(response) {
+	      return response.json();
+	    });
 
-  	if (this.props.like_state == 1)
-  	{
-      this.likes_score -= 1;
-      this.up_color = "#2F3846"
-      this.props.like_state = -1;
-  	}
-  	else
-  	{
-  		if (this.props.like_state == -1)
-  		{
-  			this.likes_score += 1;
-  		}
-  		else
-  		{
-  			this.likes_score += 2;
-  		}
-  		this.up_color = "#1485cc"
-  		this.down_color = "#2F3846"
-  		this.props.like_state = 1;
-  	}
+	  	if (this.props.like_state == 1)
+	  	{
+	      this.likes_score -= 1;
+	      this.up_color = "#2F3846"
+	      this.props.like_state = -1;
+	  	}
+	  	else
+	  	{
+	  		if (this.props.like_state == -1)
+	  		{
+	  			this.likes_score += 1;
+	  		}
+	  		else
+	  		{
+	  			this.likes_score += 2;
+	  		}
+	  		this.up_color = "#1485cc"
+	  		this.down_color = "#2F3846"
+	  		this.props.like_state = 1;
+	  	}
 
-  	this.forceUpdate();
+	  	this.forceUpdate();
 	}
 
 	dislikeClicked()
 	{
+		this.props.mixpanel.track("Post Dislike Clicked", {"Post ID": this.props.song.id,
+															"Like State":this.props.like_state})
 		if (!utils.checkLoggedIn())
 		{
 			alert("MUST BE LOGGED IN")
@@ -145,6 +148,11 @@ class Post extends React.Component
   	this.forceUpdate();
 	}
 
+	onSeeMoreClicked()
+	{
+		this.props.mixpanel.track("See More Clicked", {"Post ID":this.props.song.id})
+	}
+
 	componentDidMount() {
 		if (this.contentRef.current.offsetHeight > 390)
 		{
@@ -157,7 +165,7 @@ class Post extends React.Component
 
 
 			this.ellipsis = <div style = {{}}>
-			<a style = {{color:'#178275', fontSize:'14pt', fontWeight: 'bold'}}href = {content_url}> See More </a>
+			<a style = {{color:'#178275', fontSize:'14pt', fontWeight: 'bold'}}href = {content_url} onClick = {this.onSeeMoreClicked.bind(this)}> See More </a>
 			</div>
 			this.forceUpdate();
 
@@ -199,10 +207,21 @@ class Post extends React.Component
 						// <div  style = {{width:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', fontSize: '16px', fontWeight:'bold'}}>
 						// 	{this.bump_button}
 						// </div>
+
+	onTitleClicked()
+	{
+		this.props.mixpanel.track("Post Title Clicked", {"Post ID":this.props.song.id})
+	}
+
+	onPostUsernameClicked()
+	{
+		this.props.mixpanel.track("Post User Clicked", {"Post ID":this.props.song.id})
+	}
+
 	render()
 	{
 		var date = new Date(this.props.song.timestamp)
-		var post_title = <h1 className="post_title" style= {{fontWeight:'bold', fontSize:'24px'}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id} > {this.props.song.title}</a></h1>;
+		var post_title = <h1 className="post_title" style= {{fontWeight:'bold', fontSize:'24px'}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id} onClick = {this.onTitleClicked.bind(this)} > {this.props.song.title}</a></h1>;
 		var poster_username = '';//this.props.song.artist;
 		var poster_username_url = '';//"/artist/" + this.props.song.artist;
 
@@ -279,7 +298,14 @@ class Post extends React.Component
 			content_section = <div ref = {this.contentRef}></div>
 			date_float = 'left'
 		}
-
+		var split_artist = this.props.song.artist.split('^')[0]
+		var content_link = "/post/" + split_artist + "/" + this.props.song.song
+		var content_name = this.props.song.song
+		if (this.props.song.song == "NO_SONG_ALBUM_ONLY")
+		{
+			content_link = "/album/" + split_artist + "/" + this.props.song.album
+			content_name = this.props.song.album
+		}
 		return(
 
 		<div key = {this.props.song.post_id} style = {{border: '1px solid #F1F1F1', borderRadius: '7px', width:'735px', background:'white', minHeight:'513px', marginBottom: '12px'}}>
@@ -289,7 +315,7 @@ class Post extends React.Component
 						<div style = {{width:'65px', height:'65px', backgroundColor:this.props.user_profile, borderRadius:'50%'}}>
 						</div>
 						<div style = {{paddingLeft:'20px'}}>
-							<div style = {{fontSize:'24px', fontWeight:'bold'}}> <a href ={poster_username_url} > {poster_username} </a></div>
+							<div style = {{fontSize:'24px', fontWeight:'bold'}}> <a href ={poster_username_url} onClick = {this.onPostUsernameClicked.bind(this)}> {poster_username} </a></div>
 							<div style = {{fontSize:'17px', paddingRight:'10px'}}>{ monthNames[parseInt(date.getMonth())]+ " " + date.getDate() + ", " + date.getFullYear()}</div>
 						</div>
 					</div>
@@ -297,8 +323,12 @@ class Post extends React.Component
 
 					<div style = {{paddingTop:'30px'}}><span dangerouslySetInnerHTML={this.renderiframe(this.props.song.embedded_content)}></span>
 					</div>
-					<div style = {{width:'300px', height:'30px'}}>
-					</div>
+
+								<div style = {{width:'300px', display:'flex', flexDirection:'row', paddingTop:'5px', fontSize:'1.2em', color:'#2F3846', opacity:'.6'}}>
+									<a href = {"/artist/" + split_artist}> {split_artist} </a>
+									-
+									<a href = {content_link}> {content_name} </a>  
+								</div>
 					<div style = {{height:'35px', display:'flex', flexDirection:'row'}}>
 						<div style = {{width:'15px', height:'30px'}}></div>
 						<svg onClick = {this.likeClicked.bind(this)} width="14" height="24" viewBox="0 0 16 27" fill="none" xmlns="http://www.w3.org/2000/svg" color = 'blue'>
@@ -331,7 +361,7 @@ class Post extends React.Component
 	}
 }
 
-function makePost(song, likes, all_num_comments, all_num_posts, bumps, user_profiles)
+function makePost(song, likes, all_num_comments, all_num_posts, bumps, user_profiles, mixpanel)
 {
   var like_state = -1;
   var current_num_comments = 0;
@@ -394,8 +424,8 @@ function makePost(song, likes, all_num_comments, all_num_posts, bumps, user_prof
       like_state={like_state}
       num_comments={current_num_comments}
       user_profile={user_profile}
-      bump={post_bumped}
-    />
+      bump={post_bumped} 
+      mixpanel = {mixpanel}/>
   );
 }
 
