@@ -34,7 +34,7 @@ class NewPostSubmission extends React.Component {
 
 	songInput(event)
 	{
-		if (modified == false)
+		if (this.modified == false)
 		{
 			this.props.mixpanel.track("Song Entered")
 		}
