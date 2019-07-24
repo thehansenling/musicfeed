@@ -324,11 +324,11 @@ class Post extends React.Component
 					<div style = {{paddingTop:'30px'}}><span dangerouslySetInnerHTML={this.renderiframe(this.props.song.embedded_content)}></span>
 					</div>
 
-								<div style = {{width:'300px', display:'flex', flexDirection:'row', paddingTop:'5px', fontSize:'1.2em', color:'#2F3846', opacity:'.6'}}>
-									<a href = {"/artist/" + split_artist}> {split_artist} </a>
-									-
-									<a href = {content_link}> {content_name} </a>  
-								</div>
+					<div style = {{width:'300px', display:'flex', flexDirection:'row', paddingTop:'5px', fontSize:'1.2em', color:'#2F3846', opacity:'.6'}}>
+						<a href = {"/artist/" + split_artist}> {split_artist} </a>
+						-
+						<a href = {content_link}> {content_name} </a>  
+					</div>
 					<div style = {{height:'35px', display:'flex', flexDirection:'row'}}>
 						<div style = {{width:'15px', height:'30px'}}></div>
 						<svg onClick = {this.likeClicked.bind(this)} width="14" height="24" viewBox="0 0 16 27" fill="none" xmlns="http://www.w3.org/2000/svg" color = 'blue'>

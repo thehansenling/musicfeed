@@ -25,6 +25,8 @@ import Register from './register.js'
 import Followers from './followers.js'
 import Following from './following.js'
 import UserPostLikesPage from './userpostlikes.js'
+import PrivacyPolicy from './PrivacyPolicy.js'
+import TermsOfService from './TermsofService.js'
 import StandardHeader from './standard_header.js'
 import mixpanel from 'mixpanel-browser';
 import { MixpanelProvider, MixpanelConsumer } from 'react-mixpanel';
@@ -85,6 +87,8 @@ export default class App extends React.Component{
 					<Route exact path = "/artist/:artist/albums" render={() => (<ArtistAlbumsPost data = {this.props.data} mixpanel = {mixpanel}/>)} />
 					<Route exact path = "/contact" render={() => (<Contact data = {this.props.data} mixpanel = {mixpanel}/>)} />
 					<Route exact path = "/about" render={() => (<About data = {this.props.data} mixpanel = {mixpanel}/>)}/>
+					<Route exact path = "/termsofservice" render={() => (<TermsOfService data = {this.props.data} mixpanel = {mixpanel}/>)}/>
+					<Route exact path = "/privacypolicy" render={() => (<PrivacyPolicy data = {this.props.data} mixpanel = {mixpanel}/>)}/>
 				</Switch>	
 				<script type="text/javascript" src="/public/bundle.js"> </script>
 			</MixpanelProvider>

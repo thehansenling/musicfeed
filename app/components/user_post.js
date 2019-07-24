@@ -304,12 +304,13 @@ class UserPostContent extends React.Component
 		{
 			tag_display = ''
 		}
-
-		var content_link = "/post/" + this.props.data.artist + "/" + this.props.data.song
+		
+		var split_artist = this.props.data.artist.split('^')[0]
+		var content_link = "/post/" + split_artist + "/" + this.props.data.song
 		var content_name = this.props.data.song
 		if (this.props.data.song == "NO_SONG_ALBUM_ONLY")
 		{
-			content_link = "/album/" + this.props.data.artist + "/" + this.props.data.album
+			content_link = "/album/" + split_artist + "/" + this.props.data.album
 			content_name = this.props.data.album
 		}
 
@@ -330,9 +331,9 @@ class UserPostContent extends React.Component
 
 								<div style = {{paddingTop:'30px'}}><span dangerouslySetInnerHTML={this.renderiframe(this.props.data.embedded_content)}></span>
 								</div>
-								<div style = {{width:'300px', height:'40px', display:'flex', flexDirection:'row', paddingTop:'5px', fontSize:'1.2em', color:'#2F3846', opacity:'.6'}}>
-									<a href = {"/artist/" + this.props.data.artist}> {this.props.data.artist} </a>
-									<div style = {{paddingLeft:'10px', paddingRight:'10px'}}>-</div>
+								<div style = {{width:'300px', display:'flex', flexDirection:'row', paddingTop:'5px', fontSize:'1.2em', color:'#2F3846', opacity:'.6'}}>
+									<a href = {"/artist/" + split_artist}> {split_artist} </a>
+									-
 									<a href = {content_link}> {content_name} </a>  
 								</div>
 							</div>	

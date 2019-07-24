@@ -1036,6 +1036,16 @@ app.get('/about', (req, res) => {
 	res.send(html);
 })
 
+app.get('/termsofservice', (req, res) => {
+	var html = renderPage(req.url, {username: req.cookies.username});
+	res.send(html);
+})
+
+app.get('/privacypolicy', (req, res) => {
+	var html = renderPage(req.url, {username: req.cookies.username});
+	res.send(html);
+})
+
 app.get('/user/:user/:post_id', function (req, res) {
 	var sql = "SELECT * FROM user_content WHERE username = '" + req.params.user + "'" + " AND id = '" + req.params.post_id + "'";
 	connection.query(sql, function (err, result, fields) 

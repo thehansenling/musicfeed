@@ -56,15 +56,18 @@ export default class RegisterPage extends React.Component
 				<div className=  "hero-content" >
 					<h2>Register</h2>
 
-				  <label style={{color:'black'}} >Enter Email:</label>	
+				  <label style={{color:'black', width:'140px'}} >Enter Email:</label>	
 				  <input ref = {this.emailRef} type="text" name="email"/><br/>
-				  <label style={{color:'black'}} >Enter Username:</label>
+				  <label style={{color:'black', width:'140px'}} >Enter Username:</label>
 				  <input ref = {this.usernameRef} type="text" name="username"/><br/>
-				  <label style={{color:'black'}} >Enter Password:</label>
+				  <label style={{color:'black', width:'140px'}} >Enter Password:</label>
 				  <input type = 'password' ref = {this.passwordRef} name="password" /><br/>
-				  <label style={{color:'black'}}>Confirm Password:</label>
+				  <label style={{color:'black', width:'140px'}}>Confirm Password:</label>
 				  <input type = 'password' ref = {this.confirmRef} name="password_confirm"/>
 				  <p>
+				  <div>
+				  	By Clicking Register, you agree to the <a style = {{fontWeight:'bold'}} href = "/termsofservice"> Terms of Service </a> and <a style = {{fontWeight:'bold'}} href = "/privacypolicy"> Policy Privacy </a>
+				  </div>
 				  <button href = "/" type="submit" id="submitButton" className="btn btn-lg btn-primary" onClick={this.submitRegistration.bind(this)}>Register</button>
 				  </p>
 					<p>

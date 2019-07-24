@@ -51,13 +51,13 @@ export default class LoginPage extends React.Component
 				<section className = "hero" style = {{position:'absolute', left:'10%', top:'20%'}}>
 					<div className =  "hero-content" >
 						<h2>Login</h2>
-						  <label style={{color:'black'}}>Username:</label>
+						  <label style={{color:'black', width:'80px'}}>Username:</label>
 						  <input ref = {this.usernameRef} type="text" name="username"/><br/>
-						  <label style={{color:'black'}}>Password:</label>
+						  <label style={{color:'black', width:'80px'}}>Password:</label>
 						  <input ref = {this.passwordRef} type = 'password' name="password"/>
 							<p>
 							  <button onClick= {this.submitLogin.bind(this)} type="submit" id="submitButton" className="btn btn-lg btn-primary" >Login</button>
-							  <a href = "/register" id="submitButton" className="btn btn-lg btn-primary" >Register</a>
+							  <a style = {{position:'relative', left:'8px'}} href = "/register" id="submitButton" className="btn btn-lg btn-primary" >Register</a>
 							</p>
 							<p>
 								{this.login_message}
