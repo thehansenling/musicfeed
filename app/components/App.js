@@ -26,7 +26,7 @@ import Followers from './followers.js'
 import Following from './following.js'
 import UserPostLikesPage from './userpostlikes.js'
 import PrivacyPolicy from './PrivacyPolicy.js'
-import TermsOfService from './TermsofService.js'
+import TermsOfService from './TermsOfService.js'
 import StandardHeader from './standard_header.js'
 import mixpanel from 'mixpanel-browser';
 import { MixpanelProvider, MixpanelConsumer } from 'react-mixpanel';
