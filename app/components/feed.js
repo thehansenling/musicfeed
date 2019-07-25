@@ -71,6 +71,11 @@ class NewPostSubmission extends React.Component {
 			alert("MUST BE LOGGED IN")
 			return;
 		}
+		if (this.state.embedLink.indexOf('<iframe src="https://open.spotify.com') == -1)
+		{
+			alert("Invalid Embed Code")
+			return;
+		}
 		var that = this;
 		fetch("/post", {
 			method: "POST",
@@ -157,7 +162,7 @@ class NewPostSubmission extends React.Component {
 						<input
 							onChange={this.songInput.bind(this)}
 							value={this.state.embedLink}
-							placeholder="Embed link here"
+							placeholder="Embed code here"
 							style={{
 								border:'1px solid rgba(0, 0, 0, 0.09)',
 								borderRadius: '8px',
