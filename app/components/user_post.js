@@ -304,7 +304,7 @@ class UserPostContent extends React.Component
 		{
 			tag_display = ''
 		}
-		
+
 		var split_artist = this.props.data.artist.split('^')[0]
 		var content_link = "/post/" + split_artist + "/" + this.props.data.song
 		var content_name = this.props.data.song
@@ -317,8 +317,8 @@ class UserPostContent extends React.Component
 		return (
 			<div ref = {this.postRef} key = {this.props.data.post_id} style = {{border: '1px solid #F1F1F1', borderRadius: '7px', width:'980px', background:'white', minHeight:'580px', position:'relative', top:'10px', left:'10px', margin:'0px auto'}}>
 
-					<div style = {{paddingTop:'30px', paddingLeft:'10px', paddingRight:'10px', width:'980px', position:'relative', minHeight:'545px'}}>
-						<div style = {{display:'flex', flexDirection:'row', float:'left', width:'330px', paddingLeft:'10px', borderRadius:'7px', borderTopRightRadius: '0px', borderBottomRightRadius: '0px'}}>
+					<div style = {{paddingTop:'30px', paddingLeft:'10px', paddingRight:'10px', width:'980px', position:'relative', minHeight:'545px', display:'flex', flexDirection:'row'}}>
+						<div style = {{display:'flex', flexDirection:'row', width:'330px', paddingLeft:'10px', borderRadius:'7px', borderTopRightRadius: '0px', borderBottomRightRadius: '0px'}}>
 							<div style = {{paddingRight:'10px'}}>
 								<div style = {{display:'flex', flexDirection:'row'}}>
 									<div style = {{width:'65px', height:'65px', backgroundColor:this.props.user_profile, borderRadius:'50%'}}>
@@ -332,22 +332,10 @@ class UserPostContent extends React.Component
 								<div style = {{paddingTop:'30px'}}><span dangerouslySetInnerHTML={this.renderiframe(this.props.data.embedded_content)}></span>
 								</div>
 								<div style = {{width:'300px', display:'flex', flexDirection:'row', paddingTop:'5px', fontSize:'1.2em', color:'#2F3846', opacity:'.6'}}>
-									<a href = {"/artist/" + split_artist}> {split_artist} </a>
+									<a style = {{height:'26.66px',whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}} href = {"/artist/" + split_artist}> {split_artist} </a>
 									-
-									<a href = {content_link}> {content_name} </a>  
+									<a style = {{height:'26.66px',whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}} href = {content_link}> {content_name} </a>  
 								</div>
-							</div>	
-
-							<div style = {{width:'10px', height:'500px', borderLeft:'1px solid rgba(0, 0, 0, 0.09)'}}>
-							</div>	
-						</div>
-						<div style = {{fontWeight:'bold', fontSize:'24px', margin: '0px auto', paddingBottom:'10px'}}>
-							{this.props.data.title}
-						</div>
-						<div style = {{minHeight:'455px', whiteSpace:'pre-wrap'}}>
-							{content_div}
-						</div>
-					</div>
 								<div style = {{height:'35px', display:'flex', flexDirection:'row', zIndex:'9'}}>
 									<div style = {{width:'15px', height:'30px'}}></div>
 									<svg onClick = {this.likeClicked.bind(this)} width="14" height="24" viewBox="0 0 16 27" fill="none" xmlns="http://www.w3.org/2000/svg" color = 'blue'>
@@ -368,6 +356,21 @@ class UserPostContent extends React.Component
 										{this.bump_button}
 									</div>
 								</div>	
+							</div>	
+
+							<div style = {{width:'10px', height:'515px', borderLeft:'1px solid rgba(0, 0, 0, 0.09)'}}>
+							</div>	
+						</div>
+						<div>
+							<div style = {{fontWeight:'bold', fontSize:'24px', margin: '0px auto', paddingBottom:'10px'}}>
+								{this.props.data.title}
+							</div>
+							<div style = {{minHeight:'455px', whiteSpace:'pre-wrap'}}>
+								{content_div}
+							</div>
+						</div>
+					</div>
+
 			</div>
 
 		);

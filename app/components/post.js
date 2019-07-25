@@ -325,9 +325,9 @@ class Post extends React.Component
 					</div>
 
 					<div style = {{width:'300px', display:'flex', flexDirection:'row', paddingTop:'5px', fontSize:'1.2em', color:'#2F3846', opacity:'.6'}}>
-						<a href = {"/artist/" + split_artist}> {split_artist} </a>
+						<a style = {{height:'26.66px',whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}} href = {"/artist/" + split_artist}> {split_artist} </a>
 						-
-						<a href = {content_link}> {content_name} </a>  
+						<a style = {{height:'26.66px',whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}} href = {content_link}> {content_name} </a>  
 					</div>
 					<div style = {{height:'35px', display:'flex', flexDirection:'row'}}>
 						<div style = {{width:'15px', height:'30px'}}></div>
