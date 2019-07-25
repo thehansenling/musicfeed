@@ -583,7 +583,7 @@ export default class UserPage extends React.Component{
 	return (
 	<div style = {{paddingTop:'50px'}}>
 
-		<UserInfo user = {this.props.data.user} username = {this.props.data.username} follows={this.props.data.follows} followees={this.props.data.followees} username = {this.props.data.username} follow_type = {0}/>
+		<UserInfo user = {this.props.data.user} username = {this.props.data.username} follows={this.props.data.follows} followees={this.props.data.followees} username = {this.props.data.username} follow_type = {0} mixpanel = {this.props.mixpanel}/>
 
 		<br/>
 		

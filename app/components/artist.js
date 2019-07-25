@@ -184,7 +184,7 @@ class ArtistPost extends React.Component
 
 	followClicked()
 	{
-		this.props.mixpanel.track("Follow Artist", {"Artist":this.props.user.username,
+		this.props.mixpanel.track("Follow Artist", {"Artist":this.props.data.artist,
 												  "Follow State":this.following_state})
 		if (!utils.checkLoggedIn())
 		{
@@ -332,7 +332,7 @@ export default class ArtistPage extends React.Component
 
 			<div style={{margin:'0px auto', width:'735px', paddingTop:'50px'}}>
 				<div style = {{backgroundColor:"#FFFFFF", borderRadius:'7px'}}>
-					<ArtistPost data = {this.props.data}/>
+					<ArtistPost data = {this.props.data} mixpanel = {this.props.mixpanel}/>
 				</div>
 				<div style = {{paddingTop:'20px'}} >
 					<PostInfo posts = {this.state.posts}/>
