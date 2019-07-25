@@ -865,6 +865,7 @@ export default class CommentSection extends React.Component
 	        					  parent_comment_id: -1,})})
 	    .then(function(response) { return response.json();})
 	    .then(function (data) { 
+	    	location.reload(true);
 		    // var new_comment_data = {
 		    // 	post_id: data.comment_id,
 		    // 	user_id: data.username,
