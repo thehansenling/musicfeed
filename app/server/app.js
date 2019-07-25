@@ -37,22 +37,22 @@ var PRIORITY_MODIFIER = 8640 / 4500
 var score_sql = " " + SCORE_MODIFIER + " * LOG(ABS(cast(likes as signed) - cast(dislikes as signed))) * SIGN(cast(likes as signed) - cast(dislikes as signed)) + (relevant_timestamp - UNIX_TIMESTAMP() * 1000)/45000000 "
 
 //test database
-// var connection = mysql.createConnection({
-//   host     : 'us-cdbr-iron-east-01.cleardb.net',
-//   user     : 'bc7ebf9f6de242',
-//   password : 'aa9b1c1f',
-//   database : 'heroku_cdc4ca7b10e1680',
-//   multipleStatements: true
-// });
-
-//prod database
 var connection = mysql.createConnection({
-  host     : 'us-iron-auto-sfo-03-bh.cleardb.net',
-  user     : 'b82ff0c686544a',
-  password : '52ad3adb',
-  database : 'heroku_4df94195b1d1e6b',
+  host     : 'us-cdbr-iron-east-01.cleardb.net',
+  user     : 'bc7ebf9f6de242',
+  password : 'aa9b1c1f',
+  database : 'heroku_cdc4ca7b10e1680',
   multipleStatements: true
 });
+
+//prod database
+// var connection = mysql.createConnection({
+//   host     : 'us-iron-auto-sfo-03-bh.cleardb.net',
+//   user     : 'b82ff0c686544a',
+//   password : '52ad3adb',
+//   database : 'heroku_4df94195b1d1e6b',
+//   multipleStatements: true
+// });
 
 //local database
 // var connection = mysql.createConnection({
@@ -2256,7 +2256,7 @@ app.post('/register', function(req, res)
 			{
 				bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
 				 	 // Store hash in your password DB.
-					var sql = "INSERT INTO accounts (username, password, email) VALUES ('" + req.body.username + "', '" + hash + "', '" + req.body.email + "' )";
+					var sql = "INSERT INTO accounts (username, password, email, profile_picture) VALUES ('" + req.body.username + "', '" + hash + "', '" + req.body.email + "', 'rgb(23, 130, 117)' )";
 					connection.query(sql, function (err, result) {
 				    	if (err) throw err;
 			  		});
