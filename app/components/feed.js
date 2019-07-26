@@ -374,6 +374,14 @@ class Trending extends React.Component {
 				</div>
 			</div>
 			<div style = {{paddingTop:'10px', margin: '0px auto', width:'300px'}}>
+				<div style = {{margin:'0px auto', fontWeight:'bold', width:'260px', fontSize:'27px', paddingTop:'16px'}}>
+					Listening Club Album
+				</div>
+				<div style = {{paddingTop:'12px'}}>
+					<a style = {{display:'flex', justifyContent:'center'}} href = "/user/unheard/6d9b44a5-6f2c-3cdd-b70f-17723994e086"> Lil Nas X - 7</a>
+				</div>
+			</div>
+			<div style = {{paddingTop:'0px', margin: '0px auto', width:'300px'}}>
 				<div style = {{margin:'0px auto', fontWeight:'bold', width:'140', fontSize:'27px', paddingTop:'16px'}}>
 					Other Links
 				</div>
