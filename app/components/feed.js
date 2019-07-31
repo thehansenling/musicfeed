@@ -352,7 +352,7 @@ class Trending extends React.Component {
 	{
 		//<img src = "/placeholder.jpg" />
 		return (
-		<div style = {{width:'400px', height:'680px', backgroundColor:'white', border:'1px solid #F1F1F1', borderRadius:'8px'}}>
+		<div style = {{width:'400px', paddingBottom:'20px', backgroundColor:'white', border:'1px solid #F1F1F1', borderRadius:'8px'}}>
 			<div style = {{margin:'0px auto', fontWeight:'bold', width:'110px', fontSize:'27px', paddingTop:'16px'}}>
 				Trending
 			</div>
