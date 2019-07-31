@@ -140,9 +140,9 @@ export default class StandardHeader extends React.Component {
 		this.notificationsRef = React.createRef();
 		this.dropdown_content = []
 		this.optionsRef = React.createRef();
-  	this.notification_div = ""
-  	this.dropdown_div = ""
-  	this.login_div = ""
+	  	this.notification_div = ""
+	  	this.dropdown_div = ""
+	  	this.login_div = ""
 	}
 
 	logoutClicked ()
@@ -258,7 +258,7 @@ export default class StandardHeader extends React.Component {
 		{
 			return
 		}
-		if (event.target.className != "dropdown" && event.target.className != "notifications" && event.target.className != "dropdownelement") {
+		if (event.target.className.indexOf("dropdown") != -1 && event.target.className.indexOf("notifications") != -1 && event.target.className.indexOf("dropdownelement") != -1) {
 			this.closeNotifications()
 		}
 		else
@@ -291,7 +291,7 @@ export default class StandardHeader extends React.Component {
 	        	'Authorization': 'Basic',
 	        	'Content-Type': 'application/json',
 	        },
-	        body: JSON.stringify({}),
+	        body: JSON.stringify({id:id}),
 	    })
 	    .then(function(response) { return response.json();})
 	    .then(function (data) {
