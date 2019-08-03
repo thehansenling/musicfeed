@@ -3,6 +3,7 @@ import StandardHeader from './standard_header.js'
 import { PostInfo, makePost } from './post.js'
 import utils from './utils.js'
 import tag_utils from './tag_utils.js'
+import {isMobile} from 'react-device-detect';
 
 class NewPostSubmission extends React.Component {
 	constructor(props)
@@ -129,9 +130,18 @@ class NewPostSubmission extends React.Component {
 	render()
 	{
 		var tag_display = 'none'
+
 		if (this.tagFlag)
 		{
 			tag_display = ''
+		}
+
+		var create_post_size = '20px'
+		var placeholder_size = '20px'
+		if (isMobile)
+		{
+			create_post_size = '1.8em'
+			placeholder_size = '1.2em'
 		}
 
 		return (
@@ -148,7 +158,7 @@ class NewPostSubmission extends React.Component {
 				<div
 					style={{
 						fontFamily: 'RobotoRegular',
-						fontSize: '20px',
+						fontSize: placeholder_size,
 						color: 'rgba(47, 56, 70, 0.58)',
 						borderBottom: '1px solid rgba(0, 0, 0, 0.09)',
 						paddingBottom: '8px',
@@ -350,6 +360,7 @@ class Trending extends React.Component {
 
 	render()
 	{
+
 		//<img src = "/placeholder.jpg" />
 		return (
 		<div style = {{width:'400px', paddingBottom:'20px', backgroundColor:'white', border:'1px solid #F1F1F1', borderRadius:'8px'}}>
@@ -536,17 +547,26 @@ export default class Feed extends React.Component {
 
 	render()
 	{
+		var trending_style = ''
+		var posts_width = ''
+		var top_padding = ''
+		if (isMobile)
+		{
+			top_padding = '8%'
+			trending_style = 'none'
+			posts_width = '100%'
+		}
 		return (
-			<div style={{display:'flex', justifyContent: 'center', backgroundColor:'#F6F6F6'}}>
-				<div style={{display:'flex', flexDirection:'column'}}>
+			<div style={{display:'flex', justifyContent: 'center', backgroundColor:'#F6F6F6', paddingTop:top_padding}}>
+				<div style={{display:'flex', flexDirection:'column', width:posts_width}}>
 					<div style={{marginTop: '16px'}}>
 						<NewPostSubmission mixpanel = {this.props.mixpanel}/>
 					</div>
 					<div style={{display:'flex', flexDirection:'row', marginTop: '12px'}}>
-						<div style={{marginRight: '12px'}}>
+						<div style={{width:'100%'}}>
 							<PostInfo posts={this.state.posts} />
 						</div>
-						<div className={'feed_stickySideBar'}>
+						<div style = {{display:trending_style}} className={'feed_stickySideBar'}>
 							<Trending data = {this.props.data.global_songs} mixpanel = {this.props.mixpanel}/>
 						</div>
 					</div>

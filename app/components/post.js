@@ -1,7 +1,7 @@
 import React from 'react';
 import utils from './utils.js'
 import tag_utils from './tag_utils.js'
-
+import {isMobile} from 'react-device-detect';
 const monthNames = ["January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December"
 ];
@@ -156,6 +156,12 @@ class Post extends React.Component
 	componentDidMount() {
 		if (this.contentRef.current.offsetHeight > 390)
 		{
+			var see_more_size = '14pt'
+			if (isMobile)
+			{
+				see_more_size = '1.4em'
+			}
+
 			var content_url = "/user/" + this.props.song.username+ "/" + this.props.song.post_id
 
 			// if (this.props.song.song == "NO_SONG_ALBUM_ONLY")
@@ -165,7 +171,7 @@ class Post extends React.Component
 
 
 			this.ellipsis = <div style = {{}}>
-			<a style = {{color:'#178275', fontSize:'14pt', fontWeight: 'bold'}}href = {content_url} onClick = {this.onSeeMoreClicked.bind(this)}> See More </a>
+			<a style = {{color:'#178275', fontSize:see_more_size, fontWeight: 'bold'}}href = {content_url} onClick = {this.onSeeMoreClicked.bind(this)}> See More </a>
 			</div>
 			this.forceUpdate();
 
@@ -220,8 +226,29 @@ class Post extends React.Component
 
 	render()
 	{
+		var title_size = '24px'
+		var content_size = '20px'
+		var date_size = '17px'
+		var max_content_height = '450px'
+		var content_name_size = '1.2em'
+		var icons_height = '24px'
+		var icon_font_size = '16px'
+
+		if (isMobile)
+		{
+			title_size = '2em'
+			content_size = '1.6em'
+			date_size = '1.4em'
+			max_content_height = '615px'
+			this.props.song.embedded_content = utils.SetSpotifySize(this.props.song.embedded_content, 450, 570)
+			content_name_size = '1.8em'
+			icons_height = '48px'
+			icon_font_size = '2em'
+			
+		}
+
 		var date = new Date(this.props.song.timestamp)
-		var post_title = <h1 className="post_title" style= {{fontWeight:'bold', fontSize:'24px'}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id} onClick = {this.onTitleClicked.bind(this)} > {this.props.song.title}</a></h1>;
+		var post_title = <div className="post_title" style= {{fontWeight:'bold', fontSize:title_size}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id} onClick = {this.onTitleClicked.bind(this)} > {this.props.song.title}</a></div>;
 		var poster_username = '';//this.props.song.artist;
 		var poster_username_url = '';//"/artist/" + this.props.song.artist;
 
@@ -286,7 +313,7 @@ class Post extends React.Component
 			content_name = this.props.song.album;
 		}
 		var leftpadding = '0px'
-		var content_section = <div  style = {{maxHeight:'450px', paddingTop:'5px', lineHeight:'27px', width:'380px', fontSize:'20px', overflow:'hidden', textOverflow:'ellipsis'}}>
+		var content_section = <div  style = {{maxHeight:max_content_height, paddingTop:'5px', lineHeight:'normal', width:'100%', fontSize:content_size, overflow:'hidden', textOverflow:'ellipsis', wordBreak: 'break-all'}}>
 					<div ref = {this.contentRef}>
 						{content_div}
 					</div>
@@ -306,17 +333,28 @@ class Post extends React.Component
 			content_link = "/album/" + split_artist + "/" + this.props.song.album
 			content_name = this.props.song.album
 		}
+
+		var post_width = '735px'
+		var left_flex = ''
+		var right_flex = ''
+		if (isMobile)
+		{
+			left_flex = '4'
+			right_flex = '6'
+			post_width = '100%'
+		}
+
 		return(
 
-		<div key = {this.props.song.post_id} style = {{border: '1px solid #F1F1F1', borderRadius: '7px', width:'735px', background:'white', minHeight:'513px', marginBottom: '12px'}}>
+		<div key = {this.props.song.post_id} style = {{border: '1px solid #F1F1F1', borderRadius: '7px', width:post_width, background:'white', minHeight:'513px', marginBottom: '12px'}}>
 			<div style = {{display:'flex', flexDirection:'row'}}>
-				<div style = {{width:'320px', paddingTop:'30px', paddingLeft:'10px', borderRight:'1px solid rgba(0, 0, 0, 0.09)', borderRadius:'7px', borderTopRightRadius: '0px', borderBottomRightRadius: '0px'}}>
+				<div style = {{flex:left_flex, width:'320px', paddingTop:'30px', paddingLeft:'10px', borderRight:'1px solid rgba(0, 0, 0, 0.09)', borderRadius:'7px', borderTopRightRadius: '0px', borderBottomRightRadius: '0px'}}>
 					<div style = {{display:'flex', flexDirection:'row'}}>
 						<div style = {{width:'65px', height:'65px', backgroundColor:this.props.user_profile, borderRadius:'50%'}}>
 						</div>
 						<div style = {{paddingLeft:'20px'}}>
-							<div style = {{fontSize:'24px', fontWeight:'bold'}}> <a href ={poster_username_url} onClick = {this.onPostUsernameClicked.bind(this)}> {poster_username} </a></div>
-							<div style = {{fontSize:'17px', paddingRight:'10px'}}>{ monthNames[parseInt(date.getMonth())]+ " " + date.getDate() + ", " + date.getFullYear()}</div>
+							<div style = {{fontSize:title_size, fontWeight:'bold'}}> <a href ={poster_username_url} onClick = {this.onPostUsernameClicked.bind(this)}> {poster_username} </a></div>
+							<div style = {{fontSize:date_size, paddingRight:'10px'}}>{ monthNames[parseInt(date.getMonth())]+ " " + date.getDate() + ", " + date.getFullYear()}</div>
 						</div>
 					</div>
 
@@ -324,32 +362,32 @@ class Post extends React.Component
 					<div style = {{paddingTop:'30px'}}><span dangerouslySetInnerHTML={this.renderiframe(this.props.song.embedded_content)}></span>
 					</div>
 
-					<div style = {{width:'300px', display:'flex', flexDirection:'row', paddingTop:'5px', fontSize:'1.2em', color:'#2F3846', opacity:'.6'}}>
-						<a style = {{height:'26.66px',whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}} href = {"/artist/" + split_artist}> {split_artist} </a>
-						-
-						<a style = {{height:'26.66px',whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}} href = {content_link}> {content_name} </a>  
+					<div style = {{display:'flex', flexDirection:'row', paddingTop:'5px', fontSize:content_name_size, color:'#2F3846', opacity:'.6', whiteSpace:'pre'}}>
+						<a style = {{whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}} href = {"/artist/" + split_artist}> {split_artist} </a>
+						{" - "}
+						<a style = {{whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}} href = {content_link}> {content_name} </a>  
 					</div>
-					<div style = {{height:'35px', display:'flex', flexDirection:'row'}}>
+					<div style = {{paddingBottom:'8px', display:'flex', flexDirection:'row'}}>
 						<div style = {{width:'15px', height:'30px'}}></div>
-						<svg onClick = {this.likeClicked.bind(this)} width="14" height="24" viewBox="0 0 16 27" fill="none" xmlns="http://www.w3.org/2000/svg" color = 'blue'>
+						<svg onClick = {this.likeClicked.bind(this)} width={parseInt(icons_height) * 0.58333} height={icons_height} viewBox="0 0 16 27" fill="none" xmlns="http://www.w3.org/2000/svg" color = 'blue'>
 						<path d="M8.70711 0.987356C8.31658 0.596832 7.68342 0.596832 7.29289 0.987356L0.928931 7.35132C0.538407 7.74184 0.538407 8.37501 0.928931 8.76553C1.31946 9.15606 1.95262 9.15606 2.34315 8.76553L8 3.10868L13.6569 8.76553C14.0474 9.15606 14.6805 9.15606 15.0711 8.76553C15.4616 8.37501 15.4616 7.74184 15.0711 7.35132L8.70711 0.987356ZM9 26.3126L9 1.69446L7 1.69446L7 26.3126L9 26.3126Z" fill={this.up_color}/>
 						</svg>
-						<div style = {{minWidth:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', fontSize: '16px', fontWeight:'bold'}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id + "/likes"} >{this.likes_score} </a></div>
+						<div style = {{minWidth:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', fontSize: icon_font_size, fontWeight:'bold'}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id + "/likes"} >{this.likes_score} </a></div>
 
-						<svg onClick = {this.dislikeClicked.bind(this)} width="14" height="24" viewBox="0 0 16 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<svg onClick = {this.dislikeClicked.bind(this)} width={parseInt(icons_height) * 0.58333} height={icons_height} viewBox="0 0 16 27" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path d="M7.29289 26.0197C7.68342 26.4102 8.31658 26.4102 8.70711 26.0197L15.0711 19.6557C15.4616 19.2652 15.4616 18.632 15.0711 18.2415C14.6805 17.851 14.0474 17.851 13.6569 18.2415L8 23.8984L2.34315 18.2415C1.95262 17.851 1.31946 17.851 0.928932 18.2415C0.538408 18.632 0.538408 19.2652 0.928932 19.6557L7.29289 26.0197ZM7 0.694489L7 25.3126H9L9 0.694489L7 0.694489Z" fill={this.down_color}/>
 						</svg>
 
 						<div style = {{width:'10px', height:'30px', borderRight: '1px solid rgba(0, 0, 0, 0.09)'}}></div>
 						<div style = {{width:'10px', height:'30px'}}></div>
-						<div style = {{}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id}><img src="/speech_bubble.png" width="30" height="26" alt=""/></a></div>
+						<div style = {{}}><a href = {"/user/" + this.props.song.username + "/" + this.props.song.id}><img src="/speech_bubble.png" width={parseInt(icons_height) * 1.25} height={icons_height} alt=""/></a></div>
 
-						<div style = {{width:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', fontSize: '16px', fontWeight:'bold'}}> <a href = {"/user/" + this.props.song.username + "/" + this.props.song.id}> {this.props.num_comments} </a></div>
+						<div style = {{width:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', fontSize: icon_font_size, fontWeight:'bold'}}> <a href = {"/user/" + this.props.song.username + "/" + this.props.song.id}> {this.props.num_comments} </a></div>
 
 					</div>
 				</div>
 
-				<div style = {{paddingTop:'30px', paddingLeft:'10px', paddingRight:'20px', width:'400px', fontSize:'20px'}}>
+				<div style = {{flex:right_flex,paddingTop:'30px', paddingLeft:'10px', paddingRight:'10px', fontSize:'20px'}}>
 					{post_title}
 					{content_section}
 					{this.ellipsis}
@@ -433,8 +471,14 @@ class PostInfo extends React.Component
 {
 	render()
 	{
+
+		var posts_width = "735px"
+		if (isMobile)
+		{
+			posts_width = '100%'
+		}
 		return(
-			<div style={{width:'735px'}}>
+			<div style={{width:posts_width}}>
 				{this.props.posts.map((post) => {return <div> {post} </div>})}
 			</div>
 		);

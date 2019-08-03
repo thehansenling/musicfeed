@@ -1,5 +1,6 @@
 var React = require('react');
 var ReactDOM = require('react-dom')
+import {isMobile} from 'react-device-detect';
 
 function SortSearch(users, artists, songs, albums)
 {
@@ -113,12 +114,27 @@ class SearchList extends React.Component {
 	 	})
 	}
 
+
+
 	render ()
 	{
+		var desktop_search_class = "searchBar"
+		var mobile_search_class = "mobileSearchBar"
+
+		var desktop_search_height = {height:"100%"}
+		var mobile_search_height = {height:"50%"}
+
+		var search_class = desktop_search_class
+		var search_height = desktop_search_height
+		if (isMobile)
+		{
+			search_class = mobile_search_class
+			search_height = mobile_search_height
+		}
 		return(
-			<div className="searchBarContainer">
-				<input
-					className={'searchBar'}
+			<div style = {search_height} className="searchBarContainer">
+				<input style = {{height:'100%'}}
+					className={search_class}
 					onChange={this.handleChange.bind(this)}
 					placeholder='Search'
 					type='text'
@@ -200,6 +216,15 @@ export default class StandardHeader extends React.Component {
 	    })
 	    .then(function(response) { return response.json();})
 	    .then(function (data) {
+
+	    	var notifications_size = '24px'
+	    	var notifications_font_size = '12pt'
+	    	if (isMobile)
+	    	{
+	    		notifications_size = '60px'
+	    		notifications_font_size = '1.8em'
+	    	}
+
 	    	that.props.notifications = data.notifications
 		  	if (that.props.notifications != undefined && that.props.notifications.length > 0)
 		  	{
@@ -240,7 +265,7 @@ export default class StandardHeader extends React.Component {
 			  			 <button key = {that.props.notifications[i].post_id} style = {{right:'0px', position:'absolute', borderRadius:'0px', height:'20px'}} className = "dropdownelement grayButton" onClick = {that.removeNotification.bind(that, that.props.notifications[i].post_id)}> X </button>
 			  			</div>)
 			  	}
-			  	that.notification_div = <div className = "notifications" ref = {that.notificationsRef} onClick = {that.toggleNotifications.bind(that)} style = {{marginRight: '10px', fontWeight:'bold', fontSize:'12pt', color: "#178275", width:'24px', height:'24px', textAlign:'center', backgroundColor:'white', borderRadius:'50%', position:'relative', top:'6px', display:'flex', justifyContent:'center', alignItems:'center'}}> {that.props.notifications.length}</div>
+			  	that.notification_div = <div className = "notifications" ref = {that.notificationsRef} onClick = {that.toggleNotifications.bind(that)} style = {{marginRight: '10px', fontWeight:'bold', fontSize:notifications_font_size, color: "#178275", width:notifications_size, height:notifications_size, textAlign:'center', backgroundColor:'white', borderRadius:'50%', position:'relative',display:'flex', justifyContent:'center', alignItems:'center'}}> {that.props.notifications.length}</div>
 		  	}
 		  	that.forceUpdate()
 	 	})
@@ -317,15 +342,38 @@ export default class StandardHeader extends React.Component {
   render() {
 		this.dropdown_div = <div className = "dropdown" ref = {this.dropdownRef} style = {{ width:'400px', minHeight:'10px', position: "fixed", right:'124', top:'52px', background:'white', display:'none', fontWeight:'normal', fontSize:'12pt', zIndex:'8'}}>{this.dropdown_content}</div>
 
+
+
+	var desktop_header_style = {display:'flex', alignItems:'center'}
+	var desktop_home_style = {}
+	var desktop_search_class = "searchBar"
+	var desktop_header_item_size = ''
+	var mobile_header_style = {display:'flex', alignItems:'center', height:'8%'}
+	var mobile_home_style = {fontSize:'2.2em'}
+	var mobile_header_item_size = '2em'
+	var mobile_search_class = "mobileSearchBar"
+
+	var header_style = desktop_header_style
+	var home_style = desktop_home_style
+	var search_class = desktop_search_class
+	var header_item_size = desktop_header_item_size
+	if (isMobile)
+	{
+		header_style = mobile_header_style
+		home_style = mobile_home_style
+		search_class = mobile_search_class
+		header_item_size = mobile_header_item_size
+	}
+
   	let user_login, login_div;
   	if (this.props.username == undefined) {
 	  	user_login = (
-				<div className="headerLink" onClick={() => {window.location.href = "/register"}}>Register</div>
+				<div className="headerLink" style = {{fontSize:header_item_size}} onClick={() => {window.location.href = "/register"}}>Register</div>
 			);
-			login_div = <div className="headerLink" onClick={() => {window.location.href = "/login"}}>Login</div>
+			login_div = <div className="headerLink" style = {{fontSize:header_item_size}} onClick={() => {window.location.href = "/login"}}>Login</div>
   	} else {
 			user_login = (
-				<div className="headerLink" onClick={() => {window.location.href = "/user/" + this.props.username}}>{this.props.username}</div>
+				<div className="headerLink" style = {{fontSize:header_item_size}} onClick={() => {window.location.href = "/user/" + this.props.username}}>{this.props.username}</div>
 			);
 		}
 
@@ -336,16 +384,16 @@ export default class StandardHeader extends React.Component {
 					<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
 				</head>
 				<header>
-					<div className="fixedHeader">
-						<div className="headerLink" onClick={() => {window.location.href = "/"}}>Home</div>
-						<div style={{flex: '1 0 auto', padding: '0 12px'}}>
+					<div className="fixedHeader" style = {header_style}>
+						<div style = {home_style} className="headerLink" onClick={() => {window.location.href = "/"}}>Home</div>
+						<div style={{flex: '1 0 auto', padding: '0 12px', display:'flex', alignItems:'center', height:'100%'}}>
 							<SearchList />
 						</div>
 						{login_div}
 						{user_login}
 						{this.notification_div}
 						{this.dropdown_div}
-						<div className="headerLink" onClick={() => {window.location.href = "/random"}}>Random</div>
+						<div className="headerLink" style = {{fontSize:header_item_size, height:'100%'}} onClick={() => {window.location.href = "/random"}}>Random</div>
 						<div className="headerMenuArrow">
 							<svg className = "options" onClick = {this.toggleOptions.bind(this)} width="18" height="16" viewBox="0 0 26 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 								<path d="M23.0926 1.25L13 14.3606L2.90742 1.25L23.0926 1.25Z" fill="white" stroke="white" strokeWidth="2" />

@@ -170,7 +170,6 @@ p {
   border: 2px solid white;
   border-radius: 7px;
   color: white;
-  height: 35px;
   padding-left: 8px;
   width: 100%;
 }
@@ -178,6 +177,20 @@ p {
 .searchBar::placeholder {
   color: white;
   font-size: 18px;
+}
+
+.mobileSearchBar {
+  background-color: #178275;
+  border: 2px solid white;
+  border-radius: 7px;
+  color: white;
+  padding-left: 8px;
+  width: 100%;
+}
+
+.mobileSearchBar::placeholder {
+  color: white;
+  font-size: 28px;
 }
 
 .searchBar:focus {
