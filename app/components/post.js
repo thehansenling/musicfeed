@@ -313,7 +313,7 @@ class Post extends React.Component
 			content_name = this.props.song.album;
 		}
 		var leftpadding = '0px'
-		var content_section = <div  style = {{maxHeight:max_content_height, paddingTop:'5px', lineHeight:'normal', width:'100%', fontSize:content_size, overflow:'hidden', textOverflow:'ellipsis', wordBreak: 'break-all'}}>
+		var content_section = <div  style = {{maxHeight:max_content_height, paddingTop:'5px', lineHeight:'normal', width:'100%', fontSize:content_size, overflow:'hidden', textOverflow:'ellipsis', wordBreak: 'break-word'}}>
 					<div ref = {this.contentRef}>
 						{content_div}
 					</div>
