@@ -1767,6 +1767,7 @@ app.get('/artist/:artist/albums', function (req, res) {
 });
 
 app.get('/post/:artist/:song', function (req, res) {
+	req.params.song = replaceAll(req.params.song, "'", '\\\'')
 	var sql = "SELECT * FROM global_posts WHERE artist = '" + String(req.params.artist) + "'" + " AND song = '" + String(req.params.song) + "'";
 	connection.query(sql, function (err, result, fields) 
 	{
