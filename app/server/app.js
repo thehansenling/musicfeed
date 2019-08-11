@@ -3481,6 +3481,36 @@ app.post('/remove_notification', (req, res) => {
 	})
 })
 
+app.post('/spotify_search', (req, res) => {
+	req.body.text = replaceAll(req.body.text, " ", "+")
+	var search_query = '"' + req.body.text + '*"'
+	//search_query =  req.body.text 
+	spotify
+	.search({ type: 'track,album', query: search_query, limit: 10})
+	.then(function(response) {
+		var search_results = []
+		for (var item in response.tracks.items)
+		{
+			if (response.tracks.items[item] != undefined)
+			{
+				search_results.push({type:'track', artist:response.tracks.items[item].artists[0].name, name:response.tracks.items[item].name, url:response.tracks.items[item].uri.split(":")[2]})
+			}
+		}
+
+		for (var item in response.albums.items)
+		{
+			if (response.albums.items[item] != undefined)
+			{
+				search_results.push({type:'album', artist:response.albums.items[item].artists[0].name, name:response.albums.items[item].name, url:response.albums.items[item].uri.split(":")[2]})
+			}
+		}
+
+		res.send({data:search_results})
+	})
+
+})
+
+
 var add_bump = true
 setInterval(function () {
 	var today = new Date();

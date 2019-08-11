@@ -221,6 +221,16 @@ p {
   cursor: pointer;
 }
 
+.contentsearchlistitem {
+  background-color: rgba(255, 255, 255, 1);
+  cursor: pointer;
+}
+
+.contentsearchlistitem:hover {
+  background-color: rgba(23, 130, 117, .15);
+  cursor: pointer;
+}
+
 .feed_postButton {
   background-color: #178275;
   border-radius: 8px;

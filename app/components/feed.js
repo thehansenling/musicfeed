@@ -5,6 +5,27 @@ import utils from './utils.js'
 import tag_utils from './tag_utils.js'
 import {isMobile} from 'react-device-detect';
 
+class ContentSearchItem extends React.Component {
+	constructor(props)
+	{
+		super(props)
+	}
+
+	handleClick()
+	{
+		this.props.song_callback(this.props.url);
+	}
+
+	render()
+	{
+		return (
+		<div onClick = {this.handleClick.bind(this)}  className = "contentsearchlistitem" style = {{width:'1024px',height:'36px', position:'block', zIndex:'2', display:'flex', alignItems:'center'}}>	
+			{this.props.artist + " - " + this.props.name}
+		</div>
+		)
+	}
+}
+
 class NewPostSubmission extends React.Component {
 	constructor(props)
 	{
@@ -13,9 +34,13 @@ class NewPostSubmission extends React.Component {
 			embedLink: '',
 			title: '',
 			content: '',
+			searchItems:[],
 		};
-
 		this.contentRef = React.createRef();
+
+		this.searchRef = React.createRef();
+
+		this.content_search = ""
 
 		this.tagFlag = false
 		this.currentTag = ""
@@ -33,6 +58,13 @@ class NewPostSubmission extends React.Component {
 		this.modified = false;
 	}
 
+	setSong(song)
+	{
+		let embedLink ='<iframe src="https://open.spotify.com/embed/track/' + song + '" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>'
+		this.setState({embedLink});
+		this.closeContentSearchList()
+	}
+
 	songInput(event)
 	{
 		if (this.modified == false)
@@ -42,6 +74,28 @@ class NewPostSubmission extends React.Component {
 		this.modified = true
 		var embedLink = event.target.value;
 		this.setState({embedLink});
+
+		var that = this;
+		fetch("/spotify_search", {
+			method: "POST",
+			headers: {
+				'Accept': 'application/json',
+				'Authorization': 'Basic',
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				text: embedLink
+			}),
+		}).then(function(response) {
+			return response.json();
+		}).then(function (data) {
+			let searchItems = []
+			for (var item of data.data)
+			{
+				searchItems.push(<ContentSearchItem artist = {item.artist} name = {item.name} type = {item.type} url = {item.url} song_callback = {that.setSong.bind(that)}/>)
+			}
+			that.setState({searchItems})
+		});
 	}
 
 	onTitleChange(event) {
@@ -127,6 +181,32 @@ class NewPostSubmission extends React.Component {
 		this.forceUpdate()
 	}
 
+	componentDidMount()
+	{
+		window.addEventListener('mousedown', this.handleClickOutside.bind(this));
+	}
+
+	componentWillUnmount()
+	{
+		window.removeEventListener('mousedown', this.handleClickOutside.bind(this));
+	}
+		
+
+	handleClickOutside(event)
+	{
+		if (event.target.className.indexOf("contentsearchlistitem") == -1 && event.target.className.indexOf("contentsearchlist") == -1) {
+			this.closeContentSearchList()
+		}
+		else
+		{
+		}
+	}
+
+	closeContentSearchList()
+	{
+		this.setState({searchItems:[]})
+	}
+
 	render()
 	{
 		var tag_display = 'none'
@@ -142,6 +222,12 @@ class NewPostSubmission extends React.Component {
 		{
 			create_post_size = '1.8em'
 			placeholder_size = '1.2em'
+		}
+
+		var search_item_display = 'none'
+		if (this.state.searchItems.length > 0)
+		{
+			search_item_display = ''
 		}
 
 		return (
@@ -168,7 +254,7 @@ class NewPostSubmission extends React.Component {
 				</div>
 				<div style={{display:'flex', flexDirection:'row', paddingTop:'16px'}}>
 					<div style={{width:'65px', height:'65px', backgroundColor:'#178275', borderRadius:'50%', marginRight:'12px'}}></div>
-					<div style={{display: 'flex', flex: '1 0 auto'}}>
+					<div style={{display: 'flex', flex: '1 0 auto', flexDirection:'column'}}>
 						<input
 							onChange={this.songInput.bind(this)}
 							value={this.state.embedLink}
@@ -179,8 +265,11 @@ class NewPostSubmission extends React.Component {
 								fontSize:'16px',
 								padding:'8px',
 								width: '100%',
-							}}
-						/>
+								zIndex:'2'
+							}}/>
+						<div className = "contentsearchlist" style = {{position:'absolute', zIndex:'1', maxHeight:'500px', overflowY:'scroll', paddingTop:'42px', borderBottom:'1px solid rgba(0, 0, 0, 0.09)', display:search_item_display, borderRadius:'7px', backgroundColor:'white'}}>
+							{this.state.searchItems}
+						</div>
 					</div>
 				</div>
 				<div style={{display: this.state.embedLink ? 'flex' : 'none', flexDirection: 'row', paddingTop: '16px'}}>
