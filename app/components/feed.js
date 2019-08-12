@@ -13,7 +13,7 @@ class ContentSearchItem extends React.Component {
 
 	handleClick()
 	{
-		this.props.song_callback(this.props.url);
+		this.props.song_callback(this.props.url, this.props.type);
 	}
 
 	render()
@@ -58,9 +58,14 @@ class NewPostSubmission extends React.Component {
 		this.modified = false;
 	}
 
-	setSong(song)
+	setSong(song, type)
 	{
-		let embedLink ='<iframe src="https://open.spotify.com/embed/track/' + song + '" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>'
+		var spotify_url = '<iframe src="https://open.spotify.com/embed/track/'
+		if (type == 'album')
+		{
+			spotify_url = '<iframe src="https://open.spotify.com/embed/album/'
+		}
+		let embedLink = spotify_url + song + '" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>'
 		this.setState({embedLink});
 		this.closeContentSearchList()
 	}
