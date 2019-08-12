@@ -3,6 +3,7 @@ import StandardHeader from './standard_header.js'
 import CommentSection from './comments.js'
 import utils from './utils.js'
 import tag_utils from './tag_utils.js'
+import {isMobile} from 'react-device-detect';
 
 class UserPostContent extends React.Component 
 {
@@ -443,10 +444,14 @@ export default class UserPost extends React.Component
 
 	render()
 	{
-
+		var top_padding = ''
+		if (isMobile)
+		{
+			top_padding = '12%'
+		}
 		return (
 			<div>
-				<div style = {{position:'relative', margin:'0px auto', width:'1000px'}}>
+				<div style = {{position:'relative', margin:'0px auto', width:'1000px', paddingTop:top_padding}}>
 					<UserPostContent ref = {this.postRef} data = {this.props.data.user_post} like_state = {this.props.data.like_state} num_comments = {this.props.data.num_comments} username = {this.props.data.username} user_profile = {this.props.data.user_profile} mixpanel = {this.props.mixpanel}/>
 				</div>
 				<div style = {{margin:'0px auto', width:'1000px', paddingTop:"40px"}}>

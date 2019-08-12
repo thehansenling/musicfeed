@@ -233,15 +233,17 @@ class Post extends React.Component
 		var content_name_size = '1.2em'
 		var icons_height = '24px'
 		var icon_font_size = '16px'
+		var username_size = '24px'
 
 		if (isMobile)
 		{
+			username_size = '2.8em'
 			title_size = '2em'
-			content_size = '1.6em'
-			date_size = '1.4em'
+			content_size = '1.8em'
+			date_size = '1.8em'
 			max_content_height = '615px'
 			this.props.song.embedded_content = utils.SetSpotifySize(this.props.song.embedded_content, 450, 570)
-			content_name_size = '1.8em'
+			content_name_size = '2.2em'
 			icons_height = '48px'
 			icon_font_size = '2em'
 			
@@ -353,7 +355,7 @@ class Post extends React.Component
 						<div style = {{width:'65px', height:'65px', backgroundColor:this.props.user_profile, borderRadius:'50%'}}>
 						</div>
 						<div style = {{paddingLeft:'20px'}}>
-							<div style = {{fontSize:title_size, fontWeight:'bold'}}> <a href ={poster_username_url} onClick = {this.onPostUsernameClicked.bind(this)}> {poster_username} </a></div>
+							<div style = {{fontSize:username_size, fontWeight:'bold'}}> <a href ={poster_username_url} onClick = {this.onPostUsernameClicked.bind(this)}> {poster_username} </a></div>
 							<div style = {{fontSize:date_size, paddingRight:'10px'}}>{ monthNames[parseInt(date.getMonth())]+ " " + date.getDate() + ", " + date.getFullYear()}</div>
 						</div>
 					</div>

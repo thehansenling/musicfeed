@@ -222,7 +222,7 @@ export default class StandardHeader extends React.Component {
 	    	if (isMobile)
 	    	{
 	    		notifications_size = '60px'
-	    		notifications_font_size = '1.8em'
+	    		notifications_font_size = '2.8em'
 	    	}
 
 	    	that.props.notifications = data.notifications
@@ -349,8 +349,8 @@ export default class StandardHeader extends React.Component {
 	var desktop_search_class = "searchBar"
 	var desktop_header_item_size = ''
 	var mobile_header_style = {display:'flex', alignItems:'center', height:'8%'}
-	var mobile_home_style = {fontSize:'2.2em'}
-	var mobile_header_item_size = '2em'
+	var mobile_home_style = {fontSize:'3em'}
+	var mobile_header_item_size = '2.8em'
 	var mobile_search_class = "mobileSearchBar"
 
 	var header_style = desktop_header_style

@@ -223,10 +223,12 @@ class NewPostSubmission extends React.Component {
 
 		var create_post_size = '20px'
 		var placeholder_size = '20px'
+		var embed_code_text = '16px'
 		if (isMobile)
 		{
-			create_post_size = '1.8em'
-			placeholder_size = '1.2em'
+			create_post_size = '3.6em'
+			placeholder_size = '2.6em'
+			embed_code_text = '1.8em'
 		}
 
 		var search_item_display = 'none'
@@ -267,7 +269,7 @@ class NewPostSubmission extends React.Component {
 							style={{
 								border:'1px solid rgba(0, 0, 0, 0.09)',
 								borderRadius: '8px',
-								fontSize:'16px',
+								fontSize:embed_code_text,
 								padding:'8px',
 								width: '100%',
 								zIndex:'2'
@@ -646,7 +648,7 @@ export default class Feed extends React.Component {
 		var top_padding = ''
 		if (isMobile)
 		{
-			top_padding = '8%'
+			top_padding = '12%'
 			trending_style = 'none'
 			posts_width = '100%'
 		}
