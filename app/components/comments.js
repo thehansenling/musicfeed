@@ -844,6 +844,11 @@ export default class CommentSection extends React.Component
 
 	submitNewComment()
 	{
+		if (!utils.checkLoggedIn())
+		{
+			alert("MUST BE LOGGED IN")
+			return;
+		}
 		this.props.mixpanel.track("Submit New First Comment", {"Comment ID": this.props.post_data.post_id})
 		var that = this;
 		var submit_text = this.contentRef.current.value

@@ -77,7 +77,21 @@ class NewPostSubmission extends React.Component {
 			this.props.mixpanel.track("Song Entered")
 		}
 		this.modified = true
+
 		var embedLink = event.target.value;
+		if (embedLink.indexOf('<iframe src="https://open.spotify.com') == -1 &&
+			embedLink.indexOf('https://open.spotify.com') != 1)
+		{
+			if (embedLink.indexOf('track') != -1)
+			{
+				embedLink = '<iframe src="' + embedLink.substring(0, embedLink.indexOf('/track')) + '/embed/track/' +  embedLink.substring(embedLink.indexOf('.com')+11, embedLink.indexOf('?')) + '" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>'
+			}
+			else
+			{
+				embedLink = '<iframe src="' + embedLink.substring(0, embedLink.indexOf('/album')) + '/embed/album/' +  embedLink.substring(embedLink.indexOf('.com')+11, embedLink.indexOf('?')) + '" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>'						
+			}
+		}
+			
 		this.setState({embedLink});
 
 		var that = this;
@@ -265,7 +279,7 @@ class NewPostSubmission extends React.Component {
 						<input
 							onChange={this.songInput.bind(this)}
 							value={this.state.embedLink}
-							placeholder="Embed code here"
+							placeholder="Search For Spotify Link"
 							style={{
 								border:'1px solid rgba(0, 0, 0, 0.09)',
 								borderRadius: '8px',

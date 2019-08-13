@@ -9,7 +9,6 @@ var Spotify = require('node-spotify-api');
 var bcrypt = require('bcrypt')
 var saltRounds = 10;
 
-
 import React from 'react';
 const app = express();
 
