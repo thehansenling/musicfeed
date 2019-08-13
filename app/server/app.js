@@ -459,9 +459,13 @@ function RenderFeed(req, res)
 				var global_posts_number_sql = "SELECT COUNT(*) from global_posts"
 				connection.query(global_posts_number_sql, function (err, result, fields){
 					var num_global_content = result[0]['COUNT(*)']
-					var user_number_sql = "SELECT COUNT(*) from accounts"
-					connection.query(user_content_number_sql, function (err, result, fields){
-						var num_user_content = result[0]['COUNT(*)']
+					var user_number_sql = "SELECT * from accounts WHERE username = '" + req.cookies.username + "'"
+					connection.query(user_number_sql, function (err, result, fields){
+						var user_info 
+						if (result != undefined && result.length > 0)
+						{
+							user_info = result[0]
+						}					
 						var artist_number_sql = "SELECT COUNT(DISTINCT artist) from user_content"
 						connection.query(artist_number_sql, function (err, result, fields){
 							var num_artists = result[0]['COUNT(DISTINCT artist)']
@@ -478,6 +482,7 @@ function RenderFeed(req, res)
 												num_posts: num_posts_list,
 												user_profiles: user_profiles,
 											    username: req.cookies.username,
+											    user_info: user_info,
 											    bumps: bumps}
 									//var html = ReactDOMServer.renderToString(<StaticRouter location={req.url} context={context}><App data = {data}/></StaticRouter>)
 									//var html = ReactDOMServer.renderToString(<Home test= "testing"/>)
@@ -2172,15 +2177,12 @@ app.get('/login', function(req, res)
 
 app.post('/login', function(req, res)
 {
-	
-	    // res == true
-   	var sql = "SELECT password FROM accounts where username = '" + req.body.username + "' COLLATE utf8_bin";
+   	var sql = "SELECT password FROM accounts where LOWER(username) = '" + req.body.username.toLowerCase() + "' COLLATE utf8_bin";
 	connection.query(sql, function (err, result, fields) {
 	    if (err) throw err;
 	    var login_message = "Login Failure";
 	    if (result.length == 0)
 	    {
-		    
 			var data = {login_message:"Login Failed"}
 			res.send(data);	    
 			return	
@@ -2198,21 +2200,7 @@ app.post('/login', function(req, res)
 				res.send(data);
 		    }	  		
 	  	});
-	  //   if (result.length!= 0)
-	  //   {
-			// res.cookie('username', result[0].username);
-			// var data = {login_message:"Login Successful"}
-			// res.send(data);			
-	  //   }
-	  //   else
-	  //   {
-			// var data = {login_message:"Login Failed"}
-			// res.send(data);
-	  //   }
-
   	});
-
-
 });
 
 app.post('/logout', function(req, res)

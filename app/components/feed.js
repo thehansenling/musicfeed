@@ -251,6 +251,12 @@ class NewPostSubmission extends React.Component {
 			search_item_display = ''
 		}
 
+		var create_post_color = '#178275'
+		if (this.props.user_info != undefined)
+		{
+			create_post_color = this.props.user_info.profile_picture
+		}
+
 		return (
 			<div
 				style={{
@@ -274,7 +280,7 @@ class NewPostSubmission extends React.Component {
 					Create Post
 				</div>
 				<div style={{display:'flex', flexDirection:'row', paddingTop:'16px'}}>
-					<div style={{width:'65px', height:'65px', backgroundColor:'#178275', borderRadius:'50%', marginRight:'12px'}}></div>
+					<div style={{width:'65px', height:'65px', backgroundColor:create_post_color, borderRadius:'50%', marginRight:'12px'}}></div>
 					<div style={{display: 'flex', flex: '1 0 auto', flexDirection:'column'}}>
 						<input
 							onChange={this.songInput.bind(this)}
@@ -670,7 +676,7 @@ export default class Feed extends React.Component {
 			<div style={{display:'flex', justifyContent: 'center', backgroundColor:'#F6F6F6', paddingTop:top_padding}}>
 				<div style={{display:'flex', flexDirection:'column', width:posts_width}}>
 					<div style={{marginTop: '16px'}}>
-						<NewPostSubmission mixpanel = {this.props.mixpanel}/>
+						<NewPostSubmission user_info = {this.props.data.user_info} mixpanel = {this.props.mixpanel}/>
 					</div>
 					<div style={{display:'flex', flexDirection:'row', marginTop: '12px'}}>
 						<div style={{width:'100%'}}>
