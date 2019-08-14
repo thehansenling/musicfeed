@@ -80,7 +80,7 @@ class NewPostSubmission extends React.Component {
 
 		var embedLink = event.target.value;
 		if (embedLink.indexOf('<iframe src="https://open.spotify.com') == -1 &&
-			embedLink.indexOf('https://open.spotify.com') != 1)
+			embedLink.indexOf('https://open.spotify.com') != -1)
 		{
 			if (embedLink.indexOf('track') != -1)
 			{
