@@ -1,6 +1,7 @@
 import React from 'react';
 import utils from './utils.js'
 import tag_utils from './tag_utils.js'
+import {isMobile} from 'react-device-detect';
 
 function generateComments(comments, comment_votes, id, starting_comment_level, post_data, mixpanel)
 {
@@ -426,66 +427,6 @@ class Comment extends React.Component
 		}
 		var date_text = date.getMonth() + "/" + date.getDate() + "/" + date.getFullYear() + " at " + date.getHours() + ":" + minutes;
                  
-		// var tags = JSON.parse(this.props.data.tags)
-		// var tag_indices = []
-
-		// if (this.props.data.tags != null)
-		// {
-		// 	tag_indices = Object.keys(tags)
-		// 	var remaining_indices = []
-		// 	for (var index of tag_indices)
-		// 	{
-		// 		if (tags[index].length < 5)
-		// 		{
-		// 			continue
-		// 		}
-		// 		remaining_indices.push(index)
-		// 	}
-		// 	tag_indices = remaining_indices
-		// 	tag_indices.sort(
-		// 			function(a, b){
-		// 		    	if (parseInt(a) > parseInt(b))
-		// 		        {
-		// 		        	return 1;
-		// 		        }
-		// 		        return -1;
-		// 			})
-				    		
-		// } 
-		// var total_index = 0;
-		// var comment_div = []
-		// this.props.data.text.split('\n').map((item, i) => {
-		// 	var current_text = ""
-		// 	var tag_index = 0;
-		// 	var all_content = []
-		// 	var index = 0;
-		// 	while (tag_indices[0] < total_index + item.length)
-		// 	{
-		// 		var before_text = item.substring(index, tag_indices[0] - total_index)
-		// 		var current_index = tag_indices[0] - total_index;
-		// 		var tag = ""
-		// 		while (current_index < item.length)
-		// 		{
-		// 			if (item[current_index] == ' ' || 
-		// 				item[current_index] == '\t' ||
-		// 				item[current_index] == '\n')
-		// 			{
-		// 				break
-		// 			}
-
-		// 			tag += item[current_index]
-		// 			++current_index
-		// 		}
-		// 		current_text = ""
-		// 		index = current_index
-		// 		all_content.push(before_text)
-		// 		all_content.push(<a href = {tags[tag_indices[0]][4]}>{tag}</a>)
-		// 		tag_indices.splice(0,1);
-		// 	}
-		// 	total_index += item.length 
-		// 	all_content.push(item.substring(index, item.length))
-		// 	comment_div.push(<p style = {{minHeight:'26.67px'}} key={i}>{all_content}</p>);
-		// })
 		var comment_div = []
 		comment_div = tag_utils.formatContent(this.props.data.text, this.props.data.tags)
 
@@ -509,19 +450,23 @@ class Comment extends React.Component
 		{
 			tag_display = ''
 		}
-				      	// <button ref = {this.upvoteRef} onClick = {this.upvoteClicked.bind(this)} style={{top:'0px',position:'absolute',height:'30px', color:upvote_color}} type='button' className = 'upvote' id = {comment_id}>^</button>
-				      	// <button ref = {this.downvoteRef}  onClick = {this.downvoteClicked.bind(this)} style={{bottom:'0px',position:'absolute',height:'30px', color:downvote_color}} type='button' className = 'downvote' id = {comment_id}>v</button>
-						// <div style = {{top:'0px',height:'30px', zIndex:'10'}}><img onClick = {this.upvoteClicked.bind(this)} src={this.up_image} width="20" height="20" alt=""/></div>
-						// <div style = {{bottom:'0px',height:'30px', zIndex:'10'}}><img onClick = {this.downvoteClicked.bind(this)} src={this.down_image} width="20" height="20" alt=""/></div>
-						// <div style = {{position:'relative', minHeight: '14.66px', width:'6px', borderRight:'3px solid #C5C5C5', top:'20px'}}>
-						// </div>
-		//<button onClick = {this.openNewComment.bind(this)} type='button' className = 'begin_comment' id = {comment_id}>Comment</button> 
+
+		var total_width = '1000px'
+		var comment_font_size = '1em'
+		var comment_header_font_size = '10pt'
+		if (isMobile)
+		{
+			total_width = '100%'
+		comment_font_size = '1.5em'
+		comment_header_font_size = '1em'
+		}
+
 		return (
-			<div style = {{background:'white', borderRadius:'4px', maxWidth:'1000px'}}>
+			<div style = {{background:'white', borderRadius:'4px', maxWidth:total_width}}>
 	      		
 		      	<div className= {comment_level} id= {comment_id} replies= {replies} style={{position:'relative', display:'flex', flexDirection:'row'}}>
 			      	{left_spaces}
-			      	<div style={{position:'relative', minHeight:'62.66px', width:'30px', display:'flex', flexDirection:'column', top:'5px'}}>
+			      	<div style={{position:'relative', minHeight:'62.66px', width:'30px', display:'flex', flexDirection:'column', top:'5px', flex: '1'}}>
 
 						<svg onClick = {this.upvoteClicked.bind(this)} width="10" height="16" viewBox="0 0 16 27" fill="none" xmlns="http://www.w3.org/2000/svg" color = 'blue'>
 							<path d="M8.70711 0.987356C8.31658 0.596832 7.68342 0.596832 7.29289 0.987356L0.928931 7.35132C0.538407 7.74184 0.538407 8.37501 0.928931 8.76553C1.31946 9.15606 1.95262 9.15606 2.34315 8.76553L8 3.10868L13.6569 8.76553C14.0474 9.15606 14.6805 9.15606 15.0711 8.76553C15.4616 8.37501 15.4616 7.74184 15.0711 7.35132L8.70711 0.987356ZM9 26.3126L9 1.69446L7 1.69446L7 26.3126L9 26.3126Z" fill={upvote_color}/>
@@ -532,8 +477,8 @@ class Comment extends React.Component
 						</svg>
 
 			      	</div>
-			      	<div style={{position:'relative', maxWidth:'970px', minWidth:'300px'}}>
-			      		<div ref = {this.scoreRef} style={{display:'flex', flexDirection:'row', width:'95%',height:'20px', fontSize:'10pt', color: '#5b5b5b'}} className='comment_header' id = {comment_id}> 
+			      	<div style={{position:'relative', minWidth:'300px', flex: '29'}}>
+			      		<div ref = {this.scoreRef} style={{display:'flex', flexDirection:'row',height:'20px', fontSize:comment_header_font_size, color: '#5b5b5b'}} className='comment_header' id = {comment_id}> 
 			      			<div style = {{color:'#188275'}}> 
 			      				<a style = {{color:'#188275', fontWeight:'bold'}} href = {"/user/" + this.props.data.user_id}> {this.props.data.user_id} </a>
 			      			</div>
@@ -549,8 +494,8 @@ class Comment extends React.Component
 			      			</div>
 			      			
 			      		</div>
-			      		<div style={{width:'95%'}} className ='comment_body' id = {comment_id}> {comment_div} </div> 
-			      		<div style={{width:'95%',height:'25px', fontSize:'10pt', color: '#188275'}} onClick = {this.openNewComment.bind(this)} className = 'begin_comment' id = {comment_id}> Reply </div>
+			      		<div style={{width:'95%', fontSize:comment_font_size}} className ='comment_body' id = {comment_id}> {comment_div} </div> 
+			      		<div style={{width:'95%',height:'25px', fontSize:'10pt', color: '#188275', fontSize:comment_header_font_size}} onClick = {this.openNewComment.bind(this)} className = 'begin_comment' id = {comment_id}> Reply </div>
 			      	</div>
 		    	</div>
 		    	{this.new_comment}
@@ -624,66 +569,6 @@ export default class CommentSection extends React.Component
 				}
 
 				var content_div = []
-				// var total_index = 0;
-				// var tags = JSON.parse(this.props.data.tags)
-				// var tag_indices = []
-
-				// if (post.tags != null)
-				// {
-				// 	tag_indices = Object.keys(tags)
-				// 	var remaining_indices = []
-				// 	for (var index of tag_indices)
-				// 	{
-				// 		if (tags[index].length < 5)
-				// 		{
-				// 			continue
-				// 		}
-				// 		remaining_indices.push(index)
-				// 	}
-				// 	tag_indices = remaining_indices
-				// 	tag_indices.sort(
-				// 			function(a, b){
-				// 		    	if (parseInt(a) > parseInt(b))
-				// 		        {
-				// 		        	return 1;
-				// 		        }
-				// 		        return -1;
-				// 			})
-						    		
-				// } 
-
-				// post.content.split('\n').map((item, i) => {
-				// 	var current_text = ""
-				// 	var tag_index = 0;
-				// 	var all_content = []
-				// 	var index = 0;
-				// 	while (tag_indices[0] < total_index + item.length)
-				// 	{
-				// 		var before_text = item.substring(index, tag_indices[0] - total_index)
-				// 		var current_index = tag_indices[0] - total_index;
-				// 		var tag = ""
-				// 		while (current_index < item.length)
-				// 		{
-				// 			if (item[current_index] == ' ' || 
-				// 				item[current_index] == '\t' ||
-				// 				item[current_index] == '\n')
-				// 			{
-				// 				break
-				// 			}
-
-				// 			tag += item[current_index]
-				// 			++current_index
-				// 		}
-				// 		current_text = ""
-				// 		index = current_index
-				// 		all_content.push(before_text)
-				// 		all_content.push(<a href = {tags[tag_indices[0]][4]}>{tag}</a>)
-				// 		tag_indices.splice(0,1);
-				// 	}
-				// 	total_index += item.length 
-				// 	all_content.push(item.substring(index, item.length))
-				// 	content_div.push(<p style = {{minHeight:'26.67px'}} key={i}>{all_content}</p>);
-				// })
 				content_div = tag_utils.formatContent(this.props.global_post.content, this.props.global_post.tags)
 				post_and_comments.push( 
 				<div>
@@ -920,15 +805,23 @@ export default class CommentSection extends React.Component
 			new_comment_button = undefined
 		}
 
+		var comment_width = '1000px'
+		if (isMobile)
+		{
+			comment_width = '100%'
+		}
+
 		var profile_picture = "#188275"
 
 		return (
-			<div style = {{position:'relative', left: '10px', maxWidth:'1000px'}}>
-				<div style = {{width:'1000px', display:'flex', flexDirection:'row'}}>
-					<div style = {{borderRadius: '50%', backgroundColor:profile_picture, position:'relative', left:'10px', width:'40px', height:'40px'}}>
+			<div style = {{position:'relative', left: '10px', maxWidth:comment_width}}>
+				<div style = {{display:'flex', flexDirection:'row'}}>
+					<div style = {{borderRadius: '50%', backgroundColor:profile_picture, position:'relative', width:'40px', height:'40px'}}>
 					</div>
-					<textarea ref = {this.contentRef} style = {{position:'relative', height:'40px', left: '40px', width:'820px', borderRadius:'7px', border:'1px solid black'}} placeholder = "  Comment Here.."></textarea>
-					<button onClick = {this.submitNewComment.bind(this)} style={{position:'relative', width:'92px', left:'40px'}} type='button' className='submit_new_comment grayButton' id = {this.props.comment_id}>submit</button>
+					<div style = {{display:'flex', flex:'.1'}}>
+					</div>
+					<textarea ref = {this.contentRef} style = {{display:'flex', flex: '10', position:'relative', height:'40px', borderRadius:'7px', border:'1px solid black'}} placeholder = "  Comment Here.."></textarea>
+					<button onClick = {this.submitNewComment.bind(this)} style={{position:'relative', display:'flex', flex: '2', justifyContent:'center'}} type='button' className='submit_new_comment grayButton' id = {this.props.comment_id}>submit</button>
 				</div>
 				{new_comment_button}
 				{this.new_comment}

@@ -278,9 +278,7 @@ class UserPostContent extends React.Component
 			this.down_color = "#dd3d3d"
 		}
 
-		var content_div = []
 
-		content_div = tag_utils.formatContent(this.props.data.content, this.props.data.tags)
 		var post_id = this.props.data.id;
 		var date = new Date(this.props.data.timestamp)
 		//<div style = {{position:'relative', textAlign:'center', paddingTop:'8px', fontSize:'3em'}}>{this.props.data.title}</div>
@@ -315,45 +313,70 @@ class UserPostContent extends React.Component
 			content_name = this.props.data.album
 		}
 
-		return (
-			<div ref = {this.postRef} key = {this.props.data.post_id} style = {{border: '1px solid #F1F1F1', borderRadius: '7px', width:'980px', background:'white', minHeight:'580px', position:'relative', top:'10px', left:'10px', margin:'0px auto'}}>
+		var title_size = '24px'
+		var content_size = '20px'
+		var date_size = '17px'
+		var max_content_height = '450px'
+		var content_name_size = '1.2em'
+		var username_size = '24px'
 
-					<div style = {{paddingTop:'30px', paddingLeft:'10px', paddingRight:'10px', width:'980px', position:'relative', minHeight:'545px', display:'flex', flexDirection:'row'}}>
-						<div style = {{display:'flex', flexDirection:'row', width:'330px', paddingLeft:'10px', borderRadius:'7px', borderTopRightRadius: '0px', borderBottomRightRadius: '0px'}}>
+		var left_flex = ''
+		var right_flex = ''
+		var content_float = 'left'
+		var icon_font_size = '16px'
+		var icons_height = '24px'
+		if (isMobile)
+		{
+			username_size = '1.1em'
+			title_size = '2em'
+			date_size = '.7em'
+			content_size = '1.8em'
+			content_name_size = '.8em'
+			max_content_height = '615px'
+
+			left_flex = '4'
+			right_flex = '6'
+			content_float = 'left'
+
+			icons_height = '48px'
+			icon_font_size = '1em'
+		}
+
+		var content_information = <div key = "content_information" style = {{flex:left_flex, display:'flex', flexDirection:'row', width:'330px', paddingLeft:'10px', borderRadius:'7px', borderTopRightRadius: '0px', borderBottomRightRadius: '0px', float:content_float}}>
 							<div style = {{paddingRight:'10px'}}>
 								<div style = {{display:'flex', flexDirection:'row'}}>
 									<div style = {{width:'65px', height:'65px', backgroundColor:this.props.user_profile, borderRadius:'50%'}}>
 									</div>
 									<div style = {{paddingLeft:'20px'}}>
-										<div style = {{fontSize:'24px', fontWeight:'bold'}}> <a href ={"/user/" + this.props.data.username} > {this.props.data.username}</a></div>
-										<div style = {{fontSize:'17px', paddingRight:'10px'}}>{ utils.monthNames[parseInt(date.getMonth())]+ " " + date.getDate() + ", " + date.getFullYear()}</div>
+										<div style = {{fontSize:username_size, fontWeight:'bold', whiteSpace:'normal'}}> <a href ={"/user/" + this.props.data.username} > {this.props.data.username}</a></div>
+										<div style = {{fontSize:date_size, paddingRight:'10px'}}>{ utils.monthNames[parseInt(date.getMonth())]+ " " + date.getDate() + ", " + date.getFullYear()}</div>
 									</div>
 								</div>
 
 								<div style = {{paddingTop:'30px'}}><span dangerouslySetInnerHTML={this.renderiframe(this.props.data.embedded_content)}></span>
 								</div>
-								<div style = {{width:'300px', display:'flex', flexDirection:'row', paddingTop:'5px', fontSize:'1.2em', color:'#2F3846', opacity:'.6'}}>
+								<div style = {{width:'300px', display:'flex', flexDirection:'row', paddingTop:'5px', fontSize:content_name_size, color:'#2F3846', opacity:'.6'}}>
 									<a style = {{height:'26.66px',whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}} href = {"/artist/" + split_artist}> {split_artist} </a>
 									-
 									<a style = {{height:'26.66px',whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}} href = {content_link}> {content_name} </a>  
 								</div>
 								<div style = {{height:'35px', display:'flex', flexDirection:'row', zIndex:'9'}}>
 									<div style = {{width:'15px', height:'30px'}}></div>
-									<svg onClick = {this.likeClicked.bind(this)} width="14" height="24" viewBox="0 0 16 27" fill="none" xmlns="http://www.w3.org/2000/svg" color = 'blue'>
+									<svg onClick = {this.likeClicked.bind(this)} width={parseInt(icons_height) * 0.58333} height={icons_height} viewBox="0 0 16 27" fill="none" xmlns="http://www.w3.org/2000/svg" color = 'blue'>
 									<path d="M8.70711 0.987356C8.31658 0.596832 7.68342 0.596832 7.29289 0.987356L0.928931 7.35132C0.538407 7.74184 0.538407 8.37501 0.928931 8.76553C1.31946 9.15606 1.95262 9.15606 2.34315 8.76553L8 3.10868L13.6569 8.76553C14.0474 9.15606 14.6805 9.15606 15.0711 8.76553C15.4616 8.37501 15.4616 7.74184 15.0711 7.35132L8.70711 0.987356ZM9 26.3126L9 1.69446L7 1.69446L7 26.3126L9 26.3126Z" fill={this.up_color}/>
 									</svg>
-									<div style = {{minWidth:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', position: 'relative', top: '0px', fontSize: '16px', fontWeight:'bold'}}><a href = {"/user/" + this.props.data.username + "/" + this.props.data.id + "/likes"} >{this.likes_score} </a></div>
+									<div style = {{minWidth:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', position: 'relative', top: '0px', fontSize: icon_font_size, fontWeight:'bold'}}><a href = {"/user/" + this.props.data.username + "/" + this.props.data.id + "/likes"} >{this.likes_score} </a></div>
 
-									<svg onClick = {this.dislikeClicked.bind(this)} width="14" height="24" viewBox="0 0 16 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<svg onClick = {this.dislikeClicked.bind(this)} width={parseInt(icons_height) * 0.58333} height={icons_height} viewBox="0 0 16 27" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<path d="M7.29289 26.0197C7.68342 26.4102 8.31658 26.4102 8.70711 26.0197L15.0711 19.6557C15.4616 19.2652 15.4616 18.632 15.0711 18.2415C14.6805 17.851 14.0474 17.851 13.6569 18.2415L8 23.8984L2.34315 18.2415C1.95262 17.851 1.31946 17.851 0.928932 18.2415C0.538408 18.632 0.538408 19.2652 0.928932 19.6557L7.29289 26.0197ZM7 0.694489L7 25.3126H9L9 0.694489L7 0.694489Z" fill={this.down_color}/>
 									</svg>
 
 									<div style = {{width:'10px', height:'30px', borderRight: '1px solid rgba(0, 0, 0, 0.09)'}}></div>
 									<div style = {{width:'10px', height:'30px'}}></div>
-									<div style = {{}}><img src="/speech_bubble.png" width="30" height="26" alt=""/></div>
+									<div style = {{}}><img src="/speech_bubble.png" width={parseInt(icons_height) * 0.58333} height={icons_height} alt=""/></div>
 
-									<div style = {{width:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', position: 'relative', top: '0px', fontSize: '16px', fontWeight:'bold'}}> {this.props.num_comments} </div>
-									<div style = {{width:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', position: 'relative', top: '0px', fontSize: '16px', fontWeight:'bold'}}>
+									<div style = {{width:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', position: 'relative', top: '0px', fontSize: icon_font_size, fontWeight:'bold'}}> {this.props.num_comments} </div>
+									<div style = {{width:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', position: 'relative', top: '0px', fontSize: icon_font_size, fontWeight:'bold'}}>
 										{this.bump_button}
 									</div>
 								</div>	
@@ -362,11 +385,24 @@ class UserPostContent extends React.Component
 							<div style = {{width:'10px', height:'515px', borderLeft:'1px solid rgba(0, 0, 0, 0.09)'}}>
 							</div>	
 						</div>
-						<div>
-							<div style = {{fontWeight:'bold', fontSize:'24px', margin: '0px auto', paddingBottom:'10px'}}>
-								{this.props.data.title}
-							</div>
-							<div style = {{minHeight:'455px', whiteSpace:'pre-wrap'}}>
+		
+
+		var title_div = <div key = "title" style = {{fontWeight:'bold', fontSize:title_size, margin: '0px auto', paddingBottom:'10px'}}>
+							{this.props.data.title}
+						</div>
+		var content_div = []
+
+		content_div = [content_information, title_div]
+
+		content_div = tag_utils.formatContent(this.props.data.content, this.props.data.tags, content_div)
+		return (
+			<div ref = {this.postRef} key = {this.props.data.post_id} style = {{border: '1px solid #F1F1F1', borderRadius: '7px', background:'white', minHeight:'580px', position:'relative', top:'10px', left:'10px', margin:'0px auto'}}>
+
+					<div style = {{paddingTop:'30px', paddingLeft:'10px', paddingRight:'10px', position:'relative', minHeight:'545px', display:'flex', flexDirection:'row'}}>
+
+						<div style = {{flex:right_flex}}>
+
+							<div style = {{minHeight:'455px', whiteSpace:'pre-wrap', fontSize:content_size}}>
 								{content_div}
 							</div>
 						</div>
@@ -375,53 +411,6 @@ class UserPostContent extends React.Component
 			</div>
 
 		);
-
-			// <div style = {{background: 'white', position:'relative', top:'10px', paddingLeft:'10px', height: 'auto', minHeight: '550px', maxWidth:'980px', paddingBottom:'20px', paddingRight:'10px', left:'10px', borderBottom: 'solid black 3px', borderRadius: '4px'}}>
-			// 	<div style = {{}} >
-
-			// 		<div style = {{display:'flex', flexDirection:'row'}}>
-			// 		<div style=  {{width:'300px', paddingLeft:'10px', paddingTop:'10px'}}>
-			// 			<div style = {{float:'left'}}> <a href ={"/user/" + this.props.data.username} > {this.props.data.username}</a></div>
-			// 			<div style = {{float:'right', paddingRight:'10px'}}>{(parseInt(date.getMonth()) + 1) + "/" + date.getDate() + "/" + date.getFullYear()}</div>
-			// 			<div style = {{clear:'both'}}>{artist_names}</div>
-			// 			<div> <a href = {content_url} >{content_name} </a></div>
-			// 		</div>
-			// 		<div style = {{paddingTop:'8px', width:'680px', margin: '0px auto', textAlign:'center', fontSize:'36px'}}>{this.props.data.title}</div>
-
-			// 		</div>
-
-			// 	</div>
-			// 	<div style = {{display:'inlineBlock'}}>
-			// 		<div style={{float:'left',position:'relative', top:'0px', paddingRight:'20px'}} dangerouslySetInnerHTML={this.renderiframe(this.props.data.embedded_content)}>
-			// 		</div>
-					
-			// 		{content_div}
-			// 		{this.edit_content}
-			// 	</div>
-
-			// 	<div style = {{clear:'both', height:'35px'}}>
-			// 		<div style = {{float:'left', width:'15px', height:'30px'}}></div>
-			// 		<div style = {{float:'left'}}><img onClick = {this.likeClicked.bind(this)} src={this.up_image} width="30" height="30" alt=""/></div>
-			// 		<div style = {{width:'60px', height:'30px', float:'left', verticalAlign: 'middle', textAlign: 'center', width:'60px', position: 'relative', top: '0px', fontSize: '21px'}}>{this.likes_score}</div>
-			// 		<div style = {{float:'left'}}><img onClick = {this.dislikeClicked.bind(this)} src={this.down_image} width="30" height="30" alt=""/></div>
-			// 		<div style = {{float:'left', width:'30px', height:'30px', borderRight: '1px solid black'}}></div>
-			// 		<div style = {{float:'left', width:'30px', height:'30px'}}></div>
-			// 		<div style = {{float:'left'}}><img src="/small_comment.png" width="30" height="30" alt=""/></div>
-			// 		<div style = {{width:'60px', height:'30px', float:'left', verticalAlign: 'middle', textAlign: 'center', width:'80px', position: 'relative', top: '0px', fontSize: '21px'}}>{this.props.num_comments}</div>
-			// 	</div>
-
-			// 	<div style = {{position:'fixed', width: '200px', height:'300px', right:'10%', top:'200px', backgroundColor:'white', display:tag_display, zIndex:15, overflow:'scroll'}} >
-			// 		{this.tagList}
-			// 	</div>
-
-			// 		<meta className = "comment_offset" content = "0" />
-			// </div>
-
-				// <div>
-				// 	<div  className="likes" id = {this.props.data.id} >Likes: {this.likes_score} </div>
-				// 	<button ref = {this.likeRef} onClick = {this.likeClicked.bind(this)} type="button" className = "like" id = {this.props.data.id} style = {like_style}>Like</button>
-				// 	<button ref = {this.dislikeRef} onClick = {this.dislikeClicked.bind(this)} type="button" className = "unlike" id = {this.props.data.id} style = {dislike_style}>Hate</button>
-				// </div>
 	}
 }
 
@@ -438,9 +427,6 @@ export default class UserPost extends React.Component
 	{
 		this.props.mixpanel.track("User Post Page", {"Post ID":this.props.data.user_post.id})
 	}
-				// <div style = {{position:'relative', top:'100px', left:'15px', border: '1px solid #F1F1F1', borderRadius:'7px', width:'1000px', minHeight: this.post_height, backgroundColor:'#F6F6F6'}}>
-				// 	<UserPostContent ref = {this.postRef} data = {this.props.data.user_post} like_state = {this.props.data.like_state} num_comments = {this.props.data.num_comments} username = {this.props.data.username} user_profile = {this.props.data.user_profile}/>
-				// </div>
 
 	render()
 	{
@@ -449,12 +435,19 @@ export default class UserPost extends React.Component
 		{
 			top_padding = '12%'
 		}
+
+		var post_width = '1000px'
+
+		if (isMobile)
+		{
+			post_width = '100%'
+		}
 		return (
 			<div>
-				<div style = {{position:'relative', margin:'0px auto', width:'1000px', paddingTop:top_padding}}>
+				<div style = {{position:'relative', margin:'0px auto', width:post_width, paddingTop:top_padding}}>
 					<UserPostContent ref = {this.postRef} data = {this.props.data.user_post} like_state = {this.props.data.like_state} num_comments = {this.props.data.num_comments} username = {this.props.data.username} user_profile = {this.props.data.user_profile} mixpanel = {this.props.mixpanel}/>
 				</div>
-				<div style = {{margin:'0px auto', width:'1000px', paddingTop:"40px"}}>
+				<div style = {{margin:'0px auto', width:post_width, paddingTop:"40px"}}>
 					<CommentSection comments = {this.props.data.comments} comment_votes = {this.props.data.comment_votes} post_id = {this.props.data.user_post.id} post_data = {this.props.data.user_post} mixpanel = {this.props.mixpanel} />
 				</div>
 			</div>

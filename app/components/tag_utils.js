@@ -414,9 +414,9 @@ module.exports =
 		obj.forceUpdate()
 	},
 
-	formatContent : function (content, raw_tags)
+	formatContent : function (content, raw_tags, start = [])
 	{
-		var content_div = []
+		var content_div = start
 		var tags
 		var tag_indices = []
 		if (raw_tags != undefined && raw_tags != null)
