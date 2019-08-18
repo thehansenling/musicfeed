@@ -3,6 +3,7 @@ import StandardHeader from './standard_header.js'
 import CommentSection from './comments.js'
 import utils from './utils.js'
 import tag_utils from './tag_utils.js'
+import {isMobile} from 'react-device-detect';
 
 class GlobalPostContent extends React.Component 
 {
@@ -196,34 +197,6 @@ class GlobalPostContent extends React.Component
 			dislike_style.color = 'red'
 		}
 
-			// <div>
-			// 	<div style={{position:'relative', top:'100px', paddingBottom:'100px', height: 'auto', minHeight: '550px'}}>
-			// 		<div style={{position:'relative',float:'left', top:'0px', paddingRight:'20px'}} dangerouslySetInnerHTML={this.renderiframe(this.props.data.embedded_content)}>
-			// 		</div>
-			// 		<div style={{left:'10%', top:'20%'}}>
-
-			// 			<div>
-			// 				{song}
-			// 				<div> Album: {this.props.data.album} </div>
-			// 				<div> Released on: {this.props.data.release_date} </div>
-			// 				{this.album_songs}
-			// 			</div>
-
-			// 		</div>
-			// 	</div>
-			// 	<br/>
-			// 	<br/>
-			// 	<br/>
-			// 	<br/>
-			// 	<div>
-			// 		<div  className="likes" id = {this.props.data.id} >Likes: {this.likes_score} </div>
-			// 		<button ref = {this.likeRef} onClick = {this.likeClicked.bind(this)} type="button" className = "like" id = {this.props.data.id} style = {like_style}>Like</button>
-			// 		<button ref = {this.dislikeRef} onClick = {this.dislikeClicked.bind(this)} type="button" className = "unlike" id = {this.props.data.id} style = {dislike_style}>Hate</button>
-			// 	</div>
-			// 	<meta className = "comment_offset" content = "0" />
-			// </div>
-
-
 		return (
 			<div style = {{background: 'white', position:'relative', top:'85px', paddingLeft:'10px', height: 'auto', minHeight: '550px', maxWidth:'1000px', paddingBottom:'50px', paddingRight:'10px', paddingTop:'10px', left:'5%', borderBottom: 'solid black 3px', borderRadius: '4px'}}>
 
@@ -274,38 +247,57 @@ class MiniPost extends React.Component
 	{
 		var content_div = tag_utils.formatContent(this.props.post.content, this.props.post.tags)
 		var date = new Date(this.props.post.timestamp)
+
+		var minipost_width = '735px'
+		var username_size = '1.1em'
+		var date_size = '.8em'
+		var icons_height = '24px'
+		var icons_font = '16pt'
+		var title_size = '1.2em'
+		var content_font_size = '1em'
+		if (isMobile)
+		{
+			minipost_width = "100%"
+			username_size = '2.4em'
+			date_size = '1.6em'
+			icons_height = '48px'
+			icons_font = '2em'
+			title_size = '3em'
+			content_font_size = '2em'
+		}
+
 		return(
-			<div style = {{width:'735px', backgroundColor:'white', borderRadius:'7px', border: '1px solid #F1F1F1'}}>
+			<div style = {{width:minipost_width, backgroundColor:'white', borderRadius:'7px', border: '1px solid #F1F1F1'}}>
 				<div style = {{display:'flex', flexDirection:'row', paddingLeft:'10px', paddingTop:'10px'}}>
-					<div style = {{display:'flex', flexDirection:'row'}}>
+
 						<div style = {{backgroundColor:this.props.user.profile_picture, borderRadius:'50%', height:'48px', width:'48px'}}>
 						</div>
 						<div style = {{paddingLeft:'10px', borderRight:'1px solid #F1F1F1', paddingRight:'20px'}}>
-							<div style = {{fontSize:'1.1em', fontWeight:'bold'}}>
+							<div style = {{fontSize:username_size, fontWeight:'bold'}}>
 								<a href = {"/user/" + this.props.user.username}>{this.props.user.username}</a>
 							</div>
-							<div style = {{fontSize:'.8em'}}>
+							<div style = {{fontSize:date_size}}>
 								{utils.monthNames[parseInt(date.getMonth())]+ " " + date.getDate() + ", " + date.getFullYear()}
 							</div>
 						</div>
-						<div style = {{paddingTop:'10px', paddingLeft:'32px', fontWeight:'bold', fontSize:'1.2em', width:'400px'}}>
+						<div style = {{paddingTop:'10px', paddingLeft:'32px', fontWeight:'bold', fontSize:title_size}}>
 							<a href = {"/user/" + this.props.post.username + "/" + this.props.post.post_id}>{this.props.post.title}</a>
 						</div>
-						<div style = {{paddingTop:'10px', display:'flex', flexDirection:'row'}}>
-							<svg width="14" height="24" viewBox="0 0 16 27" fill="none" xmlns="http://www.w3.org/2000/svg" color = 'blue'>
+						<div style = {{paddingTop:'10px', display:'flex', flexDirection:'row', fontSize:icons_font, paddingRight:'20px', margin:'0 0 auto auto'}}>
+							<svg width={parseInt(icons_height) * 0.58333} height={icons_height} viewBox="0 0 16 27" fill="none" xmlns="http://www.w3.org/2000/svg" color = 'blue'>
 							<path d="M8.70711 0.987356C8.31658 0.596832 7.68342 0.596832 7.29289 0.987356L0.928931 7.35132C0.538407 7.74184 0.538407 8.37501 0.928931 8.76553C1.31946 9.15606 1.95262 9.15606 2.34315 8.76553L8 3.10868L13.6569 8.76553C14.0474 9.15606 14.6805 9.15606 15.0711 8.76553C15.4616 8.37501 15.4616 7.74184 15.0711 7.35132L8.70711 0.987356ZM9 26.3126L9 1.69446L7 1.69446L7 26.3126L9 26.3126Z" fill='black'/>
 							</svg>
-							<div style = {{minWidth:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', fontSize: '16px', fontWeight:'bold'}}><a href = {"/user/" + this.props.post.username + "/" + this.props.post.post_id + "/likes"} >{this.props.post.likes - this.props.post.dislikes} </a></div>
+							<div style = {{minWidth:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', fontWeight:'bold'}}><a href = {"/user/" + this.props.post.username + "/" + this.props.post.post_id + "/likes"} >{this.props.post.likes - this.props.post.dislikes} </a></div>
 
-							<svg width="14" height="24" viewBox="0 0 16 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<svg width={parseInt(icons_height) * 0.58333} height={icons_height} viewBox="0 0 16 27" fill="none" xmlns="http://www.w3.org/2000/svg">
 							<path d="M7.29289 26.0197C7.68342 26.4102 8.31658 26.4102 8.70711 26.0197L15.0711 19.6557C15.4616 19.2652 15.4616 18.632 15.0711 18.2415C14.6805 17.851 14.0474 17.851 13.6569 18.2415L8 23.8984L2.34315 18.2415C1.95262 17.851 1.31946 17.851 0.928932 18.2415C0.538408 18.632 0.538408 19.2652 0.928932 19.6557L7.29289 26.0197ZM7 0.694489L7 25.3126H9L9 0.694489L7 0.694489Z" fill='black'/>
 							</svg>
-							<div style = {{paddingLeft:'10px'}}><img src="/speech_bubble.png" width="30" height="26" alt=""/></div>
-							<div style = {{width:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', fontSize: '16px', fontWeight:'bold'}}> <a href = {"/user/" + this.props.post.username + "/" + this.props.post.post_id}> {this.props.num_comments} </a></div>
+							<div style = {{paddingLeft:'10px'}}><img src="/speech_bubble.png" width={parseInt(icons_height) * 1.25} height={icons_height} alt=""/></div>
+							<div style = {{width:'30px', height:'30px', verticalAlign: 'middle', textAlign: 'center', fontWeight:'bold'}}> <a href = {"/user/" + this.props.post.username + "/" + this.props.post.post_id}> {this.props.num_comments} </a></div>
 						</div>
-					</div>
+
 				</div>
-				<div style = {{paddingLeft:'16px', paddingTop:'8px'}}>
+				<div style = {{paddingLeft:'16px', paddingTop:'8px', fontSize:content_font_size}}>
 					{content_div}
 				</div>
 			</div>
@@ -399,13 +391,31 @@ export default class GlobalPost extends React.Component
 
 	render()
 	{
+
+		var content_width = '735px'
+		var top_padding ='50px'
+		var content_name_size = '1.4em'
+		var album_name_size = '1.1em'
+		var post_info_size = '1.2em'
+		var top_user_post_size = '1.5em'
+		if (isMobile)
+		{
+			content_width = '100%'
+			top_padding ='12%'
+			content_name_size = '3em' 
+			album_name_size = '2.4em'
+			post_info_size = '2.4em'
+			top_user_post_size = '3.2em'
+			this.props.data.global_post.embedded_content = utils.SetSpotifySize(this.props.data.global_post.embedded_content, 500, 570)
+		}
+
 		if (this.props.data.global_post == undefined)
 		{
 			return(<div> Content Not Yet Posted </div>)
 		}
 		var date = new Date(this.props.data.global_post.timestamp)
 		var content_name = this.props.data.global_post.song
-		var album_div = <div style = {{fontSize:'1.1em'}}>
+		var album_div = <div style = {{fontSize:album_name_size}}>
 							{"Album: "}
 							<a href = {"/album/" + this.props.data.global_post.artist + "/" + this.props.data.global_post.album}> {this.props.data.global_post.album} </a>
 						</div>
@@ -416,37 +426,40 @@ export default class GlobalPost extends React.Component
 			album_div = ""
 		}
 
+
+
 		return (
-			<div style = {{width:'735px', margin:'0px auto', paddingTop:'50px'}}>
+			<div style = {{width:content_width, margin:'0px auto', paddingTop:top_padding}}>
 
-				<div style = {{width:'735px', height:'400px', background:'white', border:'1px solid #F1F1F1', borderRadius:'7px', display:'flex', flexDirection:'row'}}>
-
-					<div style = {{paddingTop:'10px', paddingLeft:'10px'}} dangerouslySetInnerHTML={utils.renderiframe(this.props.data.global_post.embedded_content)}>
-					</div>
-
-					<div style = {{justifyContent:'center', display:'flex', flexDirection:'column', paddingLeft:'20px'}}>
-						<div style = {{fontSize:'1.4em', fontWeight:'bold', display:'flex', flexDirection:'row'}}>
-							<div style = {{fontWeight:'bold'}}>{content_name}</div>
-							<div style = {{paddingLeft:"8px", paddingRight:"8px", fontWeight:'bold'}}> by </div>  
-							<a href = {"/artist/" + this.props.data.global_post.artist}>{this.props.data.global_post.artist}</a>
+				<div style = {{minHeight:'400px', background:'white', border:'1px solid #F1F1F1', borderRadius:'7px', display:'flex', flexDirection:'row', paddingTop:'20px', paddingBottom:'20px'}}>
+					<div style = {{display:'flex', margin:'0px auto'}}>
+						<div style = {{}} dangerouslySetInnerHTML={utils.renderiframe(this.props.data.global_post.embedded_content)}>
 						</div>
-						{album_div}
-						<div style = {{fontSize:'1.1em'}}>
-							{"Release Date: " + utils.monthNames[parseInt(date.getMonth())]+ " " + date.getDate() + ", " + date.getFullYear()}
-						</div>
-						<div style = {{display:'flex', flexDirection:'row'}}>
-							<div style = {{}}>
-								<div style = {{fontSize:'1.2em', fontWeight:'normal'}}> Likes</div>
-								<div style = {{fontWeight:'bold', fontSize:'1.2em'}}>{this.props.data.likes}</div>
+
+						<div style = {{justifyContent:'center', display:'flex', flexDirection:'column', paddingLeft:'20px'}}>
+							<div style = {{fontSize:content_name_size, fontWeight:'bold', display:'flex', flexDirection:'row'}}>
+								<div style = {{fontWeight:'bold'}}>{content_name}</div>
+								<div style = {{paddingLeft:"8px", paddingRight:"8px", fontWeight:'bold'}}> by </div>  
+								<a href = {"/artist/" + this.props.data.global_post.artist}>{this.props.data.global_post.artist}</a>
 							</div>
-							<div style = {{paddingLeft:'20px'}}>
-								<div style = {{fontSize:'1.2em', fontWeight:'normal'}}> Posts</div>
-								<div style = {{fontWeight:'bold', fontSize:'1.2em'}}>{this.props.data.num_posts}</div>
+							{album_div}
+							<div style = {{fontSize:album_name_size}}>
+								{"Release Date: " + utils.monthNames[parseInt(date.getMonth())]+ " " + date.getDate() + ", " + date.getFullYear()}
+							</div>
+							<div style = {{display:'flex', flexDirection:'row', fontSize: post_info_size}}>
+								<div style = {{}}>
+									<div style = {{fontWeight:'normal'}}> Likes</div>
+									<div style = {{fontWeight:'bold'}}>{this.props.data.likes}</div>
+								</div>
+								<div style = {{paddingLeft:'20px'}}>
+									<div style = {{fontWeight:'normal'}}> Posts</div>
+									<div style = {{fontWeight:'bold'}}>{this.props.data.num_posts}</div>
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-				<div style = {{fontWeight:'bold', fontSize:'1.5em', paddingTop:'20px'}}>
+				<div style = {{fontWeight:'bold', fontSize:top_user_post_size, paddingTop:'20px'}}>
 					Top User Posts
 				</div>
 				<div style = {{paddingTop:'20px', paddingBottom:'20px'}}>
