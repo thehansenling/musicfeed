@@ -1837,7 +1837,7 @@ app.get('/post/:artist/:song', function (req, res) {
 					var user_profiles = {}
 					for (var i = 0; i < result.length; ++i)
 					{
-						user_profiles[result[i].username] = result[i]
+						user_profiles[result[i].username.toLowerCase()] = result[i]
 					}
 					var all_likes_sql = "SELECT COUNT(likes) as all_posts, SUM(likes) - SUM(dislikes) as all_likes FROM user_content WHERE artist = '" + req.params.artist + "' AND song = '" + req.params.song + "'" 
 					connection.query(all_likes_sql, function (err, result, fields) 

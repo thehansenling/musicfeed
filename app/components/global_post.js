@@ -329,7 +329,7 @@ class GlobalInfo extends React.Component
 		let current_posts = this.state.posts
 		for (var post of this.props.posts)
 		{
-			current_posts.push(<MiniPost user = {this.props.user_profiles[post.username]} post = {post} num_comments = {this.props.num_comments[post.post_id]}/>)
+			current_posts.push(<MiniPost user = {this.props.user_profiles[post.username.toLowerCase()]} post = {post} num_comments = {this.props.num_comments[post.post_id]}/>)
 		}
 		this.offset += current_posts.length
 		this.setState({posts: current_posts});
@@ -364,7 +364,7 @@ class GlobalInfo extends React.Component
 				let current_posts = that.state.posts
 				for (var post of data.posts)
 				{
-					current_posts.push(<MiniPost user = {data.user_profiles[post.username]} post = {post} num_comments = {data.num_comments[post.post_id]}/>)
+					current_posts.push(<MiniPost user = {data.user_profiles[post.username.toLowerCase()]} post = {post} num_comments = {data.num_comments[post.post_id]}/>)
 				}
 				that.setState({posts: current_posts});
 				that.loading_posts_semaphor = false;
@@ -386,11 +386,7 @@ export default class GlobalPost extends React.Component
 	{
 		super(props);
 	}
-					// <GlobalPostContent data = {this.props.data.global_post} like_state = {this.props.data.like_state}/>
-					// <CommentSection comments = {this.props.data.comments} comment_votes = {this.props.data.comment_votes} post_id = {this.props.data.global_post.post_id} posts = {this.props.data.user_posts} global_post = {this.props.data.global_post} />
-							// <div>
-							// 	<button className = "grayButton" style = {{height:'50px', width:'120px', fontSize:'1.2em'}}> Create Post </button>
-							// </div>
+
 	componentDidMount()
 	{
 		if (this.props.data.global_post != undefined)
