@@ -330,7 +330,7 @@ class UserPostContent extends React.Component
 			username_size = '1.1em'
 			title_size = '2em'
 			date_size = '.7em'
-			content_size = '1.8em'
+			content_size = '2.2em'
 			content_name_size = '.8em'
 			max_content_height = '615px'
 
