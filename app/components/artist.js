@@ -2,6 +2,7 @@ import React from 'react';
 import StandardHeader from './standard_header.js'
 import FollowerInfo from './followerinfo.js'
 import utils from './utils.js'
+import {isMobile} from 'react-device-detect';
 import { PostInfo, makePost } from './post.js'
 // class FollowingInfo extends React.Component
 // {
@@ -48,12 +49,31 @@ class AlbumDisplay extends React.Component
 			{
 				break;
 			}
-			this.albums.push(
-			<div key = {album.post_id} style = {{display: 'flex', flexDirection:'column', padding:'10px'}}>
-				{album.album}
-				<div dangerouslySetInnerHTML={this.renderiframe(utils.SetSpotifySize(album.embedded_content, 212, 292))}></div>
-			</div>)
 
+			var embedded_content = utils.SetSpotifySize(album.embedded_content, 300, 380)
+			var name_size = '1em'
+			var content_width = '300px'
+			var spacer_size = '1%'
+			if (isMobile)
+			{
+				embedded_content = utils.SetSpotifySize(album.embedded_content, 300, 380)
+				name_size = '2em'
+				content_width = '300px'
+				spacer_size = '6%'
+			}
+
+
+			this.albums.push(
+			<div key = {album.post_id} style = {{display: 'flex', flexDirection:'column', fontSize:name_size, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipses', width:content_width}}>
+				{album.album}
+				<div dangerouslySetInnerHTML={this.renderiframe(embedded_content)}></div>
+			</div>)
+			this.albums.push(<div style = {{width:spacer_size}}></div>)
+
+		}
+		if (this.albums.length > 0)
+		{
+			this.albums.pop();
 		}
 	}
 
@@ -64,10 +84,14 @@ class AlbumDisplay extends React.Component
 
 	render()
 	{
-
+		var top_size = '2em'
+		if (isMobile)
+		{
+			top_size = '3.6em'
+		}
 		return (
-				<div style = {{maxWidth:'800px'}}>
-					<h1> <a href= {"/artist/" + this.props.artist + "/albums"}> Top Albums </a> </h1> 
+				<div style = {{}}>
+					<div style = {{fontSize:top_size}}> <a href= {"/artist/" + this.props.artist + "/albums"}> Top Albums </a> </div> 
 					<div className = "album_display" style = {{display: 'flex',flexDirection:'row'}} >
 						{this.albums}
 					</div>
@@ -93,6 +117,7 @@ class SongDisplay extends React.Component
 
 	generateSongs()
 	{
+
 		var song_count = this.songs.length;
 		for (var song of this.props.data) 
 		{
@@ -101,11 +126,29 @@ class SongDisplay extends React.Component
 			{
 				break;
 			}
+			var embedded_content = utils.SetSpotifySize(song.embedded_content, 300, 380)
+			var name_size = '1em'
+			var content_width = '300px'
+			var spacer_size = '1%'
+			if (isMobile)
+			{
+				embedded_content = utils.SetSpotifySize(song.embedded_content, 300, 380)
+				name_size = '2em'
+				content_width = '300px'
+				spacer_size = '6%'
+			}
+
 			this.songs.push(
-			<div key = {song.post_id} style = {{display: 'flex', flexDirection:'column', padding:'10px'}}>
+			<div key = {song.post_id} style = {{display: 'flex', flexDirection:'column', fontSize:name_size, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipses', width:content_width}}>
 				{song.song}
-				<div dangerouslySetInnerHTML={this.renderiframe(utils.SetSpotifySize(song.embedded_content, 212, 292))}></div>
+				<div  dangerouslySetInnerHTML={this.renderiframe(embedded_content)}></div>
 			</div>)
+			this.songs.push(<div style = {{width:spacer_size}}></div>)
+
+		}
+		if (this.songs.length > 0)
+		{
+			this.songs.pop();
 		}
 	}
 
@@ -116,10 +159,14 @@ class SongDisplay extends React.Component
 
 	render()
 	{
-		
+		var top_size = '2em'
+		if (isMobile)
+		{
+			top_size = '3.6em'
+		}		
 		return (
-				<div style = {{maxWidth:'800px'}}>
-					<h1> <a href= {"/artist/" + this.props.artist + "/songs"}> Top Songs </a> </h1> 
+				<div style = {{}}>
+					<div style = {{fontSize:top_size}}> <a href= {"/artist/" + this.props.artist + "/songs"}> Top Songs </a> </div> 
 					<div className = "song_display" style = {{display: 'flex',flexDirection:'row'}} >
 						{this.songs}
 					</div>
@@ -156,9 +203,14 @@ class ArtistPicture extends React.Component
 
 	render()
 	{
+		var size = '260px'
+		if (isMobile)
+		{
+			size = '500px'
+		}
 		return (
 			<div>
-				<img style = {{width:'260px', height:'260px'}} src = {this.state.picture}></img> 
+				<img style = {{width:size, height:size}} src = {this.state.picture}></img> 
 			</div>
 		)
 	}
@@ -226,22 +278,35 @@ class ArtistPost extends React.Component
 
 	render()
 	{
+
+		var artist_size = '40px'
+		var follow_size = '18pt'
+		var followers_size = '20pt'
+		var user_posts_size = '20pt'
+		if (isMobile)
+		{
+			artist_size = '4em'
+			follow_size = '2.4em'
+			followers_size = '2.4em'
+			user_posts_size = '.8em'
+		}
+
 		return (
-			<div style={{width:'735px', border: '1px solid #F1F1F1'}}>
-				<div style = {{display:'flex', flexDirection:'row', height:'300px', paddingLeft:'20px', paddingTop:'20px'}}>
-					<div style = {{width:'260px', height:'260px'}}>
+			<div style={{margin:'0px auto'}}>
+				<div style = {{display:'flex', flexDirection:'row', paddingLeft:'20px', paddingTop:'20px'}}>
+					<div style = {{}}>
 						<ArtistPicture artist = {this.props.data.artist}/>
 					</div>
 					<div style = {{paddingLeft:'20px', display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'row', height:'260px'}}>
-						<div style = {{fontWeight:'bold', fontSize:'40px'}}>
+						<div style = {{fontWeight:'bold', fontSize:artist_size}}>
 							{this.props.data.artist} 
-							<div  style = {{fontWeight:'regular', fontSize:'20px'}}>
+							<div  style = {{fontWeight:'regular', fontSize:user_posts_size}}>
 								{this.props.data.num_user_posts + " User Posts"}
 							</div>
 						</div>
 						<div style = {{position:'relative', left:'32px', paddingTop:'10px'}}>
-							<button onClick = {this.followClicked.bind(this)} style = {{height:'38px', width:'120px', fontSize:'18px'}}  className = "grayButton"> {this.button_text} </button>
-							<div style = {{fontSize:'20px', paddingTop:'10px'}}>
+							<button onClick = {this.followClicked.bind(this)} style = {{minHeight:'38px', minWidth:'120px', fontSize:follow_size}}  className = "grayButton"> {this.button_text} </button>
+							<div style = {{fontSize:followers_size, paddingTop:'10px'}}>
 								{this.props.data.follows.length + " Followers"}
 							</div>
 						</div>
@@ -328,13 +393,23 @@ export default class ArtistPage extends React.Component
 
 	render()
 	{
+		var total_width = '1000px'
+		var top_padding = '50px'
+		var post_info_width = '735px'
+		if (isMobile)
+		{
+			total_width = '100%'
+			top_padding = '12%'
+			var post_info_width = ''
+		}
+
 		return (
 
-			<div style={{margin:'0px auto', width:'735px', paddingTop:'50px'}}>
-				<div style = {{backgroundColor:"#FFFFFF", borderRadius:'7px'}}>
+			<div style={{margin:'0px auto', width:total_width, paddingTop:top_padding}}>
+				<div style = {{backgroundColor:"#FFFFFF", borderRadius:'7px', display:'flex', paddingBottom:'20px'}}>
 					<ArtistPost data = {this.props.data} mixpanel = {this.props.mixpanel}/>
 				</div>
-				<div style = {{paddingTop:'20px'}} >
+				<div style = {{paddingTop:'20px', width:post_info_width, margin:'0px auto'}} >
 					<PostInfo posts = {this.state.posts}/>
 				</div>
 			</div>

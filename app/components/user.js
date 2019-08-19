@@ -3,6 +3,7 @@ import StandardHeader from './standard_header.js'
 import { PostInfo, makePost } from './post.js'
 import utils from './utils.js'
 import FollowerInfo from './followerinfo.js'
+import {isMobile} from 'react-device-detect';
 
 class ProfileColor extends React.Component 
 {
@@ -33,11 +34,18 @@ class UserInfo extends React.Component {
 	constructor(props) 
 	{
 		super(props);
+
+		var edit_size = '15pt'
+		if (isMobile)
+		{
+			edit_size = '1.6em'
+		}
+
 		this.description = props.user.description;
 		this.description_ui = undefined
 		if (this.props.username == this.props.user.username)
 		{
-			this.description_ui = <button style ={{fontSize:'15px', left:'8px', position:'relative'}} className = "grayButton" onClick={this.editDescription.bind(this)}> Edit </button>;
+			this.description_ui = <button style ={{fontSize:edit_size, left:'8px', position:'relative'}} className = "grayButton" onClick={this.editDescription.bind(this)}> Edit </button>;
 		}
 		this.description_text = React.createRef();
 		this.bumps_ui = <div> Bumps: {this.props.user.bumps} </div>
@@ -169,38 +177,56 @@ class UserInfo extends React.Component {
 	  	{
 	  		change_color_display = ''
 	  	}
-		return(
-			<div className = "user_info" style={{margin: '0 auto', paddingTop:'10px', paddingLeft: '10px', paddingBottom:'10px', background:'white', border: '1px solid #F1F1F1', borderRadius: '7px', maxWidth:'735px'}}>
-				<div style = {{display:'flex', flexDirection:'row'}}>
-					<div>
-						<div style = {{borderRadius:'50%', width:'64px', height:'64px', backgroundColor:this.props.user.profile_picture}}></div>
-						<div onClick = {this.changeColorClicked.bind(this)} style = {{color:'#999999', fontSize:'16px', textAlign:'center', display:change_color_display }}> Change </div>
-						
-					</div>
 
-					<div style = {{paddingLeft:'20px'}}>
-						<div style = {{display:'flex', flexDirection:'row'}}>
-							<div style = {{fontSize:'30pt', fontWeight:'bold'}}>{this.props.user.username}</div>
-							<div style = {{flex:'1 0 auto', verticalAlign:'middle', display:'flex', flexDirection: 'column', justifyContent:'center', paddingLeft:'20px'}}>
-								<button onClick = {this.followClicked.bind(this)} style = {{height:'30px', fontSize:'18px'}} className = 'grayButton' id = "follow_button" type="button" >{this.button_text}</button>
+	  	var total_width = '735px'
+	  	var user_profile_size = '64px'
+	  	var username_size = '30pt'
+	  	var follow_size = '18pt'
+	  	var change_size = '16pt'
+	  	var info_size = '1em'
+	  	if (isMobile)
+	  	{
+	  		total_width = '100%'
+	  		user_profile_size = '96px'
+	  		username_size = '4em'
+	  		follow_size = '3em'
+	  		change_size = '2em'
+	  		info_size = '2.4em'
+	  	}
+
+		return(
+			<div className = "user_info" style={{margin: '0 auto', paddingTop:'10px', paddingLeft: '10px', paddingBottom:'10px', background:'white', border: '1px solid #F1F1F1', borderRadius: '7px', maxWidth:total_width, display:'flex'}}>
+				<div style = {{margin:'0px auto'}}>
+					<div style = {{display:'flex', flexDirection:'row'}}>
+						<div>
+							<div style = {{borderRadius:'50%', width:user_profile_size, height:user_profile_size, backgroundColor:this.props.user.profile_picture}}></div>
+							<div onClick = {this.changeColorClicked.bind(this)} style = {{color:'#999999', fontSize:change_size, textAlign:'center', display:change_color_display }}> Change </div>
+							
+						</div>
+
+						<div style = {{paddingLeft:'20px'}}>
+							<div style = {{display:'flex', flexDirection:'row'}}>
+								<div style = {{fontSize:username_size, fontWeight:'bold'}}>{this.props.user.username}</div>
+								<div style = {{flex:'1 0 auto', verticalAlign:'middle', display:'flex', flexDirection: 'column', justifyContent:'center', paddingLeft:'20px'}}>
+									<button onClick = {this.followClicked.bind(this)} style = {{fontSize:follow_size}} className = 'grayButton' id = "follow_button" type="button" >{this.button_text}</button>
+								</div>
+							</div>
+							<div style = {{display:'flex', flexDirection:'row', fontSize:info_size}}>
+								<div> <a style = {{fontWeight:'bold'}} href = {"/following/" + this.props.user.username}> {this.props.followees} </a>{' following'}</div>
+								<div style = {{paddingLeft:'20px'}}> <a style = {{fontWeight:'bold'}} href = {"/followers/" + this.props.user.username}> {this.props.follows.length} </a> {' followers'}</div>
+								<div style = {{paddingLeft:'20px'}}>Score: {this.props.user.upvotes - this.props.user.downvotes}</div>
 							</div>
 						</div>
-						<div style = {{display:'flex', flexDirection:'row'}}>
-							<div> <a style = {{fontWeight:'bold'}} href = {"/following/" + this.props.user.username}> {this.props.followees} </a>{' following'}</div>
-							<div style = {{paddingLeft:'20px'}}> <a style = {{fontWeight:'bold'}} href = {"/followers/" + this.props.user.username}> {this.props.follows.length} </a> {' followers'}</div>
-							<div style = {{paddingLeft:'20px'}}>Score: {this.props.user.upvotes - this.props.user.downvotes}</div>
-						</div>
-					</div>
 
-				</div>
-				<ProfileColor user_color = {this.props.user.profile_picture} active = {this.state.change_color} setcolor = {this.setColor.bind(this)}/>
-				<div style = {{}}>
-					<div style = {{fontSize:'15pt'}}>{this.description}
-					{this.description_ui}
 					</div>
-					
-				</div>				
-		
+					<ProfileColor user_color = {this.props.user.profile_picture} active = {this.state.change_color} setcolor = {this.setColor.bind(this)}/>
+					<div style = {{}}>
+						<div style = {{fontSize:'15pt'}}>{this.description}
+						{this.description_ui}
+						</div>
+						
+					</div>				
+				</div>
 			</div>
 		);
 	}
@@ -580,14 +606,23 @@ export default class UserPage extends React.Component{
 		// <div style = {{position:'relative', top:'170px'}}>
 		// 	<FavoriteSongs user = {this.props.data.user} username = {this.props.data.username}/>
 		// </div>
+
+	var top_padding = '50px'
+	var total_width = '735px'
+	if (isMobile)
+	{
+		top_padding = '12%'
+		total_width = '100%'
+	}
+
 	return (
-	<div style = {{paddingTop:'50px'}}>
+	<div style = {{paddingTop:top_padding}}>
 
 		<UserInfo user = {this.props.data.user} username = {this.props.data.username} follows={this.props.data.follows} followees={this.props.data.followees} username = {this.props.data.username} follow_type = {0} mixpanel = {this.props.mixpanel}/>
 
 		<br/>
 		
-		<div style = {{width:'735px', margin:'0px auto'}} >
+		<div style = {{width:total_width, margin:'0px auto'}} >
 			<PostInfo posts = {this.state.posts} />
 		</div>
 		<div className = "user_body" style={{left:'5%', top:'100px', position:'relative', width:'100%'}}>

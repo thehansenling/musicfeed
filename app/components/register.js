@@ -1,5 +1,6 @@
 import React from 'react';
 import StandardHeader from './standard_header.js'
+import {isMobile} from 'react-device-detect';
 
 export default class RegisterPage extends React.Component
 {
@@ -50,31 +51,44 @@ export default class RegisterPage extends React.Component
 
 	render()
 	{
-		return (
-			<div>
-				<section className = "hero" style = {{position:'absolute', left:'10%', top:'20%'}}>
-				<div className=  "hero-content" >
-					<h2>Register</h2>
+		var top_padding = '100px'
+		var register_size = '3em'
+		var input_size = '1.6em'
+		var button_size = '1.6em'
+		var label_width = '240px'
 
-				  <label style={{color:'black', width:'140px'}} >Enter Email:</label>	
+		if (isMobile)
+		{
+			top_padding = '20%'
+			register_size = '4em'
+			input_size = '2.8em'
+			button_size = '2.8em'
+			label_width = '400px'
+		}
+
+		return (
+			<div style = {{display:'flex', paddingTop:top_padding}}>
+				<div style = {{margin:'0px auto', padding:'40px'}}>
+					<div style = {{fontSize:register_size}}>Register</div>
+
+				  <label style={{color:'black', width:label_width, fontSize:input_size}} >Enter Email:</label>	
 				  <input ref = {this.emailRef} type="text" name="email"/><br/>
-				  <label style={{color:'black', width:'140px'}} >Enter Username:</label>
+				  <label style={{color:'black', width:label_width, fontSize:input_size}} >Enter Username:</label>
 				  <input ref = {this.usernameRef} type="text" name="username"/><br/>
-				  <label style={{color:'black', width:'140px'}} >Enter Password:</label>
+				  <label style={{color:'black', width:label_width, fontSize:input_size}} >Enter Password:</label>
 				  <input type = 'password' ref = {this.passwordRef} name="password" /><br/>
-				  <label style={{color:'black', width:'140px'}}>Confirm Password:</label>
+				  <label style={{color:'black', width:label_width, fontSize:input_size}}>Confirm Password:</label>
 				  <input type = 'password' ref = {this.confirmRef} name="password_confirm"/>
 				  <p>
-				  <div>
+				  <div style = {{fontSize:input_size}}>
 				  	By Clicking Register, you agree to the <a style = {{fontWeight:'bold'}} href = "/termsofservice"> Terms of Service </a> and <a style = {{fontWeight:'bold'}} href = "/privacypolicy"> Policy Privacy </a>
 				  </div>
-				  <button href = "/" type="submit" id="submitButton" className="btn btn-lg btn-primary" onClick={this.submitRegistration.bind(this)}>Register</button>
+				  <button style = {{fontSize:button_size}} href = "/" type="submit" id="submitButton" className="btn btn-lg btn-primary" onClick={this.submitRegistration.bind(this)}>Register</button>
 				  </p>
-					<p>
+					<p style = {{fontSize:input_size}}>
 						{this.registration_message}
 					</p>
 				</div>
-				</section>
 
 			</div>
 		);
