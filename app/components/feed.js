@@ -238,11 +238,13 @@ class NewPostSubmission extends React.Component {
 		var create_post_size = '20px'
 		var placeholder_size = '20px'
 		var embed_code_text = '16px'
+		var search_list_top_padding = '42px'
 		if (isMobile)
 		{
 			create_post_size = '3.6em'
 			placeholder_size = '2.6em'
 			embed_code_text = '1.8em'
+			search_list_top_padding = '60px'
 		}
 
 		var search_item_display = 'none'
@@ -294,7 +296,7 @@ class NewPostSubmission extends React.Component {
 								width: '100%',
 								zIndex:'2'
 							}}/>
-						<div className = "contentsearchlist" style = {{position:'absolute', zIndex:'1', maxHeight:'500px', overflowY:'scroll', paddingTop:'42px', borderBottom:'1px solid rgba(0, 0, 0, 0.09)', display:search_item_display, borderRadius:'7px', backgroundColor:'white'}}>
+						<div className = "contentsearchlist" style = {{position:'absolute', zIndex:'1', maxHeight:'500px', overflowY:'scroll', paddingTop:search_list_top_padding, borderBottom:'1px solid rgba(0, 0, 0, 0.09)', display:search_item_display, borderRadius:'7px', backgroundColor:'white'}}>
 							{this.state.searchItems}
 						</div>
 					</div>
