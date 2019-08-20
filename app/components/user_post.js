@@ -448,7 +448,7 @@ export default class UserPost extends React.Component
 					<UserPostContent ref = {this.postRef} data = {this.props.data.user_post} like_state = {this.props.data.like_state} num_comments = {this.props.data.num_comments} username = {this.props.data.username} user_profile = {this.props.data.user_profile} mixpanel = {this.props.mixpanel}/>
 				</div>
 				<div style = {{margin:'0px auto', width:post_width, paddingTop:"40px"}}>
-					<CommentSection comments = {this.props.data.comments} comment_votes = {this.props.data.comment_votes} post_id = {this.props.data.user_post.id} post_data = {this.props.data.user_post} mixpanel = {this.props.mixpanel} />
+					<CommentSection comments = {this.props.data.comments} comment_votes = {this.props.data.comment_votes} post_id = {this.props.data.user_post.id} post_data = {this.props.data.user_post} mixpanel = {this.props.mixpanel} username = {this.props.data.username}/>
 				</div>
 			</div>
 		);

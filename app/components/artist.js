@@ -237,7 +237,8 @@ class ArtistPost extends React.Component
 	followClicked()
 	{
 		this.props.mixpanel.track("Follow Artist", {"Artist":this.props.data.artist,
-												  "Follow State":this.following_state})
+												  "Follow State":this.following_state,
+													"username":this.props.username})
 		if (!utils.checkLoggedIn())
 		{
 			alert("MUST BE LOGGED IN")
@@ -344,7 +345,8 @@ export default class ArtistPage extends React.Component
 				[],
 				[],
 				this.props.data.user_profiles,
-				this.props.mixpanel
+				this.props.mixpanel,
+				this.props.data.username
 			));
 		}
 		this.setState({posts: startingPosts});
@@ -358,6 +360,7 @@ export default class ArtistPage extends React.Component
 	handleScroll() {
 		if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight && !this.loading_posts_semaphor) 
 		{
+
 			var that = this
 			this.loading_posts_semaphor = true
 		    fetch("/load_artist_post_data", {
@@ -382,7 +385,8 @@ export default class ArtistPage extends React.Component
 						data.num_posts,
 						data.bumps,
 						data.user_profiles,
-						this.props.mixpanel
+						that.props.mixpanel,
+						that.props.data.username
 					));
 				}		
 				that.setState({posts: that.state.posts.concat(newPosts)});
@@ -407,7 +411,7 @@ export default class ArtistPage extends React.Component
 
 			<div style={{margin:'0px auto', width:total_width, paddingTop:top_padding}}>
 				<div style = {{backgroundColor:"#FFFFFF", borderRadius:'7px', display:'flex', paddingBottom:'20px'}}>
-					<ArtistPost data = {this.props.data} mixpanel = {this.props.mixpanel}/>
+					<ArtistPost data = {this.props.data} mixpanel = {this.props.mixpanel} username = {this.props.data.username}/>
 				</div>
 				<div style = {{paddingTop:'20px', width:post_info_width, margin:'0px auto'}} >
 					<PostInfo posts = {this.state.posts}/>

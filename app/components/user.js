@@ -68,7 +68,8 @@ class UserInfo extends React.Component {
 	followClicked()
 	{
 		this.props.mixpanel.track("Follow User", {"User":this.props.user.username,
-												  "Follow State":this.following_state})
+												  "Follow State":this.following_state,
+												  "username":this.props.username})
 		if (!utils.checkLoggedIn())
 		{
 			alert("MUST BE LOGGED IN")
@@ -533,7 +534,8 @@ export default class UserPage extends React.Component{
 
 	componentDidMount() 
 	{
-		this.props.mixpanel.track("User Post Page", {"User":this.props.data.username})
+		this.props.mixpanel.track("User Post Page", {"User":this.props.data.user.username,
+													 "username":this.props.data.username})
 	    window.addEventListener('scroll', this.handleScroll.bind(this));
 	    //this.updateOffsets(this.props.data.songs)\\
 		let startingPosts = [];
@@ -545,7 +547,8 @@ export default class UserPage extends React.Component{
 				this.props.data.num_posts,
 				this.props.data.bumps,
 				this.props.data.user_profiles,
-				this.props.mixpanel
+				this.props.mixpanel,
+				this.props.data.username
 			));
 		}
 		this.setState({posts: startingPosts});
@@ -583,7 +586,8 @@ export default class UserPage extends React.Component{
 						data.num_posts,
 						data.bumps,
 						data.user_profiles,
-						that.props.mixpanel
+						that.props.mixpanel,
+						that.props.data.username
 					));
 				}		    	
 				that.setState({posts: that.state.posts.concat(newPosts)});

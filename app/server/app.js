@@ -1624,6 +1624,7 @@ app.get('/artist/:artist/', (req, res) => {
 											follows: follows_data,
 											num_user_posts: num_user_posts,
 											user_profiles: user_profiles,
+											username:req.cookies.username
 										}	
 										var html = renderPage(req.url, data)
 										res.send(html);				

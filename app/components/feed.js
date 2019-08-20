@@ -74,7 +74,7 @@ class NewPostSubmission extends React.Component {
 	{
 		if (this.modified == false)
 		{
-			this.props.mixpanel.track("Song Entered")
+			this.props.mixpanel.track("Song Entered", {'username':this.props.username})
 		}
 		this.modified = true
 
@@ -139,7 +139,7 @@ class NewPostSubmission extends React.Component {
 
 	submitPost()
 	{
-		this.props.mixpanel.track("Post Submitted");
+		this.props.mixpanel.track("Post Submitted", {'username':this.props.username});
 		if (!utils.checkLoggedIn())
 		{
 			alert("MUST BE LOGGED IN")
@@ -389,7 +389,7 @@ class Trending extends React.Component {
 
 	rightClick()
 	{
-		this.props.mixpanel.track("Trending Right Click")
+		this.props.mixpanel.track("Trending Right Click", {'username':this.props.username})
 		this.trending_refs[this.global_post_index].current.style.display = 'none'
 		this.global_post_index++;
 		if (this.global_post_index >= 15)
@@ -436,7 +436,7 @@ class Trending extends React.Component {
 
 	leftClick()
 	{
-		this.props.mixpanel.track("Trending Left Click")
+		this.props.mixpanel.track("Trending Left Click", {'username':this.props.username})
 		this.trending_refs[this.global_post_index].current.style.display = 'none'
 		this.global_post_index--;
 		if (this.global_post_index < 0)
@@ -448,9 +448,9 @@ class Trending extends React.Component {
 		this.forceUpdate();
 	}
 
-	onRelatedLinkClicked()
+	onRelatedLinkClicked(item)
 	{
-		this.props.mixpanel.track("Other Link Clicked", {"link":item.text})
+		this.props.mixpanel.track("Other Link Clicked", {"link":item.text, 'username':this.props.username})
 	}
 
 	componentDidMount()
@@ -468,7 +468,7 @@ class Trending extends React.Component {
 		    .then(function (data) {
 		    	for (var item of data.data)
 		    	{
-		    		that.related_links.push(<div style = {{width:'300px', height:'20px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}><a onClick={that.onRelatedLinkClicked.bind(this)} href = {item.url}> {item.text} </a> </div>)
+		    		that.related_links.push(<div style = {{width:'300px', height:'20px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}><a onClick={that.onRelatedLinkClicked.bind(that, item)} href = {item.url}> {item.text} </a> </div>)
 		    	}
 		    that.forceUpdate()
 	    })
@@ -563,7 +563,8 @@ export default class Feed extends React.Component {
 						data.num_posts,
 						data.bumps,
 						data.user_profiles,
-						this.props.mixpanel
+						this.props.mixpanel,
+						this.props.data.username
 					));
 				}		    	
 				that.setState({posts: that.state.posts.concat(newPosts)});
@@ -574,7 +575,7 @@ export default class Feed extends React.Component {
 
 	componentDidMount()
 	{
-		this.props.mixpanel.track("Feed Page")
+		this.props.mixpanel.track("Feed Page", {"username":this.props.data.username})
 	    window.addEventListener('scroll', this.handleScroll.bind(this));
 	    this.updateOffsets(this.props.data.songs)
 			let startingPosts = [];
@@ -586,7 +587,8 @@ export default class Feed extends React.Component {
 					this.props.data.num_posts,
 					this.props.data.bumps,
 					this.props.data.user_profiles,
-					this.props.mixpanel
+					this.props.mixpanel,
+					this.props.data.username
 				));
 			}
 			this.setState({posts: startingPosts});
@@ -676,14 +678,14 @@ export default class Feed extends React.Component {
 			<div style={{display:'flex', justifyContent: 'center', backgroundColor:'#F6F6F6', paddingTop:top_padding}}>
 				<div style={{display:'flex', flexDirection:'column', width:posts_width}}>
 					<div style={{marginTop: '16px'}}>
-						<NewPostSubmission user_info = {this.props.data.user_info} mixpanel = {this.props.mixpanel}/>
+						<NewPostSubmission user_info = {this.props.data.user_info} mixpanel = {this.props.mixpanel} username = {this.props.data.username}/>
 					</div>
 					<div style={{display:'flex', flexDirection:'row', marginTop: '12px'}}>
 						<div style={{width:'100%'}}>
 							<PostInfo posts={this.state.posts} />
 						</div>
 						<div style = {{display:trending_style}} className={'feed_stickySideBar'}>
-							<Trending data = {this.props.data.global_songs} mixpanel = {this.props.mixpanel}/>
+							<Trending data = {this.props.data.global_songs} mixpanel = {this.props.mixpanel} username = {this.props.data.username}/>
 						</div>
 					</div>
 				</div>

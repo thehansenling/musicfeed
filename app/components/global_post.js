@@ -243,6 +243,18 @@ class MiniPost extends React.Component
 		}
 	}
 
+	onTitleClicked()
+	{
+		this.props.mixpanel.track("MiniPost Title Clicked", {"Post ID":this.props.post.post_id,
+														 "username":this.props.username})
+	}
+
+	onUsernameClicked()
+	{
+		this.props.mixpanel.track("MiniPost User Clicked", {"User":this.props.post.username,
+														 "username":this.props.username})
+	}
+
 	render()
 	{
 		var content_div = tag_utils.formatContent(this.props.post.content, this.props.post.tags)
@@ -274,14 +286,14 @@ class MiniPost extends React.Component
 						</div>
 						<div style = {{paddingLeft:'10px', borderRight:'1px solid #F1F1F1', paddingRight:'20px'}}>
 							<div style = {{fontSize:username_size, fontWeight:'bold'}}>
-								<a href = {"/user/" + this.props.user.username}>{this.props.user.username}</a>
+								<a href = {"/user/" + this.props.user.username} onClick = {this.onUsernameClicked.bind(this)}>{this.props.user.username}</a>
 							</div>
 							<div style = {{fontSize:date_size}}>
 								{utils.monthNames[parseInt(date.getMonth())]+ " " + date.getDate() + ", " + date.getFullYear()}
 							</div>
 						</div>
 						<div style = {{paddingTop:'10px', paddingLeft:'32px', fontWeight:'bold', fontSize:title_size}}>
-							<a href = {"/user/" + this.props.post.username + "/" + this.props.post.post_id}>{this.props.post.title}</a>
+							<a href = {"/user/" + this.props.post.username + "/" + this.props.post.post_id} onClick = {this.onTitleClicked.bind(this)}>{this.props.post.title}</a>
 						</div>
 						<div style = {{paddingTop:'10px', display:'flex', flexDirection:'row', fontSize:icons_font, paddingRight:'20px', margin:'0 0 auto auto'}}>
 							<svg width={parseInt(icons_height) * 0.58333} height={icons_height} viewBox="0 0 16 27" fill="none" xmlns="http://www.w3.org/2000/svg" color = 'blue'>
@@ -321,7 +333,7 @@ class GlobalInfo extends React.Component
 		let current_posts = this.state.posts
 		for (var post of this.props.posts)
 		{
-			current_posts.push(<MiniPost user = {this.props.user_profiles[post.username.toLowerCase()]} post = {post} num_comments = {this.props.num_comments[post.post_id]}/>)
+			current_posts.push(<MiniPost user = {this.props.user_profiles[post.username.toLowerCase()]} post = {post} num_comments = {this.props.num_comments[post.post_id]} mixpanel = {this.props.mixpanel} username = {this.props.username}/>)
 		}
 		this.offset += current_posts.length
 		this.setState({posts: current_posts});
@@ -356,7 +368,7 @@ class GlobalInfo extends React.Component
 				let current_posts = that.state.posts
 				for (var post of data.posts)
 				{
-					current_posts.push(<MiniPost user = {data.user_profiles[post.username.toLowerCase()]} post = {post} num_comments = {data.num_comments[post.post_id]}/>)
+					current_posts.push(<MiniPost user = {data.user_profiles[post.username.toLowerCase()]} post = {post} num_comments = {data.num_comments[post.post_id]} username = {this.props.data.username} mixpanel = {this.props.mixpanel}/>)
 				}
 				that.setState({posts: current_posts});
 				that.loading_posts_semaphor = false;
@@ -385,7 +397,8 @@ export default class GlobalPost extends React.Component
 		{
 			this.props.mixpanel.track("Global Post Page", {"Artist":this.props.data.global_post.artist,
 															"Album":this.props.data.global_post.album,
-															"Song":this.props.data.global_post.song,})
+															"Song":this.props.data.global_post.song,
+															"username":this.props.data.username})
 		}
 	}
 
@@ -463,7 +476,7 @@ export default class GlobalPost extends React.Component
 					Top User Posts
 				</div>
 				<div style = {{paddingTop:'20px', paddingBottom:'20px'}}>
-					<GlobalInfo posts = {this.props.data.user_posts} global_post = {this.props.data.global_post} user_profiles = {this.props.data.user_profiles} num_comments = {this.props.data.num_comments}/>
+					<GlobalInfo posts = {this.props.data.user_posts} global_post = {this.props.data.global_post} user_profiles = {this.props.data.user_profiles} num_comments = {this.props.data.num_comments} mixpanel = {this.props.mixpanel} username = {this.props.data.username}/>
 				</div>
 			</div>
 		);

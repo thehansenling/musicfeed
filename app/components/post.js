@@ -35,7 +35,8 @@ class Post extends React.Component
 	likeClicked()
 	{
 		this.props.mixpanel.track("Post Like Clicked", {"Post ID": this.props.song.id,
-														"Like State":this.props.like_state,})
+														"Like State":this.props.like_state,
+														"username":this.props.username})
 		if (!utils.checkLoggedIn())
 		{
 			alert("MUST BE LOGGED IN")
@@ -94,7 +95,8 @@ class Post extends React.Component
 	dislikeClicked()
 	{
 		this.props.mixpanel.track("Post Dislike Clicked", {"Post ID": this.props.song.id,
-															"Like State":this.props.like_state})
+															"Like State":this.props.like_state,
+															"username":this.props.username})
 		if (!utils.checkLoggedIn())
 		{
 			alert("MUST BE LOGGED IN")
@@ -150,7 +152,8 @@ class Post extends React.Component
 
 	onSeeMoreClicked()
 	{
-		this.props.mixpanel.track("See More Clicked", {"Post ID":this.props.song.id})
+		this.props.mixpanel.track("See More Clicked", {"Post ID":this.props.song.id,
+														"username":this.props.username})
 	}
 
 	componentDidMount() {
@@ -216,12 +219,14 @@ class Post extends React.Component
 
 	onTitleClicked()
 	{
-		this.props.mixpanel.track("Post Title Clicked", {"Post ID":this.props.song.id})
+		this.props.mixpanel.track("Post Title Clicked", {"Post ID":this.props.song.id,
+														 "username":this.props.username})
 	}
 
 	onPostUsernameClicked()
 	{
-		this.props.mixpanel.track("Post User Clicked", {"Post ID":this.props.song.id})
+		this.props.mixpanel.track("Post User Clicked", {"Post ID":this.props.song.id,
+														 "username":this.props.username})
 	}
 
 	render()
@@ -401,7 +406,7 @@ class Post extends React.Component
 	}
 }
 
-function makePost(song, likes, all_num_comments, all_num_posts, bumps, user_profiles, mixpanel)
+function makePost(song, likes, all_num_comments, all_num_posts, bumps, user_profiles, mixpanel, username=undefined)
 {
   var like_state = -1;
   var current_num_comments = 0;
@@ -465,7 +470,8 @@ function makePost(song, likes, all_num_comments, all_num_posts, bumps, user_prof
       num_comments={current_num_comments}
       user_profile={user_profile}
       bump={post_bumped} 
-      mixpanel = {mixpanel}/>
+      mixpanel = {mixpanel}
+      username = {username}/>
   );
 }
 
