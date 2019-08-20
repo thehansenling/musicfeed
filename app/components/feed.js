@@ -244,7 +244,7 @@ class NewPostSubmission extends React.Component {
 			create_post_size = '3.6em'
 			placeholder_size = '2.6em'
 			embed_code_text = '1.8em'
-			search_list_top_padding = '80px'
+			search_list_top_padding = '60px'
 		}
 
 		var search_item_display = 'none'
