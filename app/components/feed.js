@@ -507,7 +507,7 @@ class Trending extends React.Component {
 					Listening Club Album
 				</div>
 				<div style = {{paddingTop:'12px'}}>
-					<a style = {{display:'flex', justifyContent:'center'}} href = "/user/unheard/e607e752-481c-320c-84c0-f99069d5a3ee"> Katy Perry - Small Talk</a>
+					<a style = {{display:'flex', justifyContent:'center'}} href = "/user/unheard/351ccb6c-f459-3ff6-a7e3-785ee36883c4"> Taylor Swift - 1989</a>
 				</div>
 			</div>
 			<div style = {{paddingTop:'0px', margin: '0px auto', width:'300px'}}>
